@@ -79,7 +79,6 @@ class ResizeToSquare(object):
 
         .. code-block:: python
 
-            im  // PIL.Image
             trans = ResizeToSquare(291)
             im_resized = trans(im)
 
@@ -89,7 +88,7 @@ class ResizeToSquare(object):
         self.s = size
         self.size = (size, size)
 
-    def __call__(self, im: PIL.Image) -> PIL.Image:
+    def __call__(self, im):
         if im.size == self.size:
             return im
         w, h = im.size
@@ -204,14 +203,14 @@ class ImagePILReader(DataReader):
     def __init__(self, path, data_transform=lambda x: x):
         super().__init__(path, data_transform=data_transform)
 
-    def load(self, name: str) -> PIL.Image:
+    def load(self, name: str) -> PIL.Image.Image:
         """Load PIL.Image
 
         Args:
             name (str): image path under data root
 
         Returns:
-            PIL.Image: loaded image before transform
+            PIL.Image.Image: loaded image before transform
         """
         # read from raw image
         path = os.path.join(self.path, name)
@@ -232,14 +231,14 @@ class ImageLMDBReader(DataReader):
         super().__init__(path, data_transform=data_transform)
         self._env = self._open_lmdb_env(path)
 
-    def load(self, name: str) -> PIL.Image:
+    def load(self, name: str) -> PIL.Image.Image:
         """Load an image from LMDB format, data saved in key-value pairs
 
         Args:
             name (str): key for the data
 
         Returns:
-            PIL.Image: loaded image before transform
+            PIL.Image.Image: loaded image before transform
         """
         with self._env.begin(write=False) as txn:
             imgbuf = txn.get(name.encode())
