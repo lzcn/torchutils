@@ -229,7 +229,7 @@ class ImageLMDBReader(DataReader):
 
     def __init__(self, path, data_transform=lambda x: x):
         super().__init__(path, data_transform=data_transform)
-        self._env = self._open_lmdb_env(path)
+        self._env = _open_lmdb_env(path)
 
     def load(self, name: str) -> PIL.Image.Image:
         """Load an image from LMDB format, data saved in key-value pairs
