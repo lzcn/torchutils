@@ -7,6 +7,7 @@ Welcome to torchutils's documentation!
    :maxdepth: 2
    :caption: Package Reference
 
+   data
    files
    logger
    loss
