@@ -3,28 +3,26 @@ import torch.nn.functional as F
 
 
 def contrastive_loss(im, s, margin=0.1, norm=False, reduction="none"):
-    """Compute the contrastive loss for two modalities.
+    r"""Compute the contrastive loss for two modalities as follows:
 
-        loss =
-            \\sum{im,k}\\max(0, margin - sim(im,s) + sim(im,s_k)) +
-            \\sum{s,k}\\max(0, margin - sim(im,s) + sim(im_k,s))
+    .. math::
 
-    Parameters
-    ----------
-    im : array of shape (N, D)
-        image features
-    s : array of shape (N, D)
-        sentence features
-    margin : float, optional
-        margin, by default 0.1
-    norm : bool, optional
-        whether to normarlize features
-    reduction: str, optional
+        \ell(f,s) =
+            \sum_{i}\max(0, m - \text{sim}(f,s) + \text{sim}(f,s_i)) +
+            \sum_{j}\max(0, m - \text{sim}(f,s) + \text{sim}(f_j,s))
 
-    Returns
-    -------
-    loss: shape (N, 1)
-        contrastive loss between two modalities.
+    where :math:`f` and :math:`s` are the features for different modaliteis of the same
+    sample and :math:`f_i` and :math:`s_j` are the features of different samples.
+
+    Args:
+        im (torch.Tensor) : array of shape :math:`(N, D)`, image features
+        s (torch.Tensor) : array of shape :math:`(N, D)`, sentence features
+        margin (float, optional): margin, by default 0.1
+        norm (bool, optional): optional, whether to normarlize features
+        reduction (str, optional): same as :class:`torch.nn.L1Loss`
+
+    Returns:
+        torch.Tensor: shape :math:`(N, 1)`, contrastive loss between two modalities.
 
     """
     size, dim = im.shape
