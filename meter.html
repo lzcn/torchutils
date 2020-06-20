@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.meter &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.metrics" href="metrics.html" />
+    <link rel="prev" title="torchutils.loss" href="loss.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metrics.html" title="torchutils.metrics"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="loss.html" title="torchutils.loss"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="loss.html"
+                        title="previous chapter">torchutils.loss</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="metrics.html"
+                        title="next chapter">torchutils.metrics</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/meter.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.meter">
+<span id="torchutils-meter"></span><h1>torchutils.meter<a class="headerlink" href="#module-torchutils.meter" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="torchutils.meter.BundleMeter">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.meter.</code><code class="sig-name descname">BundleMeter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">win_size</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/meter.html#BundleMeter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.meter.BundleMeter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage a bunle of meters with the same window size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>win_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – window size for all meters.</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># history tracer with window size 10</span>
+<span class="n">tracer</span> <span class="o">=</span> <span class="n">BundleMeter</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># update data</span>
+<span class="n">tracer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">},</span> <span class="n">score</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># show current status</span>
+<span class="n">tracer</span><span class="o">.</span><span class="n">logging</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="torchutils.meter.BundleMeter.avg">
+<em class="property">property </em><code class="sig-name descname">avg</code><a class="headerlink" href="#torchutils.meter.BundleMeter.avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the averaged value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.meter.BundleMeter.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/meter.html#BundleMeter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.meter.BundleMeter.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update meters.</p>
+<p>If the metric is new, it will produce a new meter for the metric.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.meter.BundleMeter.val">
+<em class="property">property </em><code class="sig-name descname">val</code><a class="headerlink" href="#torchutils.meter.BundleMeter.val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.meter.GroupMeter">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.meter.</code><code class="sig-name descname">GroupMeter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">win_size</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/meter.html#GroupMeter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.meter.GroupMeter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for history tracer with different window size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>win_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – a set the window size for meters for each group</p>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tracer</span> <span class="o">=</span> <span class="n">GroupMeter</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">tracer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
+<span class="n">tracer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;loss&#39;</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span><span class="mf">0.7</span><span class="p">})</span>
+<span class="n">tracer</span><span class="o">.</span><span class="n">logging</span><span class="p">()</span> <span class="c1"># print(tracer)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.meter.Meter">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.meter.</code><code class="sig-name descname">Meter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">win_size</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/meter.html#Meter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.meter.Meter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Meter for history values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>win_size</strong> (<em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – window size for moving average. If <cite>win_size==0</cite>, then all
+values will be considered.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="torchutils.meter.Meter.avg">
+<em class="property">property </em><code class="sig-name descname">avg</code><a class="headerlink" href="#torchutils.meter.Meter.avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the averaged value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.meter.Meter.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/meter.html#Meter.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.meter.Meter.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the meter.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.meter.Meter.val">
+<em class="property">property </em><code class="sig-name descname">val</code><a class="headerlink" href="#torchutils.meter.Meter.val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the current value.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="metrics.html" title="torchutils.metrics"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="loss.html" title="torchutils.loss"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

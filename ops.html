@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.ops &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.singleton" href="singleton.html" />
+    <link rel="prev" title="torchutils.metrics" href="metrics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="singleton.html" title="torchutils.singleton"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="metrics.html" title="torchutils.metrics"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="metrics.html"
+                        title="previous chapter">torchutils.metrics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="singleton.html"
+                        title="next chapter">torchutils.singleton</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ops.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.ops">
+<span id="torchutils-ops"></span><h1>torchutils.ops<a class="headerlink" href="#module-torchutils.ops" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="torchutils.ops.SPMM">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.ops.</code><code class="sig-name descname">SPMM</code><a class="reference internal" href="_modules/torchutils/ops.html#SPMM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ops.SPMM" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="torchutils.ops.SPMM.backward">
+<em class="property">static </em><code class="sig-name descname">backward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em>, <em class="sig-param"><span class="n">grad_output</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/ops.html#SPMM.backward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ops.SPMM.backward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a formula for differentiating the operation.</p>
+<p>This function is to be overridden by all subclasses.</p>
+<p>It must accept a context <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx</span></code> as the first argument, followed by
+as many outputs did <a class="reference internal" href="#torchutils.ops.SPMM.forward" title="torchutils.ops.SPMM.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> return, and it should return as many
+tensors, as there were inputs to <a class="reference internal" href="#torchutils.ops.SPMM.forward" title="torchutils.ops.SPMM.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a>. Each argument is the
+gradient w.r.t the given output, and each returned value should be the
+gradient w.r.t. the corresponding input.</p>
+<p>The context can be used to retrieve tensors saved during the forward
+pass. It also has an attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">ctx.needs_input_grad</span></code> as a tuple
+of booleans representing whether each input needs gradient. E.g.,
+<a class="reference internal" href="#torchutils.ops.SPMM.backward" title="torchutils.ops.SPMM.backward"><code class="xref py py-func docutils literal notranslate"><span class="pre">backward()</span></code></a> will have <code class="docutils literal notranslate"><span class="pre">ctx.needs_input_grad[0]</span> <span class="pre">=</span> <span class="pre">True</span></code> if the
+first input to <a class="reference internal" href="#torchutils.ops.SPMM.forward" title="torchutils.ops.SPMM.forward"><code class="xref py py-func docutils literal notranslate"><span class="pre">forward()</span></code></a> needs gradient computated w.r.t. the
+output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.ops.SPMM.forward">
+<em class="property">static </em><code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ctx</span></em>, <em class="sig-param"><span class="n">sp_mat</span></em>, <em class="sig-param"><span class="n">dense_mat</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/ops.html#SPMM.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ops.SPMM.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the operation.</p>
+<p>This function is to be overridden by all subclasses.</p>
+<p>It must accept a context ctx as the first argument, followed by any
+number of arguments (tensors or other types).</p>
+<p>The context can be used to store tensors that can be then retrieved
+during the backward pass.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.ops.convert_to_int">
+<code class="sig-prename descclassname">torchutils.ops.</code><code class="sig-name descname">convert_to_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">bits</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/ops.html#convert_to_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ops.convert_to_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert binary codes x into a set of int8.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>size of n</em><em>, </em><em>with binary value in {+1</em><em>,</em><em>-1}</em>) – </p></li>
+<li><p><strong>Return</strong> – </p></li>
+<li><p><strong>------</strong> – </p></li>
+<li><p><strong>y</strong> (<em>size of ceil</em><em>(</em><em>n/8</em><em>)</em><em>, </em><em>with each one being the int8 of 8 bits</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.ops.smooth">
+<code class="sig-prename descclassname">torchutils.ops.</code><code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">win_size</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/ops.html#smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ops.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average smooth for 1d signal.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="singleton.html" title="torchutils.singleton"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="metrics.html" title="torchutils.metrics"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

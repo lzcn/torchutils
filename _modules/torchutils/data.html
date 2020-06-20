@@ -1,0 +1,369 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.data &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">lmdb</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">PIL</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.transforms</span> <span class="k">as</span> <span class="nn">ts</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">files</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;getReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DataReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImagePILReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TensorLMDBReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ImageLMDBReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TensorPKLReader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;create_lmdb&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ResizeToSquare&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="create_lmdb"><a class="viewcode-back" href="../../data.html#torchutils.data.create_lmdb">[docs]</a><span class="k">def</span> <span class="nf">create_lmdb</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the image in src to dst in `LMDB`_ format</span>
+
+<span class="sd">    .. _LMDB: https://lmdb.readthedocs.io/en/release/</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dst (str): dst folder</span>
+<span class="sd">        src (str): src folder</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            dst = &quot;/path/to/lmdb&quot;</span>
+<span class="sd">            src = &quot;/path/to/images&quot;</span>
+<span class="sd">            create(dst, src)</span>
+
+<span class="sd">        It convert the image in ``src`` folder to ``dst``, it will create two files:</span>
+<span class="sd">        data.mdb, lock.mdb under ``dst`` folder.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating LMDB to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.ppm&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.pgm&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">]</span>
+    <span class="n">image_list</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">list_files</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">lmdb</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">map_size</span><span class="o">=</span><span class="mi">2</span> <span class="o">**</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="c1"># open json file</span>
+    <span class="k">with</span> <span class="n">env</span><span class="o">.</span><span class="n">begin</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">image_name</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">image_list</span><span class="p">):</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">image_name</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">img_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="n">txn</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">image_name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span> <span class="n">img_data</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted dst to LDMB&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ResizeToSquare"><a class="viewcode-back" href="../../data.html#torchutils.data.ResizeToSquare">[docs]</a><span class="k">class</span> <span class="nc">ResizeToSquare</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Resize an image to square with white background padded.</span>
+
+<span class="sd">    It firstly resize the image with fixed ratio maing the longest side (w or h) meets</span>
+<span class="sd">    given size. Then white pixels are padded.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        size (int): output image size</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            im  // PIL.Image</span>
+<span class="sd">            trans = ResizeToSquare(291)</span>
+<span class="sd">            im_resized = trans(im)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im</span><span class="p">:</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">im</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">im</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">new_w</span><span class="p">,</span> <span class="n">new_h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">ratio</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">ratio</span><span class="p">)</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">new_w</span><span class="p">,</span> <span class="n">new_h</span><span class="p">),</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">BILINEAR</span><span class="p">)</span>
+        <span class="n">new_im</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+        <span class="n">new_im</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">new_w</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">-</span> <span class="n">new_h</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new_im</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;(size=</span><span class="si">{0}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<span class="n">_normalize_transform</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+
+<span class="n">_preset_transforms</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;augment&quot;</span><span class="p">:</span> <span class="n">ts</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">ts</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span> <span class="n">ts</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">_normalize_transform</span><span class="p">]),</span>
+    <span class="s2">&quot;totensor&quot;</span><span class="p">:</span> <span class="n">ts</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">ts</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">_normalize_transform</span><span class="p">]),</span>
+    <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_get_transforms</span><span class="p">(</span><span class="n">transforms</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transforms</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">transforms</span> <span class="ow">in</span> <span class="n">_preset_transforms</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_preset_transforms</span><span class="p">[</span><span class="n">transforms</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transforms</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">transforms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">x</span><span class="p">)())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="n">trans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ts</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transforms</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">transforms</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Transforms: &#39;</span><span class="si">{}</span><span class="s2">&#39; is not defined&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">transforms</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_load_pkl_data</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_open_lmdb_env</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">lmdb</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_readers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">readonly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">readahead</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">meminit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataReader"><a class="viewcode-back" href="../../data.html#torchutils.data.DataReader">[docs]</a><span class="k">class</span> <span class="nc">DataReader</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Callable reader for different types of data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): data path, different data reader requires different path</span>
+<span class="sd">        data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_transform</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_transform</span> <span class="o">=</span> <span class="n">data_transform</span>
+
+<div class="viewcode-block" id="DataReader.load"><a class="viewcode-back" href="../../data.html#torchutils.data.DataReader.load">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load raw data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (str): The key is different for different readers.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: raw data before data transform,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorLMDBReader"><a class="viewcode-back" href="../../data.html#torchutils.data.TensorLMDBReader">[docs]</a><span class="k">class</span> <span class="nc">TensorLMDBReader</span><span class="p">(</span><span class="n">DataReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reader for tensor data with LMDB backend.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env</span> <span class="o">=</span> <span class="n">_open_lmdb_env</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TensorLMDBReader.load"><a class="viewcode-back" href="../../data.html#torchutils.data.TensorLMDBReader.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Tensor reader with LMDB backend. Data saved in key-value pairs</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key (str): key for data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor: output tensor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="o">.</span><span class="n">begin</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">txn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">feature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ImagePILReader"><a class="viewcode-back" href="../../data.html#torchutils.data.ImagePILReader">[docs]</a><span class="k">class</span> <span class="nc">ImagePILReader</span><span class="p">(</span><span class="n">DataReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reader for image.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): data root for images</span>
+<span class="sd">        data_transform (Callable, optional): data transform. Defaults to lambdax:x.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="n">data_transform</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImagePILReader.load"><a class="viewcode-back" href="../../data.html#torchutils.data.ImagePILReader.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load PIL.Image</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): image path under data root</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PIL.Image: loaded image before transform</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># read from raw image</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span></div></div>
+
+
+<div class="viewcode-block" id="ImageLMDBReader"><a class="viewcode-back" href="../../data.html#torchutils.data.ImageLMDBReader">[docs]</a><span class="k">class</span> <span class="nc">ImageLMDBReader</span><span class="p">(</span><span class="n">DataReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reader for image with LMDB backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): folder for LMDB data</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="n">data_transform</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_lmdb_env</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageLMDBReader.load"><a class="viewcode-back" href="../../data.html#torchutils.data.ImageLMDBReader.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load an image from LMDB format, data saved in key-value pairs</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (str): key for the data</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            PIL.Image: loaded image before transform</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_env</span><span class="o">.</span><span class="n">begin</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="n">imgbuf</span> <span class="o">=</span> <span class="n">txn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">imgbuf</span><span class="p">)</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">img</span></div></div>
+
+
+<div class="viewcode-block" id="TensorPKLReader"><a class="viewcode-back" href="../../data.html#torchutils.data.TensorPKLReader">[docs]</a><span class="k">class</span> <span class="nc">TensorPKLReader</span><span class="p">(</span><span class="n">DataReader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reader for tensor data.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_pkl_data</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TensorPKLReader.load"><a class="viewcode-back" href="../../data.html#torchutils.data.TensorPKLReader.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="getReader"><a class="viewcode-back" href="../../data.html#torchutils.data.getReader">[docs]</a><span class="k">def</span> <span class="nf">getReader</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_transform</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;identity&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataReader</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Factory for DataReader.</span>
+
+<span class="sd">    There are following types of data readers:</span>
+<span class="sd">        - &quot;TensorLMDB&quot;(:class:`~torchutils.data.TensorLMDBReader`): tensor data with LMDB backend.</span>
+<span class="sd">        - &quot;ImageLMDB&quot;(:class:`~torchutils.data.ImageLMDBReader`): image data with LMDB backend.</span>
+<span class="sd">        - &quot;TensorPKL&quot;(:class:`~torchutils.data.TensorPKLReader`): tensor data saved with pickle.</span>
+<span class="sd">        - &quot;ImagePIL&quot;(:class:`~torchutils.data.ImagePILReader`): image data with PIL backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reader (str): reader type</span>
+<span class="sd">        path (str): data path</span>
+<span class="sd">        data_transform (Optional[Union[str, list]], optional): data transform. Defaults to &quot;identity&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataReader: a callable instance of DataReader</span>
+
+<span class="sd">    TODO:</span>
+<span class="sd">        Add detailed ducomentation for ``data_transform``</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_Readers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;TensorLMDB&quot;</span><span class="p">:</span> <span class="n">TensorLMDBReader</span><span class="p">,</span>
+        <span class="s2">&quot;ImageLMDB&quot;</span><span class="p">:</span> <span class="n">ImageLMDBReader</span><span class="p">,</span>
+        <span class="s2">&quot;TensorPKL&quot;</span><span class="p">:</span> <span class="n">TensorPKLReader</span><span class="p">,</span>
+        <span class="s2">&quot;ImagePIL&quot;</span><span class="p">:</span> <span class="n">ImagePILReader</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">data_transform</span> <span class="o">=</span> <span class="n">_get_transforms</span><span class="p">(</span><span class="n">data_transform</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_Readers</span><span class="p">[</span><span class="n">reader</span><span class="p">](</span><span class="n">path</span><span class="p">,</span> <span class="n">data_transform</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

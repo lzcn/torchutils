@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.logger &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.logger</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="config"><a class="viewcode-back" href="../../logger.html#torchutils.logger.config">[docs]</a><span></span><span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="n">stream_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="n">file_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">formatter</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Config the loggers.</span>
+
+
+<span class="sd">    There are two formats for messages:</span>
+
+<span class="sd">    - &quot;default&quot;: [level] - time - [name.function.line]: message</span>
+<span class="sd">    - &quot;simple&quot;： [level] - time - [name]: message</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        stream_level (str, optional): logging level for STDOUT. Defaults to ``&quot;INFO&quot;``</span>
+<span class="sd">        file_level (str, optional): logging level for log file Defaults to ``&quot;INFO&quot;``.</span>
+<span class="sd">        log_file (str, optional): log file. If it is not given, then disable logging to</span>
+<span class="sd">            file. Defauts to ``None``.</span>
+<span class="sd">        formatter (str, optional): message format. Defaults to ``&quot;default&quot;``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">logging.config</span> <span class="kn">import</span> <span class="n">dictConfig</span>
+
+    <span class="n">stream_hanlder</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;logging.StreamHandler&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;formatter&quot;</span><span class="p">:</span> <span class="n">formatter</span><span class="p">,</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">stream_level</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">log_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;logging.NullHandler&quot;</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;logging.FileHandler&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;formatter&quot;</span><span class="p">:</span> <span class="n">formatter</span><span class="p">,</span>
+            <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="n">file_level</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">log_file</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="n">dictConfig</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;disable_existing_loggers&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;formatters&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;[</span><span class="si">%(levelname)s</span><span class="s2">] - </span><span class="si">%(asctime)s</span><span class="s2"> - [</span><span class="si">%(name)s</span><span class="s2">.</span><span class="si">%(funcName)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">]: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;datefmt&quot;</span><span class="p">:</span> <span class="s2">&quot;%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;[</span><span class="si">%(levelname)s</span><span class="s2">] - </span><span class="si">%(asctime)s</span><span class="s2"> - [</span><span class="si">%(name)s</span><span class="s2">]: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;datefmt&quot;</span><span class="p">:</span> <span class="s2">&quot;%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;handlers&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="n">stream_hanlder</span><span class="p">,</span>
+                <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_handler</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;handlers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

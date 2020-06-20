@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.files &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.logger" href="logger.html" />
+    <link rel="prev" title="torchutils.data" href="data.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="logger.html" title="torchutils.logger"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="torchutils.data"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="previous chapter">torchutils.data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="logger.html"
+                        title="next chapter">torchutils.logger</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/files.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.files">
+<span id="torchutils-files"></span><h1>torchutils.files<a class="headerlink" href="#module-torchutils.files" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="torchutils.files.check_exists">
+<code class="sig-prename descclassname">torchutils.files.</code><code class="sig-name descname">check_exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lists</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'any'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/files.html#check_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.files.check_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether file(s)/folder(s) exist(s).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.files.check_files">
+<code class="sig-prename descclassname">torchutils.files.</code><code class="sig-name descname">check_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_list</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'any'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/files.html#check_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.files.check_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether files exist, optional modes are [‘all’,’any’].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.files.list_files">
+<code class="sig-prename descclassname">torchutils.files.</code><code class="sig-name descname">list_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'./'</span></em>, <em class="sig-param"><span class="n">suffix</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">recursive</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/files.html#list_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.files.list_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>suffix</strong> (<em>filename must end with suffix if given</em><em>, </em><em>it can also be a tuple</em>) – </p></li>
+<li><p><strong>recursive</strong> (<em>if recursive</em><em>, </em><em>return sub-paths</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.files.resize_image">
+<code class="sig-prename descclassname">torchutils.files.</code><code class="sig-name descname">resize_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">src</span></em>, <em class="sig-param"><span class="n">dest</span></em>, <em class="sig-param"><span class="n">sizes</span><span class="o">=</span><span class="default_value">[224, 224]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/files.html#resize_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.files.resize_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize fashion image.</p>
+<p>Resize rule: dilate the original image to square with all 0 filled.
+Cause all fashion image are with white background
+Then resize the image to given sizes [new_height, new_width]</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="logger.html" title="torchutils.logger"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="torchutils.data"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

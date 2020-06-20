@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.files &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.files</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_dir</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;mkdir&quot;</span><span class="p">:</span>
+            <span class="c1"># make directories recursively</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;folder &#39;</span><span class="si">%s</span><span class="s2">&#39; has been created.&quot;</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;check&quot;</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;folder &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist.&quot;</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;folder &#39;</span><span class="si">%s</span><span class="s2">&#39; exist.&quot;</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">exists</span>
+
+
+<span class="k">def</span> <span class="nf">check_dirs</span><span class="p">(</span><span class="n">folders</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="s2">&quot;mkdir&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> not in [&#39;check&#39;, &#39;mkdir&#39;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;any&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> not in [&#39;all&#39;, &#39;any&#39;]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;any&quot;</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="nb">all</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checked folder(s):&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_check_dir</span><span class="p">(</span><span class="n">folders</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders</span><span class="p">:</span>
+            <span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_check_dir</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ops</span><span class="p">[</span><span class="n">mode</span><span class="p">](</span><span class="n">flags</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_files"><a class="viewcode-back" href="../../files.html#torchutils.files.check_files">[docs]</a><span class="k">def</span> <span class="nf">check_files</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check whether files exist, optional modes are [&#39;all&#39;,&#39;any&#39;].&quot;&quot;&quot;</span>
+    <span class="n">n_file</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span>
+    <span class="n">opt_modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;any&quot;</span><span class="p">]</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;any&quot;</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="nb">all</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_modes</span><span class="p">:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrong choice of mode, optional modes </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">opt_modes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;names</span><span class="se">\t</span><span class="s2"> status&quot;</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exists</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_file</span><span class="p">)]</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ops</span><span class="p">[</span><span class="n">mode</span><span class="p">](</span><span class="n">exists</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_exists"><a class="viewcode-back" href="../../files.html#torchutils.files.check_exists">[docs]</a><span class="k">def</span> <span class="nf">check_exists</span><span class="p">(</span><span class="n">lists</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check whether file(s)/folder(s) exist(s).&quot;&quot;&quot;</span>
+    <span class="n">n_file</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lists</span><span class="p">)</span>
+    <span class="n">opt_modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;any&quot;</span><span class="p">]</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;any&quot;</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="nb">all</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_modes</span><span class="p">:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrong choice of mode, optional modes </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">opt_modes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">exists</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">lists</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;filename</span><span class="se">\t</span><span class="s2"> status&quot;</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">[</span><span class="n">lists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">exists</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_file</span><span class="p">)]</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ops</span><span class="p">[</span><span class="n">mode</span><span class="p">](</span><span class="n">exists</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_files"><a class="viewcode-back" href="../../files.html#torchutils.files.list_files">[docs]</a><span class="k">def</span> <span class="nf">list_files</span><span class="p">(</span><span class="n">folder</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;List all files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    suffix: filename must end with suffix if given, it can also be a tuple</span>
+<span class="sd">    recursive: if recursive, return sub-paths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fls</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+            <span class="n">files</span> <span class="o">+=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fls</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">files</span></div>
+
+
+<span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">save_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="resize_image"><a class="viewcode-back" href="../../files.html#torchutils.files.resize_image">[docs]</a><span class="k">def</span> <span class="nf">resize_image</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Resize fashion image.</span>
+
+<span class="sd">    Resize rule: dilate the original image to square with all 0 filled.</span>
+<span class="sd">    Cause all fashion image are with white background</span>
+<span class="sd">    Then resize the image to given sizes [new_height, new_width]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">height</span> <span class="o">/</span> <span class="n">width</span>
+    <span class="n">new_height</span> <span class="o">=</span> <span class="n">sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">new_width</span> <span class="o">=</span> <span class="n">sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">new_ratio</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">new_height</span> <span class="o">/</span> <span class="n">new_width</span>
+    <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">new_ratio</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="n">new_ratio</span><span class="p">)</span>
+        <span class="n">new_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">depth</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">new_image</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">new_p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">w</span> <span class="o">-</span> <span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">new_image</span><span class="p">[:,</span> <span class="n">new_p</span> <span class="p">:</span> <span class="n">new_p</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">img</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">new_ratio</span> <span class="o">*</span> <span class="n">height</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="n">new_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">depth</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">new_image</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="n">new_p</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">h</span> <span class="o">-</span> <span class="n">height</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">new_image</span><span class="p">[</span><span class="n">new_p</span> <span class="p">:</span> <span class="n">new_p</span> <span class="o">+</span> <span class="n">height</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">img</span>
+    <span class="n">resized_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">new_image</span><span class="p">,</span> <span class="p">(</span><span class="n">new_width</span><span class="p">,</span> <span class="n">new_height</span><span class="p">))</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">resized_img</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

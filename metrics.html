@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.metrics &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.ops" href="ops.html" />
+    <link rel="prev" title="torchutils.meter" href="meter.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="torchutils.ops"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="meter.html" title="torchutils.meter"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="meter.html"
+                        title="previous chapter">torchutils.meter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ops.html"
+                        title="next chapter">torchutils.ops</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/metrics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.metrics">
+<span id="torchutils-metrics"></span><h1>torchutils.metrics<a class="headerlink" href="#module-torchutils.metrics" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="torchutils.metrics.CalcAUC">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">CalcAUC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sim</span></em>, <em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">neg</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#CalcAUC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.CalcAUC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate AUC.
+Score of link (i,j) assigned as the sim(i,j)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>sim</strong> (<em>similarity matrix</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.metrics.MetricThreading">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">MetricThreading</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#MetricThreading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.MetricThreading" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="torchutils.metrics.MetricThreading.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#MetricThreading.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.MetricThreading.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method representing the thread’s activity.</p>
+<p>You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object’s constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.NDCG">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">NDCG</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">posi</span></em>, <em class="sig-param"><span class="n">nega</span></em>, <em class="sig-param"><span class="n">wtype</span><span class="o">=</span><span class="default_value">'max'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#NDCG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.NDCG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean Normalize Discounted cumulative gain (NDCG).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posi</strong> (<em>positive scores for each user.</em>) – </p></li>
+<li><p><strong>nega</strong> (<em>negative scores for each user.</em>) – </p></li>
+<li><p><strong>wtype</strong> (<em>type for discounts</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mean_ndcg</strong> (<em>array, shape = [num_users]</em>) – mean ndcg for each user (averaged among all rank)</p></li>
+<li><p><strong>avg_ndcg</strong> (<em>array, shape = [max(n_samples)], averaged ndcg at each</em>) – position (averaged among all users for given rank)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.Precision">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">Precision</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">posi</span></em>, <em class="sig-param"><span class="n">nega</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#Precision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.Precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute precision for all user.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.ROC">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">ROC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">posi</span></em>, <em class="sig-param"><span class="n">nega</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#ROC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.ROC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute ROC and AUC for all user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posi</strong> (<em>Scores for positive outfits for each user.</em>) – </p></li>
+<li><p><strong>nega</strong> (<em>Socres for negative outfits for each user.</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>roc</strong> (<em>A tuple of (fpr, tpr, thresholds), see sklearn.metrics.roc_curve</em>)</p></li>
+<li><p><strong>auc</strong> (<em>AUC score.</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.metrics.RankMetric">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">RankMetric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_users</span></em>, <em class="sig-param"><span class="n">groups</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#RankMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.RankMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rank matric for computing mean auc and mean averaged ndch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of users</p></li>
+<li><p><strong>groups</strong> (<em>list of str</em>) – different kinds of metric will be tracked.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.metrics.UserMetricThreading">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">UserMetricThreading</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_users</span></em>, <em class="sig-param"><span class="n">args</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">kwargs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#UserMetricThreading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.UserMetricThreading" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="torchutils.metrics.UserMetricThreading.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#UserMetricThreading.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.UserMetricThreading.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method representing the thread’s activity.</p>
+<p>You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object’s constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.mean_ndcg_score">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">mean_ndcg_score</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">u_scores</span></em>, <em class="sig-param"><span class="n">u_labels</span></em>, <em class="sig-param"><span class="n">wtype</span><span class="o">=</span><span class="default_value">'max'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#mean_ndcg_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.mean_ndcg_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean Normalize Discounted cumulative gain (NDCG) for all users.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u_score</strong> (<em>array of arrays</em><em>, </em><em>shape =</em><em> [</em><em>num_users</em><em>]</em>) – Each array is the predicted scores, shape = [n_samples[u]]</p></li>
+<li><p><strong>u_label</strong> (<em>array of arrays</em><em>, </em><em>shape =</em><em> [</em><em>num_users</em><em>]</em>) – Each array is the ground truth label, shape = [n_samples[u]]</p></li>
+<li><p><strong>wtype</strong> (<em>'log'</em><em> or </em><em>'max'</em>) – type for discounts</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mean_ndcg</strong> (<em>array, shape = [num_users]</em>) – mean ndcg for each user (averaged among all rank)</p></li>
+<li><p><strong>avg_ndcg</strong> (<em>array, shape = [max(n_samples)], averaged ndcg at each</em>) – position (averaged among all users for given rank)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.ndcg_score">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">ndcg_score</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y_score</span></em>, <em class="sig-param"><span class="n">y_label</span></em>, <em class="sig-param"><span class="n">wtype</span><span class="o">=</span><span class="default_value">'max'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#ndcg_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.ndcg_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize Discounted cumulative gain (NDCG).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_score</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_samples</em><em>]</em>) – Predicted scores.</p></li>
+<li><p><strong>y_label</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_samples</em><em>]</em>) – Ground truth label (binary).</p></li>
+<li><p><strong>wtype</strong> (<em>'log'</em><em> or </em><em>'max'</em>) – type for discounts</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>score</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndcg&#64;m</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><dl class="simple">
+<dt>Hu Y, Yi X, Davis L S. Collaborative fashion recommendation:</dt><dd><p>A functional tensor factorization approach[C]
+Proceedings of the 23rd ACM international conference on Multimedia.
+ACM, 2015: 129-138.</p>
+</dd>
+<dt>[2] Lee C P, Lin C J. Large-scale Linear RankSVM[J].</dt><dd><p>Neural computation, 2014, 26(4): 781-817.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="torchutils.ops"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="meter.html" title="torchutils.meter"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

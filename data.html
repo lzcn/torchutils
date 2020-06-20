@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.data &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.files" href="files.html" />
+    <link rel="prev" title="Welcome to torchutils’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="torchutils.files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to torchutils’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">torchutils.data</a><ul>
+<li><a class="reference internal" href="#data-readers">Data Readers</a></li>
+<li><a class="reference internal" href="#converting-images-to-lmdb">Converting Images to LMDB</a></li>
+<li><a class="reference internal" href="#converting-images-to-square">Converting Images to Square</a></li>
+<li><a class="reference internal" href="#module-torchutils.data">Module Reference</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to torchutils’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="files.html"
+                        title="next chapter">torchutils.files</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="torchutils-data">
+<h1>torchutils.data<a class="headerlink" href="#torchutils-data" title="Permalink to this headline">¶</a></h1>
+<p>This module defines the the data reader and some utility functions.</p>
+<div class="section" id="data-readers">
+<h2>Data Readers<a class="headerlink" href="#data-readers" title="Permalink to this headline">¶</a></h2>
+<p>The instance of <a class="reference internal" href="#torchutils.data.DataReader" title="torchutils.data.DataReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataReader</span></code></a> class is callable. It calls the method <a class="reference internal" href="#torchutils.data.DataReader.load" title="torchutils.data.DataReader.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a> to load data.
+The <code class="docutils literal notranslate"><span class="pre">key</span></code> argument has different meanings in different readers. The supported data readers are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#torchutils.data.ImagePILReader" title="torchutils.data.ImagePILReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePILReader</span></code></a>: A data reader with PIL backend for image. Data is read directly from path using PIL.</p></li>
+<li><p><a class="reference internal" href="#torchutils.data.TensorLMDBReader" title="torchutils.data.TensorLMDBReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorLMDBReader</span></code></a>: A data reader with LMDB backend for <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>. Data is saved in <code class="docutils literal notranslate"><span class="pre">key:value</span></code> format.</p></li>
+<li><p><a class="reference internal" href="#torchutils.data.ImageLMDBReader" title="torchutils.data.ImageLMDBReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageLMDBReader</span></code></a>: A data reader with LMDB backend for image raw data. Data is saved in <code class="docutils literal notranslate"><span class="pre">key:value</span></code> format.</p></li>
+<li><p><a class="reference internal" href="#torchutils.data.TensorPKLReader" title="torchutils.data.TensorPKLReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorPKLReader</span></code></a>: A data reader with pickle backend for <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.18)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>. Data is saved in <code class="docutils literal notranslate"><span class="pre">key:value</span></code> format.</p></li>
+</ul>
+</div>
+<div class="section" id="converting-images-to-lmdb">
+<h2>Converting Images to LMDB<a class="headerlink" href="#converting-images-to-lmdb" title="Permalink to this headline">¶</a></h2>
+<p>Currently, only one simple method, i.e. <a class="reference internal" href="#torchutils.data.create_lmdb" title="torchutils.data.create_lmdb"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_lmdb()</span></code></a> is provided for converting the images.
+This method creates the LMDB data for images in one folder. And use the path of images as the key for retrieval.</p>
+</div>
+<div class="section" id="converting-images-to-square">
+<h2>Converting Images to Square<a class="headerlink" href="#converting-images-to-square" title="Permalink to this headline">¶</a></h2>
+<p>A new transform <a class="reference internal" href="#torchutils.data.ResizeToSquare" title="torchutils.data.ResizeToSquare"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResizeToSquare</span></code></a> for converting images to square in added.
+The longest side (width or hight) is firstly resized to match the given size. The raito of image is fixed.
+Then white pixes are padded to get a square image.</p>
+</div>
+<div class="section" id="module-torchutils.data">
+<span id="module-reference"></span><h2>Module Reference<a class="headerlink" href="#module-torchutils.data" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="torchutils.data.getReader">
+<code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">getReader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reader</span></em>, <em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">data_transform</span><span class="p">:</span> <span class="n">Union[str, list, None]</span> <span class="o">=</span> <span class="default_value">'identity'</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#torchutils.data.DataReader" title="torchutils.data.DataReader">torchutils.data.DataReader</a><a class="reference internal" href="_modules/torchutils/data.html#getReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.getReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory for DataReader.</p>
+<dl class="simple">
+<dt>There are following types of data readers:</dt><dd><ul class="simple">
+<li><p>“TensorLMDB”(<a class="reference internal" href="#torchutils.data.TensorLMDBReader" title="torchutils.data.TensorLMDBReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorLMDBReader</span></code></a>): tensor data with LMDB backend.</p></li>
+<li><p>“ImageLMDB”(<a class="reference internal" href="#torchutils.data.ImageLMDBReader" title="torchutils.data.ImageLMDBReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageLMDBReader</span></code></a>): image data with LMDB backend.</p></li>
+<li><p>“TensorPKL”(<a class="reference internal" href="#torchutils.data.TensorPKLReader" title="torchutils.data.TensorPKLReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">TensorPKLReader</span></code></a>): tensor data saved with pickle.</p></li>
+<li><p>“ImagePIL”(<a class="reference internal" href="#torchutils.data.ImagePILReader" title="torchutils.data.ImagePILReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePILReader</span></code></a>): image data with PIL backend.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reader</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – reader type</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – data path</p></li>
+<li><p><strong>data_transform</strong> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – data transform. Defaults to “identity”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a callable instance of DataReader</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torchutils.data.DataReader" title="torchutils.data.DataReader">DataReader</a></p>
+</dd>
+</dl>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Add detailed ducomentation for <code class="docutils literal notranslate"><span class="pre">data_transform</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.DataReader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">DataReader</code><span class="sig-paren">(</span><em class="sig-param">path: str</em>, <em class="sig-param">data_transform: Callable = &lt;function DataReader.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#DataReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.DataReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callable reader for different types of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – data path, different data reader requires different path</p></li>
+<li><p><strong>data_transform</strong> (<em>Callable</em><em>, </em><em>optional</em>) – callable function for data transform. Defaults to lambdax:x.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="torchutils.data.DataReader.load">
+<em class="property">abstract </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/torchutils/data.html#DataReader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.DataReader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load raw data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key is different for different readers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>raw data before data transform,</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.ImagePILReader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">ImagePILReader</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">data_transform=&lt;function ImagePILReader.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#ImagePILReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.ImagePILReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader for image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – data root for images</p></li>
+<li><p><strong>data_transform</strong> (<em>Callable</em><em>, </em><em>optional</em>) – data transform. Defaults to lambdax:x.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="torchutils.data.ImagePILReader.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; &lt;module ‘PIL.Image’ from ‘/Users/zhi/miniconda/lib/python3.6/site-packages/PIL/Image.py’&gt;<a class="reference internal" href="_modules/torchutils/data.html#ImagePILReader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.ImagePILReader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load PIL.Image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – image path under data root</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>loaded image before transform</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>PIL.Image</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.TensorLMDBReader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">TensorLMDBReader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">data_transform</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#TensorLMDBReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.TensorLMDBReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader for tensor data with LMDB backend.</p>
+<dl class="py method">
+<dt id="torchutils.data.TensorLMDBReader.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.5.0a0+78c9009 ))">torch.Tensor</a><a class="reference internal" href="_modules/torchutils/data.html#TensorLMDBReader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.TensorLMDBReader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tensor reader with LMDB backend. Data saved in key-value pairs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – key for data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>output tensor</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch vmaster (1.5.0a0+78c9009 ))">torch.Tensor</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.ImageLMDBReader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">ImageLMDBReader</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">data_transform=&lt;function ImageLMDBReader.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#ImageLMDBReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.ImageLMDBReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader for image with LMDB backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – folder for LMDB data</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="torchutils.data.ImageLMDBReader.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; &lt;module ‘PIL.Image’ from ‘/Users/zhi/miniconda/lib/python3.6/site-packages/PIL/Image.py’&gt;<a class="reference internal" href="_modules/torchutils/data.html#ImageLMDBReader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.ImageLMDBReader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load an image from LMDB format, data saved in key-value pairs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – key for the data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>loaded image before transform</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>PIL.Image</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.TensorPKLReader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">TensorPKLReader</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">data_transform=&lt;function TensorPKLReader.&lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#TensorPKLReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.TensorPKLReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reader for tensor data.</p>
+<dl class="py method">
+<dt id="torchutils.data.TensorPKLReader.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#TensorPKLReader.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.TensorPKLReader.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load raw data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The key is different for different readers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>raw data before data transform,</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.data.create_lmdb">
+<code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">create_lmdb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dst</span></em>, <em class="sig-param"><span class="n">src</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#create_lmdb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.create_lmdb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the image in src to dst in <a class="reference external" href="https://lmdb.readthedocs.io/en/release/">LMDB</a> format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dst</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – dst folder</p></li>
+<li><p><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – src folder</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dst</span> <span class="o">=</span> <span class="s2">&quot;/path/to/lmdb&quot;</span>
+<span class="n">src</span> <span class="o">=</span> <span class="s2">&quot;/path/to/images&quot;</span>
+<span class="n">create</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It convert the image in <code class="docutils literal notranslate"><span class="pre">src</span></code> folder to <code class="docutils literal notranslate"><span class="pre">dst</span></code>, it will create two files:
+data.mdb, lock.mdb under <code class="docutils literal notranslate"><span class="pre">dst</span></code> folder.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.data.ResizeToSquare">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.data.</code><code class="sig-name descname">ResizeToSquare</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/data.html#ResizeToSquare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.data.ResizeToSquare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize an image to square with white background padded.</p>
+<p>It firstly resize the image with fixed ratio maing the longest side (w or h) meets
+given size. Then white pixels are padded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – output image size</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">im</span>  <span class="o">//</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span>
+<span class="n">trans</span> <span class="o">=</span> <span class="n">ResizeToSquare</span><span class="p">(</span><span class="mi">291</span><span class="p">)</span>
+<span class="n">im_resized</span> <span class="o">=</span> <span class="n">trans</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="torchutils.files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to torchutils’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>
