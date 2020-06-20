@@ -65,9 +65,7 @@ class Meter(object):
         win_size ([int]): window size for moving average. If `win_size==0`, then all
             values will be considered.
 
-    Attributes:
-        val (int): last value
-        avg (int): averaged value
+
 
     """
 

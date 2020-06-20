@@ -83,6 +83,7 @@ def list_files(folder="./", suffix="", recursive=False):
     recursive: if recursive, return sub-paths
     """
     files = []
+    suffix = tuple(suffix)
     if recursive:
         for path, _, fls in os.walk(folder):
             files += [os.path.join(path, f) for f in fls if f.endswith(suffix)]
