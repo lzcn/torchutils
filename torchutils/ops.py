@@ -185,3 +185,30 @@ def kl_diagnormal_diagnormal(q_mean, q_logvar, p_mean, p_logvar):
     b = torch.exp(-p_logvar) * ((q_mean - p_mean) ** 2)
     c = p_logvar - q_logvar
     return 0.5 * torch.sum(a + b - 1 + c)
+
+
+def logmm(logx: torch.Tensor, logy: torch.Tensor):
+    r"""Performs a matrix multiplication of the matrices ``logx`` and ``logy`` with logarithm values.
+
+    ``logx`` is a :math:`(n\times m)` tensor, ``logy`` is a :math:`(m\times p)` tensor
+    and ``out`` is a :math:`(n\times p)` tensor.
+
+    Args:
+        logx (torch.Tensor): the first matrix.
+        logy (torch.Tensor): the second matrix.
+
+    Returns:
+        torch.Tensor: output matrix
+
+    Note:
+        This function does not broadcast.
+
+    """
+    # n x m x 1
+    logx = logx.unsqueeze(-1)
+    # 1 x m x p
+    logy = logy.unsqueeze(0)
+    logk = logx + logy
+    logm, _ = logk.max(dim=1, keepdim=True)
+    logz = torch.log(torch.exp(logk - logm).sum(dim=1)) + logm.sum(dim=1)
+    return logz
