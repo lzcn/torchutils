@@ -64,13 +64,27 @@ def _factory(win_size):
 
 
 class Meter(object):
-    """Meter for history values.
+    r"""Record historical values with moving average.
+
+    .. math::
+
+        v = \frac{\sum_{i} w_i x_i}{\sum_{i} w_i}
 
     Args:
         win_size ([int]): window size for moving average. If `win_size==0`, then all
             values will be considered.
 
+    Example:
 
+    .. code-block:: python
+
+        from torchutils.meter import Meter
+        # history meter with window size 10
+        meter = Meter(10)
+        # update data
+        meter.update(0.1, weight=1.0)
+        # show values
+        print(meter.avg, meter.val)
 
     """
 
