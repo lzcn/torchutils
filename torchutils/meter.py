@@ -38,6 +38,11 @@ class _AverageMeter(object):
         self._cum_val = 0.0
         self._cum_weight = 0.0
 
+    def reset(self):
+        self.val = float("nan")
+        self._cum_val = 0.0
+        self._cum_weight = 0.0
+
     @property
     def avg(self):
         try:
@@ -82,6 +87,10 @@ class Meter(object):
     def avg(self):
         """Get the averaged value."""
         return self._meter.avg
+
+    def reset(self):
+        """Reset meter."""
+        self._meter.reset()
 
     def update(self, value, weight=1.0):
         """Update the meter."""
