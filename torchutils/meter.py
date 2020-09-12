@@ -88,7 +88,7 @@ class Meter(object):
 
     """
 
-    def __init__(self, win_size=10):
+    def __init__(self, win_size=0):
         self.win_size = win_size
         self._meter = _factory(win_size)
 
