@@ -127,7 +127,7 @@ class BundleMeter(object):
         # history tracer with window size 10
         tracer = BundleMeter(10)
         # update data
-        tracer.update(data={'loss':0.1, 'accuracy':0.8}, score=0.3)
+        tracer.update(data_dict={'loss':0.1, 'accuracy':0.8})
         # show current status
         tracer.logging()
 
@@ -153,14 +153,12 @@ class BundleMeter(object):
             self._meters[key] = _factory(self.win_size)
         return self._meters[key]
 
-    def update(self, weight=1.0, data=None, **kwargs):
+    def update(self, data_dict, weight=1.0):
         """Update meters.
 
         If the metric is new, it will produce a new meter for the metric.
         """
-        data = dict() if data is None else data
-        kwargs.update(**data)
-        for key, value in kwargs.items():
+        for key, value in data_dict.items():
             self._get_meter(key).update(value, weight=weight)
 
     def logging(self):
@@ -202,10 +200,8 @@ class GroupMeter(object):
             self._meters[group][key] = _factory(self._win_size[group])
         return self._meters[group][key]
 
-    def update(self, group, weight=1.0, data=None, **kwargs):
-        data = dict() if data is None else data
-        kwargs.update(**data)
-        for key, value in kwargs.items():
+    def update(self, group, data_dict, weight=1.0):
+        for key, value in data_dict.items():
             self._get_meter(group, key).update(value, weight=weight)
 
     def logging(self, group=None):
