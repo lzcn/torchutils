@@ -46,8 +46,8 @@ class _AverageMeter(object):
             return float("nan")
 
     def update(self, value, weight=1.0):
-        self.val = val
-        self._cum_val += val * weight
+        self.val = value
+        self._cum_val += value * weight
         self._cum_weight += weight
 
     def __repr__(self):
