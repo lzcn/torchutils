@@ -153,6 +153,10 @@ class BundleMeter(object):
             self._meters[key] = _factory(self.win_size)
         return self._meters[key]
 
+    def reset(self):
+        """Reset all meters."""
+        self._meters = dict()
+
     def update(self, data_dict, weight=1.0):
         """Update meters.
 
@@ -203,6 +207,9 @@ class GroupMeter(object):
     def update(self, group, data_dict, weight=1.0):
         for key, value in data_dict.items():
             self._get_meter(group, key).update(value, weight=weight)
+
+    def reset(self):
+        self._meters = {g: dict() for g in self.win_size.keys()}
 
     def logging(self, group=None):
         if group:
