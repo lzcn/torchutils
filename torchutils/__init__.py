@@ -6,5 +6,6 @@ import torchutils.meter
 import torchutils.metrics
 import torchutils.ops
 import torchutils.singleton
+from torchutils.misc import *
 
 __version__ = "0.0.1"

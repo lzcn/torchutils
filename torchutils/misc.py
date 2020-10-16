@@ -8,12 +8,28 @@ import torch
 from colorama import Back, Fore, Style
 from torch import nn
 
+from .overrides import set_module
 
 LOGGER = logging.getLogger(__name__)
 
+__all__ = [
+    "colour",
+    "format_display",
+    "gather_loss",
+    "gather_mean",
+    "get_named_class",
+    "get_named_function",
+    "infer_parallel_device",
+    "init_optimizer",
+    "load_pretrained",
+    "one_hot",
+    "to_device",
+]
 
+
+@set_module("torchutils")
 def format_display(opt, num=1):
-    """Show hierarchal information.
+    """Convert dictionary to format string.
 
     Args:
         opt (dict): configuration to be displayed
@@ -74,6 +90,7 @@ def weights_init(m):
         pass
 
 
+@set_module("torchutils")
 def colour(string, *args, b="", s="", c="green"):
     """Colorize a string.
 
@@ -103,133 +120,140 @@ def colour(string, *args, b="", s="", c="green"):
     return prefix + string + suffix
 
 
+@set_module("torchutils")
 def get_named_class(module):
-    """Get the class member in module."""
+    """Get class members in given module."""
     from inspect import isclass
 
-    return {k: v for k, v in module.__dict__.items() if isclass(v)}
+    return {k: v for k, v in module.__dict__.items() if isclass(v) and not k.startswith("_")}
 
 
+@set_module("torchutils")
 def get_named_function(module):
-    """Get the class member in module."""
+    """Get function members in given module."""
     from inspect import isfunction
 
-    return {k: v for k, v in module.__dict__.items() if isfunction(v)}
+    return {k: v for k, v in module.__dict__.items() if isfunction(v) and not k.startswith("_")}
 
 
+@set_module("torchutils")
 def one_hot(index, num):
-    """Convert the LongTensor to one-hot encoding.
+    """Convert the index tensor to one-hot encoding.
+
+    The returned encoding is on the same device as the index tensor.
 
     Args:
         index (torch.LongTensor): index tensor
         num (int): length of one-hot encoding
+
+    Returns:
+        torch.tensor: one-hot encoding
+
+    Example:
+
+        .. code-block::
+
+            >> x = torch.tensor([2, 1, 1, 2])
+            >> one_hot(x, num=3)
+            tensor([[0., 0., 1.],
+                    [0., 1., 0.],
+                    [0., 1., 0.],
+                    [0., 0., 1.]])
+
     """
     index = index.view(-1, 1)
     one_hot = torch.zeros(index.numel(), num).to(index.device)
     return one_hot.scatter_(1, index, 1.0)
 
 
-def get_device(gpus=None):
-    """Decide which device to use for data when given gpus.
+@set_module("torchutils")
+def infer_parallel_device(device_ids=None):
+    """Decide which device to use for data when given device_ids.
 
-    Suppose nn.data_parallel is used for multi-gpu.
-    If use multiple GPUs, then data only need to stay in CPU. If use single GPU,
-    then data must move to that GPU.
+    For :func:`torch.nn.data_parallel`, if multiple GPUs are used, the data only need
+    to be saved in CPU. If single GPU is used, then data must be moved to the GPU.
 
     Args:
-        gpus (list, optional): gpu list
+        device_ids (list of int, optional): gpu id list
+
     Outputs:
-        - parallel: True if len(gpus) > 1
+        - parallel: True if len(device_ids) > 1
         - device: if single-gpu is used then return the gpu device, else return "cpu"
     """
-    if not gpus:
+    device_ids = [] if device_ids is None else device_ids
+    if len(device_ids) == 0:
         parallel = False
         device = torch.device("cpu")
         return parallel, device
-    if len(gpus) > 1:
+    elif len(device_ids) == 1:
+        parallel = False
+        device = torch.device(device_ids[0])
+    else:
         parallel = True
         device = torch.device("cpu")
-    else:
-        parallel = False
-        device = torch.device(gpus[0])
     return parallel, device
 
 
-def to_device(data, device):
-    """Move data to device.
+@set_module("torchutils")
+def to_device(data, device="cuda"):
+    """Move data to given device.
 
     Args:
         data (Sequence): convert all data to given device.
-        device (torch.device): target device
+        device (torch.device, optional): target device.
 
-    Returns:
-        Any: moved data
     """
     from collections import Sequence
 
-    error_msg = "data must contain tensors or lists; found {}"
+    error_msg = "data must contains tensors or list of tensors; found {}"
     if isinstance(data, Sequence):
         return tuple(to_device(v, device) for v in data)
     elif isinstance(data, torch.Tensor):
         return data.to(device)
-    raise TypeError((error_msg.format(type(data))))
+    raise TypeError(error_msg.format(type(data)))
 
 
-def sum_of_loss(loss_dict, loss_weight):
-    """Compute final loss and convert each loss to float."""
-    losses = {}
-    loss = 0.0
-    for name, value in loss_dict.items():
-        value = value.mean()
-        weight = loss_weight[name]
-        if weight:
-            loss += value * weight
-        # save the scale
-        losses[name] = value.item()
-    return losses, loss
-
-
-def gather_loss(loss_dict, loss_weight):
-    r"""Gather losses and add the 'overall' loss for backwards."""
-    overall_loss = 0.0
-    used_loss = []
-    for name, weight in loss_weight.items():
-        if weight:
-            used_loss.append(name)
-    losses = {}
-    # only sum over the loss that has valid weight
-    for name, value in loss_dict.items():
-        value = value.mean()
-        weight = loss_weight[name]
-        if weight:
-            overall_loss += value * weight
-        # save the scale
-        losses[name] = value
-    if len(used_loss) == 1:
-        losses.pop(used_loss[0])
-    losses["overall"] = overall_loss
-    return losses
-
-
-def gather_accuracy(accuracy):
-    return {k: v.sum().item() / v.numel() for k, v in accuracy.items()}
-
-
-def gather_tensor(tensor):
-    r"""Gather mean value of tensors.
-
-    Compute the averaged value :meth:`\frac{1}{n}\sum_i v_i, v \in\matchbb{R}^n`.
+@set_module("torchutils")
+def gather_loss(loss_dict: dict, loss_weight: dict):
+    """Gather overall loss and compute mean of individual losses.
 
     Args:
-        tensor (dict): list of tensors.
+        loss_dict (dict): individual loss terms
+        loss_weight (dict): weights for each loss, only the loss with valid weight will
+            be meaned.
 
-    Returns:
-        dict: averaged results
     """
-    return {k: v.sum().item() / v.numel() for k, v in tensor.items()}
+    loss = 0.0
+    scale_dict = {}
+    for name, value in loss_dict.items():
+        value = loss_dict[name].mean()
+        weight = loss_weight.get(name, None)
+        if weight:
+            loss += value * weight
+        scale_dict[name] = value.item()
+    return scale_dict, loss
 
 
-def load_pretrained_lossly(net, pretrained):
+@set_module("torchutils")
+def gather_mean(tensors):
+    r"""Gather mean value of each tensor.
+
+    Compute the averaged value for each element:
+    :math:`\frac{1}{n}\sum_i v_i, v \in\mathbb{R}^n`.
+
+    Args:
+        tensors ([dict, list]): list of tensors.
+    """
+    if isinstance(tensors, dict):
+        return {k: v.sum().item() / v.numel() for k, v in tensors.items()}
+    elif isinstance(tensors, list):
+        return [v.sum().item() / v.numel() for v in tensors]
+    else:
+        raise TypeError("Expcted list or dict, but got {}".format(type(tensors)))
+
+
+@set_module("torchutils")
+def load_pretrained(net: nn.Module, path: str) -> nn.Module:
     """Load weights lossly.
 
     Load weights that match the the model. Unloaded weighted will be logged.
@@ -239,15 +263,15 @@ def load_pretrained_lossly(net, pretrained):
         - Unexpected keys: weights not in given net
         - Unmatched keys: shape mismatched weights
     Args:
-        net (torch.nn.Moudle): model
-        pretrained (str): path to pre-traiend model
+        net (nn.Module): model
+        path (str): path to pre-traiend model
 
     """
     # load weights from pre-trained model lossly
     num_devices = torch.cuda.device_count()
     map_location = {"cuda:{}".format(i): "cpu" for i in range(num_devices)}
-    LOGGER.info("Loading pre-trained model from %s.", pretrained)
-    state_dict = torch.load(pretrained, map_location=map_location)
+    LOGGER.info("Loading pre-trained model from %s.", path)
+    state_dict = torch.load(path, map_location=map_location)
     net_param = net.state_dict()
     unmatched_keys = []
     for name, param in state_dict.items():
@@ -263,6 +287,7 @@ def load_pretrained_lossly(net, pretrained):
     return net
 
 
+@set_module("torchutils")
 def init_optimizer(net, optim_param):
     """Init Optimizer given OptimParam instance and net."""
     # Optimizer and LR policy class
@@ -273,6 +298,7 @@ def init_optimizer(net, optim_param):
     lr_param = optim_param.scheduler_param
     # sub-module specific configuration
     named_groups = optim_param.groups
+    param_groups = []
     if named_groups:
         param_groups = []
         for name, gropus in named_groups.items():
