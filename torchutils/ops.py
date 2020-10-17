@@ -212,3 +212,21 @@ def logmm(logx: torch.Tensor, logy: torch.Tensor):
     logm, _ = logk.max(dim=1, keepdim=True)
     logz = torch.log(torch.exp(logk - logm).sum(dim=1)) + logm.sum(dim=1)
     return logz
+
+
+def pairwise_distances(x: torch.Tensor, y: torch.Tensor):
+    r"""Computes (batched) pairwise distance with mm.
+
+    Args:
+        x (torch.Tensor): input tensor of shape :math:`(B\times N \times D)` or :math:`(N \times D)`
+        y (torch.Tensor): input tensor of shape :math:`(B\times M \times D)` or :math:`(M \times D)`
+
+    The output is tensor of shape :math:`(B\times N\times M)` or :math:`(N\times M)`.
+
+    Note:
+        This implementation is similar to :meth:`~torch.cdist` with default setting.
+    """
+    x_norm = (x * x).sum(dim=-1, keepdim=True)
+    y_norm = (y * y).sum(dim=-1, keepdim=True).transpose(-1, -2)
+    dist = x_norm + y_norm - 2.0 * torch.matmul(x, torch.transpose(y, -1, -2))
+    return dist ** 0.5
