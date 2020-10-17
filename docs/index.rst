@@ -4,16 +4,19 @@ Welcome to torchutils's documentation!
 :mod:`torchutils` is a bundle of utilities for PyTorch.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Package Reference
+   :maxdepth: 1
+   :caption: Python API
 
+   torchutils
    data
+   dist
    files
    logger
    loss
    meter
    metrics
    ops
+   ot
    singleton
 
 
