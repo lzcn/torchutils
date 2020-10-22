@@ -1,5 +1,6 @@
 import torchutils.data
 import torchutils.dist
+import torchutils.factory
 import torchutils.files
 import torchutils.logger
 import torchutils.loss

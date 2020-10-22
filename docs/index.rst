@@ -10,6 +10,7 @@ Welcome to torchutils's documentation!
    torchutils
    data
    dist
+   factory
    files
    logger
    loss
