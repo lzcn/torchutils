@@ -74,8 +74,40 @@ def check_exists(lists, mode="any", verbose=False):
     return ops[mode](exists)
 
 
+def scan_files(path="./", suffix="", recursive=False, relpath=False):
+    """Scan files under path which follows the PEP 471.
+
+    Parameters
+    ----------
+    suffix: filename must end with suffix if given, it can also be a tuple
+    recursive: if True, scan files recursively
+    relpath: if True, return relative path with given path
+
+    """
+
+    def scantree(path):
+        for entry in os.scandir(path):
+            if not entry.name.startswith("."):
+                if entry.is_dir(follow_symlinks=False):
+                    yield from scantree(entry.path)
+                else:
+                    yield entry
+
+    def scandir(path):
+        for entry in os.scandir(path):
+            if not entry.name.startswith(".") and entry.is_file():
+                yield entry
+
+    files = []
+    scan = scantree if recursive else scandir
+    for entry in scan(path):
+        if entry.name.endswith(suffix):
+            files.append(os.path.relpath(entry.path, path) if relpath else entry.path)
+    return files
+
+
 def list_files(folder="./", suffix="", recursive=False):
-    """List all files.
+    """Deprecated, use scan_files instead.
 
     Parameters
     ----------
