@@ -1,10 +1,8 @@
-import argparse
 import logging
 import os
 import pickle
-import warnings
 from abc import ABCMeta, abstractmethod
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable
 
 import lmdb
 import numpy as np
@@ -19,14 +17,14 @@ from . import files
 LOGGER = logging.getLogger(__name__)
 
 __all__ = [
-    "getReader",
-    "DataReader",
-    "ImagePILReader",
-    "TensorLMDBReader",
-    "ImageLMDBReader",
-    "TensorPKLReader",
     "create_lmdb",
+    "DataReader",
+    "getReader",
+    "ImageLMDBReader",
+    "ImagePILReader",
     "ResizeToSquare",
+    "TensorLMDBReader",
+    "TensorPKLReader",
 ]
 
 
@@ -47,13 +45,18 @@ def create_lmdb(dst, src):
             src = "/path/to/images"
             create(dst, src)
 
-        It convert the image in ``src`` folder to ``dst``, it will create two files:
-        data.mdb, lock.mdb under ``dst`` folder.
+    It reads images in ``src`` folder and creates two files:
+        - ``data.mdb``
+        - ``lock.mdb``
+    under ``dst`` folder.
+
+    Note:
+        The key of each image is the relative path to ``src``.
 
     """
     LOGGER.info("Creating LMDB to %s", dst)
-    suffix = [".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif"]
-    image_list = files.list_files(src, suffix)
+    suffix = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif")
+    image_list = files.scan_files(src, suffix, recursive=True, relpath=True)
     env = lmdb.open(dst, map_size=2 ** 40)
     # open json file
     with env.begin(write=True) as txn:
@@ -146,7 +149,7 @@ class DataReader(metaclass=ABCMeta):
 
     Args:
         path (str): data path, different data reader requires different path
-        data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x.
+        data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x
     """
 
     def __init__(self, path: str, data_transform: Callable = lambda x: x):
@@ -161,7 +164,7 @@ class DataReader(metaclass=ABCMeta):
             key (str): The key is different for different readers.
 
         Returns:
-            Any: raw data before data transform,
+            Any: raw data before data transform.
         """
         pass
 
@@ -173,8 +176,8 @@ class DataReader(metaclass=ABCMeta):
 class TensorLMDBReader(DataReader):
     """Reader for tensor data with LMDB backend."""
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=lambda x: x)
+    def __init__(self, path, data_transform=lambda x: x):
+        super().__init__(path, data_transform)
         self._env = _open_lmdb_env(path)
 
     def load(self, key) -> torch.Tensor:
@@ -207,7 +210,7 @@ class ImagePILReader(DataReader):
         """Load PIL.Image
 
         Args:
-            name (str): image path under data root
+            name (str): relative image path under self.path
 
         Returns:
             PIL.Image.Image: loaded image before transform
@@ -254,20 +257,20 @@ class TensorPKLReader(DataReader):
 
     def __init__(self, path, data_transform=lambda x: x):
         super().__init__(path, data_transform=lambda x: x)
-        self._data = self._load_pkl_data(path)
+        self._data = _load_pkl_data(path)
 
     def load(self, name):
         return torch.from_numpy(self._data[name].astype(np.float32))
 
 
-def getReader(reader, path: str, data_transform: Optional[Union[str, list]] = "identity") -> DataReader:
+def getReader(reader, path, data_transform="identity") -> DataReader:
     """Factory for DataReader.
 
     There are following types of data readers:
-        - "TensorLMDB"(:class:`~torchutils.data.TensorLMDBReader`): tensor data with LMDB backend.
         - "ImageLMDB"(:class:`~torchutils.data.ImageLMDBReader`): image data with LMDB backend.
-        - "TensorPKL"(:class:`~torchutils.data.TensorPKLReader`): tensor data saved with pickle.
         - "ImagePIL"(:class:`~torchutils.data.ImagePILReader`): image data with PIL backend.
+        - "TensorLMDB"(:class:`~torchutils.data.TensorLMDBReader`): tensor data with LMDB backend.
+        - "TensorPKL"(:class:`~torchutils.data.TensorPKLReader`): tensor data saved with pickle.
 
     Args:
         reader (str): reader type
@@ -277,15 +280,15 @@ def getReader(reader, path: str, data_transform: Optional[Union[str, list]] = "i
     Returns:
         DataReader: a callable instance of DataReader
 
-    TODO:
+    Todo:
         Add detailed ducomentation for ``data_transform``
 
     """
     _Readers = {
-        "TensorLMDB": TensorLMDBReader,
         "ImageLMDB": ImageLMDBReader,
-        "TensorPKL": TensorPKLReader,
         "ImagePIL": ImagePILReader,
+        "TensorLMDB": TensorLMDBReader,
+        "TensorPKL": TensorPKLReader,
     }
     data_transform = _get_transforms(data_transform)
     return _Readers[reader](path, data_transform)
