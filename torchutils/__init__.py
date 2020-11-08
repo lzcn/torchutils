@@ -8,6 +8,7 @@ import torchutils.meter
 import torchutils.metrics
 import torchutils.ops
 import torchutils.ot
+import torchutils.param
 import torchutils.singleton
 from torchutils.misc import *
 

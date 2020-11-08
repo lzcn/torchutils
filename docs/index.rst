@@ -18,6 +18,7 @@ Welcome to torchutils's documentation!
    metrics
    ops
    ot
+   param
    singleton
 
 
