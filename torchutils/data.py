@@ -177,7 +177,7 @@ class TensorLMDBReader(DataReader):
     """Reader for tensor data with LMDB backend."""
 
     def __init__(self, path, data_transform=lambda x: x):
-        super().__init__(path, data_transform)
+        super().__init__(path, data_transform=data_transform)
         self._env = _open_lmdb_env(path)
 
     def load(self, key) -> torch.Tensor:
@@ -192,7 +192,7 @@ class TensorLMDBReader(DataReader):
         with self._env.begin(write=False) as txn:
             buf = txn.get(key.encode())
         feature = np.frombuffer(buf, dtype=np.float32).reshape(1, -1)
-        return torch.from_numpy(feature).view(-1)
+        return torch.from_numpy(feature.copy()).view(-1)
 
 
 class ImagePILReader(DataReader):
@@ -256,11 +256,12 @@ class TensorPKLReader(DataReader):
     """Reader for tensor data."""
 
     def __init__(self, path, data_transform=lambda x: x):
-        super().__init__(path, data_transform=lambda x: x)
+        super().__init__(path, data_transform=data_transform)
         self._data = _load_pkl_data(path)
 
     def load(self, name):
-        return torch.from_numpy(self._data[name].astype(np.float32))
+        feature = self._data[name].astype(np.float32)
+        return torch.from_numpy(feature.copy())
 
 
 def getReader(reader=None, path=None, data_transform="identity", param=None) -> DataReader:
