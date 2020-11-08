@@ -263,7 +263,7 @@ class TensorPKLReader(DataReader):
         return torch.from_numpy(self._data[name].astype(np.float32))
 
 
-def getReader(reader, path, data_transform="identity") -> DataReader:
+def getReader(reader=None, path=None, data_transform="identity", param=None) -> DataReader:
     """Factory for DataReader.
 
     There are following types of data readers:
@@ -284,6 +284,10 @@ def getReader(reader, path, data_transform="identity") -> DataReader:
         Add detailed ducomentation for ``data_transform``
 
     """
+    if param is not None:
+        reader = param.reader
+        path = param.path
+        data_transform = param.data_transform
     _Readers = {
         "ImageLMDB": ImageLMDBReader,
         "ImagePIL": ImagePILReader,

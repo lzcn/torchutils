@@ -1,3 +1,4 @@
+from attr import validate
 import yaml
 import attr
 from . import misc
@@ -46,3 +47,30 @@ class Param(object):
         elif isinstance(value, cls):
             return value
         return cls(**value)
+
+
+@attr.s
+class DataReaderParam(Param):
+    """Parameter class for :class:`torchutils.data.DataReader`.
+
+    It supports an alternative way to initialize a DataReader intance::
+
+        param = DataReaderParam(reader="ImageLMDB", path="data", data_transform="identity")
+        reader = getReader(param=param)
+
+    """
+
+    reader = attr.ib()
+    path = attr.ib()
+    data_transform = attr.ib()
+
+    @reader.validator
+    def check(self, attribute, value):
+        support = [
+            "ImageLMDB",
+            "ImagePIL",
+            "TensorLMDB",
+            "TensorPKL",
+        ]
+        if value not in support:
+            raise ValueError("reader must be on of {}".format("|".joint(support)))
