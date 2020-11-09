@@ -1,7 +1,16 @@
+"""The :mod:`torchutils.meter` provides serveral average meters.
+
+The supported data readers are:
+
+- :class:`~Meter`: Average meter for single metric.
+- :class:`~BundleMeter`: Average meter for metrics with same window size.
+- :class:`~GroupMeter`: Average meter for different group of metrics with different window size.
+
+If `win_size==0`, then global average will be conducted.
+
+"""
 import logging
 from collections import deque
-
-import numpy as np
 
 
 class _WindowMeter(object):
@@ -83,6 +92,21 @@ class Meter(object):
         meter = Meter(10)
         # update data
         meter.update(0.1, weight=1.0)
+        # show values
+        print(meter.avg, meter.val)
+
+    Usually, the during testing phase, we need a global average meter::
+
+        from torchutils.meter import Meter
+        # history meter with window size 10
+        meter = Meter()
+        for x, y in loader:
+            # get loss
+            loss = criterion()
+            # get batch size
+            batch_size = len(x)
+            # update data
+            meter.update(loss, weight=batch_size)
         # show values
         print(meter.avg, meter.val)
 
@@ -187,8 +211,8 @@ class GroupMeter(object):
     .. code-block:: python
 
         tracer = GroupMeter(train=10, test=1)
-        tracer.update("train", data={'loss':0.1, 'accuracy':0.8})
-        tracer.update("test", data={'loss':0.2, 'accuracy':0.7})
+        tracer.update("train", data_dict={'loss':0.1, 'accuracy':0.8})
+        tracer.update("test", data_dict={'loss':0.2, 'accuracy':0.7})
         tracer.logging() # print(tracer)
 
     """
@@ -212,6 +236,12 @@ class GroupMeter(object):
         self._meters = {g: dict() for g in self.win_size.keys()}
 
     def logging(self, group=None):
+        """Log current results.
+
+        Args:
+            group (str, optional): group name. Defaults to None.
+
+        """
         if group:
             for k, m in self._meters[group].items():
                 self.logger.info("-------- %s: %s", k, m)
