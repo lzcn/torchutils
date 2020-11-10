@@ -203,13 +203,18 @@ def to_device(data, device="cuda"):
         device (torch.device, optional): target device.
 
     """
-    from collections import Sequence
 
     error_msg = "data must contains tensors or list of tensors; found {}"
-    if isinstance(data, Sequence):
-        return tuple(to_device(v, device) for v in data)
+    if isinstance(data, dict):
+        return {k: to_device(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [to_device(v, device) for v in data]
+    elif isinstance(data, tuple):
+        return (to_device(v, device) for v in data)
     elif isinstance(data, torch.Tensor):
         return data.to(device)
+    elif isinstance(data, str):
+        return data
     raise TypeError(error_msg.format(type(data)))
 
 
