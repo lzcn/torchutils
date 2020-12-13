@@ -87,8 +87,29 @@ def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True
     return mean, std
 
 
+def _inception_mean_and_cov(dataset, model, batch_size, num_workers, resize, progress, device):
+    x = _inception_output(dataset, model, batch_size, num_workers, resize, progress, device)
+    x = x.cpu().numpy()
+    mean = x.mean(axis=0)
+    cov = np.cov(x.T)
+    return mean, cov
+
+
 @torch.no_grad()
-def fid_score(dataset1, dataset2, batch_size=32, num_workers=4, resize=True, progress=False, device="cpu"):
+def fid_score(
+    dataset_1=None,
+    dataset_2=None,
+    mu_1=None,
+    mu_2=None,
+    cov_1=None,
+    cov_2=None,
+    batch_size=32,
+    num_workers=4,
+    resize=True,
+    progress=False,
+    device="cpu",
+    return_mean_and_cov=False,
+):
     r"""Compute the FID score.
 
     .. math::
@@ -96,8 +117,8 @@ def fid_score(dataset1, dataset2, batch_size=32, num_workers=4, resize=True, pro
         \text{FID}=|\mu_{1}-\mu_{2}|^{2}+\text{tr}\big(\Sigma_{1}+\Sigma_{2}-2(\Sigma_{1}\Sigma_{2})^{1/2}\big)
 
     Args:
-        dataset1 ([Dataset, Tensor]): datasets to compare fid score
-        dataset2 ([Dataset, Tensor]): datasets to compare fid score
+        dataset_1 ([Dataset, Tensor]): datasets to compare fid score
+        dataset_2 ([Dataset, Tensor]): datasets to compare fid score
         batch_size (int, optional): batch size. Defaults to 32.
         num_workers (int, optional): number of workers. Defaults to 4.
         resize (bool, optional): whether to resize image. Defaults to False.
@@ -109,16 +130,14 @@ def fid_score(dataset1, dataset2, batch_size=32, num_workers=4, resize=True, pro
     """
     model = inception_v3(pretrained=True, init_weights=False)
     model.fc = nn.Identity()
-    x1 = _inception_output(dataset1, model, batch_size, num_workers, resize, progress, device)
-    x2 = _inception_output(dataset2, model, batch_size, num_workers, resize, progress, device)
-    x1 = x1.cpu().numpy()
-    x2 = x2.cpu().numpy()
-    m1 = x1.mean(axis=0)
-    m2 = x2.mean(axis=0)
-    c1 = np.cov(x1.T)
-    c2 = np.cov(x2.T)
-    sqrtm, _ = linalg.sqrtm(c1.dot(c2), disp=False)
-    score = np.sum((m1 - m2) ** 2) + np.trace(c1 + c2 - 2.0 * sqrtm)
+    if mu_1 is None or cov_1 is None:
+        mu_1, cov_1 = _inception_mean_and_cov(dataset_1, model, batch_size, num_workers, resize, progress, device)
+    if mu_2 is None or cov_2 is None:
+        mu_2, cov_2 = _inception_mean_and_cov(dataset_2, model, batch_size, num_workers, resize, progress, device)
+    sqrtm, _ = linalg.sqrtm(cov_1.dot(cov_2), disp=False)
+    score = np.sum((mu_1 - mu_2) ** 2) + np.trace(cov_1 + cov_2 - 2.0 * sqrtm)
+    if return_mean_and_cov:
+        return score, {"mu_1": mu_1, "mu_2": mu_2, "cov_1": cov_1, "cov_2": cov_2}
     return score
 
 
