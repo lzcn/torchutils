@@ -1,22 +1,26 @@
 import numpy as np
 import torch
 from scipy import linalg
+from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from torchvision.models.inception import inception_v3
-from tqdm import tqdm
-from torch import nn
+from tqdm.auto import tqdm
 
 
 @torch.no_grad()
-def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True, progress=False, device=None):
+def _inception_output(
+    dataset, model, transform_input=False, batch_size=128, num_workers=4, resize=True, progress=False, device=None
+):
     if device is None:
         # auto-select device
         device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
     model.eval()
+    normalize = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     dataloader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
-    dataloader = tqdm(dataloader) if progress else dataloader
+    dataloader = tqdm(dataloader, desc="Forward Inception V3") if progress else dataloader
     outputs = []
     for batch in dataloader:
         if isinstance(batch, torch.Tensor):
@@ -26,11 +30,11 @@ def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True
         else:
             raise TypeError("The return of dataset can not be recognized")
         x = x.to(device)
-        if model.transform_input:
-            x = x / 2.0 + 0.5
+        if transform_input:
+            x = normalize(x / 2.0 + 0.5)
         if resize:
             # if align corners IS=10.254 else IS=10.511 on CIFAR10
-            x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=False)
+            x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=True)
         outputs.append(model(x))
     return torch.cat(outputs, dim=0)
 
@@ -83,10 +87,10 @@ def inception_score(
 
     """
     assert splits > 0
-    model = inception_v3(pretrained=True, transform_input=transform_input)
+    model = inception_v3(pretrained=True, transform_input=False)
     model.to(device)
     model.eval()
-    output = _inception_output(dataset, model, batch_size, num_workers, resize, progress, device)
+    output = _inception_output(dataset, model, transform_input, batch_size, num_workers, resize, progress, device)
     probs = F.softmax(output, dim=-1).split(len(dataset) // splits)
 
     scores = []
@@ -142,12 +146,16 @@ def fid_score(
     Returns:
         float: FID score
     """
-    model = inception_v3(pretrained=True, transform_input=transform_input)
+    model = inception_v3(pretrained=True, transform_input=False)
     model.fc = nn.Identity()
     if mu_1 is None or cov_1 is None:
-        mu_1, cov_1 = _inception_mean_and_cov(dataset_1, model, batch_size, num_workers, resize, progress, device)
+        mu_1, cov_1 = _inception_mean_and_cov(
+            dataset_1, model, transform_input, batch_size, num_workers, resize, progress, device
+        )
     if mu_2 is None or cov_2 is None:
-        mu_2, cov_2 = _inception_mean_and_cov(dataset_2, model, batch_size, num_workers, resize, progress, device)
+        mu_2, cov_2 = _inception_mean_and_cov(
+            dataset_2, model, transform_input, batch_size, num_workers, resize, progress, device
+        )
     sqrtm, _ = linalg.sqrtm(cov_1.dot(cov_2), disp=False)
     score = np.sum((mu_1 - mu_2) ** 2) + np.trace(cov_1 + cov_2 - 2.0 * sqrtm)
     if return_mean_and_cov:
