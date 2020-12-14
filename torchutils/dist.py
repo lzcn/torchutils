@@ -26,6 +26,8 @@ def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True
         else:
             raise TypeError("The return of dataset can not be recognized")
         x = x.to(device)
+        if model.transform_input:
+            x = x / 2.0 + 0.5
         if resize:
             # if align corners IS=10.254 else IS=10.511 on CIFAR10
             x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=False)
@@ -34,7 +36,9 @@ def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True
 
 
 @torch.no_grad()
-def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True, progress=False, device=None):
+def inception_score(
+    dataset, transform_input=False, batch_size=32, num_workers=4, splits=1, resize=True, progress=False, device=None
+):
     r"""Compute the inception score (IS)
 
     .. math::
@@ -65,6 +69,8 @@ def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True
 
     Args:
         dataset (Dataset): dataset.
+        transform_input (bool, optional): whether to transform the input from range
+            (-1, 1) to desired range. Defaults to False.
         batch_size (int, optional): batch size. Defaults to 32.
         num_workers (int, optional): number of workers. Defaults to 4.
         splits (int, optional): number of splits. Defaults to 1.
@@ -77,7 +83,7 @@ def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True
 
     """
     assert splits > 0
-    model = inception_v3(pretrained=True, transform_input=False)
+    model = inception_v3(pretrained=True, transform_input=transform_input)
     model.to(device)
     model.eval()
     output = _inception_output(dataset, model, batch_size, num_workers, resize, progress, device)
@@ -110,6 +116,7 @@ def fid_score(
     mu_2=None,
     cov_1=None,
     cov_2=None,
+    transform_input=False,
     batch_size=32,
     num_workers=4,
     resize=True,
@@ -135,7 +142,7 @@ def fid_score(
     Returns:
         float: FID score
     """
-    model = inception_v3(pretrained=True, init_weights=False)
+    model = inception_v3(pretrained=True, transform_input=transform_input)
     model.fc = nn.Identity()
     if mu_1 is None or cov_1 is None:
         mu_1, cov_1 = _inception_mean_and_cov(dataset_1, model, batch_size, num_workers, resize, progress, device)
