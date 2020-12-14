@@ -9,7 +9,10 @@ from torch import nn
 
 
 @torch.no_grad()
-def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True, progress=False, device="cpu"):
+def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True, progress=False, device=None):
+    if device is None:
+        # auto-select device
+        device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
     model.eval()
     dataloader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
@@ -24,13 +27,14 @@ def _inception_output(dataset, model, batch_size=128, num_workers=4, resize=True
             raise TypeError("The return of dataset can not be recognized")
         x = x.to(device)
         if resize:
+            # if align corners IS=10.254 else IS=10.511 on CIFAR10
             x = F.interpolate(x, size=(299, 299), mode="bilinear", align_corners=False)
         outputs.append(model(x))
     return torch.cat(outputs, dim=0)
 
 
 @torch.no_grad()
-def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True, progress=False, device="cpu"):
+def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True, progress=False, device=None):
     r"""Compute the inception score (IS)
 
     .. math::
@@ -40,6 +44,9 @@ def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True
     Examples:
 
         .. code-block:: python
+
+            from torchvision import datasets
+            from torchutils.dist import inception_score
 
             dataset = datasets.ImageNet(
                     "data/imagenet",
@@ -53,24 +60,24 @@ def inception_score(dataset, batch_size=32, num_workers=4, splits=1, resize=True
                         ]
                     ),
                 )
-            mean, std = inception_score(dataset, resize=False)
-            print("{:.3f}({:.3f})".format(mean, std)) # 63.653(8.227)
+            mean, std = inception_score(dataset, resize=False, progress=True)
+            print("{:.3f}({:.3f})".format(mean, std))
 
     Args:
         dataset (Dataset): dataset.
         batch_size (int, optional): batch size. Defaults to 32.
         num_workers (int, optional): number of workers. Defaults to 4.
         splits (int, optional): number of splits. Defaults to 1.
-        resize (bool, optional): whether to resize image. Defaults to False.
+        resize (bool, optional): whether to resize image. Defaults to True.
         progress (bool, optional): show progress bar. Defaults to False.
-        device (str, optional): [description]. Defaults to "cpu".
+        device (str, optional): device to compute. Defaults to None.
 
     Returns:
         tuple: mean IS and std IS
 
     """
     assert splits > 0
-    model = inception_v3(pretrained=True, init_weights=False)
+    model = inception_v3(pretrained=True, transform_input=False)
     model.to(device)
     model.eval()
     output = _inception_output(dataset, model, batch_size, num_workers, resize, progress, device)
@@ -107,7 +114,7 @@ def fid_score(
     num_workers=4,
     resize=True,
     progress=False,
-    device="cpu",
+    device=None,
     return_mean_and_cov=False,
 ):
     r"""Compute the FID score.
@@ -121,9 +128,9 @@ def fid_score(
         dataset_2 ([Dataset, Tensor]): datasets to compare fid score
         batch_size (int, optional): batch size. Defaults to 32.
         num_workers (int, optional): number of workers. Defaults to 4.
-        resize (bool, optional): whether to resize image. Defaults to False.
+        resize (bool, optional): whether to resize image. Defaults to True.
         progress (bool, optional): show progress bar. Defaults to False.
-        device (str, optional): [description]. Defaults to "cpu".
+        device (str, optional): device to compute. Defaults to None.
 
     Returns:
         float: FID score
