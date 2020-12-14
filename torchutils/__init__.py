@@ -2,6 +2,7 @@ import torchutils.data
 import torchutils.dist
 import torchutils.factory
 import torchutils.files
+import torchutils.layers
 import torchutils.logger
 import torchutils.loss
 import torchutils.meter
