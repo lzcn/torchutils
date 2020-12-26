@@ -1,4 +1,4 @@
-from attr import validate
+import pprint
 import yaml
 import attr
 from . import misc
@@ -22,7 +22,7 @@ class Param(object):
 
     def __str__(self):
         d = attr.asdict(self, filter=lambda attribute, _: attribute.repr is True)
-        return self.__class__.__name__ + ":\n" + misc.format_display(d)
+        return self.__class__.__name__ + ":\n" + pprint.pformat(d)
 
     def asdict(self):
         """Return configurable attributes (e.g. whose init=True)."""
