@@ -48,6 +48,21 @@ class Param(object):
             return value
         return cls(**value)
 
+    @classmethod
+    def from_yaml(cls, f):
+        """Return a new intance from yaml file
+
+        Args:
+            f (str): filename
+
+        Returns:
+            Param: new intance
+        """
+        with open(f, "r") as f:
+            kwargs = yaml.load(f, Loader=yaml.FullLoader)
+            param = cls(**kwargs)
+        return param
+
 
 @attr.s
 class DataReaderParam(Param):
