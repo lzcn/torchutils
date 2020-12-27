@@ -230,3 +230,20 @@ def pairwise_distances(x: torch.Tensor, y: torch.Tensor):
     y_norm = (y * y).sum(dim=-1, keepdim=True).transpose(-1, -2)
     dist = x_norm + y_norm - 2.0 * torch.matmul(x, torch.transpose(y, -1, -2))
     return dist ** 0.5
+
+
+def kaiming_uniform(module, nonlinearity="relu"):
+    """Kaiming uniform for neural networks.
+
+    Args:
+        module (nn.Module): module to apply the initialization
+        nonlinearity (str, optional): non-linearity. Defaults to "relu".
+    """
+    if isinstance(module, nn.Linear):
+        nn.init.kaiming_uniform_(module.weight, nonlinearity=nonlinearity)
+        if module.bias is not None:
+            nn.init.zeros_(module.bias)
+    elif isinstance(module, nn.LayerNorm):
+        nn.init.ones_(module.weight)
+        if module.bias is not None:
+            nn.init.zeros_(module.bias)
