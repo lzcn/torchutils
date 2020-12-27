@@ -1,13 +1,18 @@
-import numpy as np
-import scipy as sp
+from typing import Tuple
 import torch
 
 from .ops import logmm
 
 
-def sinkhorn_div(
-    dist: torch.Tensor, a: torch.Tensor = None, b: torch.Tensor = None, v: torch.Tensor = None, gamma=0.01, step=10
-):
+def sinkhorn(
+    M: torch.Tensor,
+    a: torch.Tensor = None,
+    b: torch.Tensor = None,
+    v: torch.Tensor = None,
+    gamma: float = 0.01,
+    budget: int = 10,
+    stable: bool = True,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     r"""Compute sinkhorn divergence and solve the entropic regularization optimal transport problem.
 
     The optimiazation problem is defined as follows:
@@ -38,42 +43,65 @@ def sinkhorn_div(
 
 
     Args:
-        dist (torch.Tensor): the cost (distance) matrix :math:`M_{xy}`.
+        M (torch.Tensor): the cost (distance) matrix :math:`M_{xy}`.
         a (torch.Tensor, optional): Dirichlet distribution over :math:`x`. Defaults to None (uniform).
         b (torch.Tensor, optional): Dirichlet distribution over :math:`y`. Defaults to None (uniform).
         v (torch.Tensor, optional): initial state of :math:`v` . Defaults to None.
         gamma (float, optional): regularization strength. Defaults to 0.01.
-        step (int, optional): number of iterations. Defaults to 10.
+        budget (int, optional): number of iterations. Defaults to 10.
+        stable (bool, optional): whether to use stable version.
 
     """
-    n, m = dist.shape
-    K = torch.exp(-dist / gamma)
-    a = dist.new_ones(n) / n if a is None else a
-    b = dist.new_ones(m) / m if b is None else b
-    v = dist.new_ones(m) if v is None else v
+    if stable:
+        return sinkhorn_div_stable(M, a, b, v, gamma, budget)
+    else:
+        return sinkhorn_div(M, a, b, v, gamma, budget)
 
-    for i in range(step):
+
+def sinkhorn_div(
+    M: torch.Tensor,
+    a: torch.Tensor = None,
+    b: torch.Tensor = None,
+    v: torch.Tensor = None,
+    gamma: float = 0.01,
+    budget: int = 10,
+):
+    n, m = M.shape
+    K = torch.exp(-M / gamma)
+    a = M.new_ones(n) / n if a is None else a
+    b = M.new_ones(m) / m if b is None else b
+    v = M.new_ones(m) if v is None else v
+    u = M.new_ones(n)
+
+    for _ in range(budget):
         u = a / torch.matmul(K, v)
         v = b / torch.matmul(u, K)
     P = u[:, None] * K * v[None, :]
-    loss = (P * dist).sum()
+    loss = (P * M).sum()
     return loss, P, u, v
 
 
 def sinkhorn_div_stable(
-    dist: torch.Tensor, a: torch.Tensor = None, b: torch.Tensor = None, v: torch.Tensor = None, gamma=0.01, step=10
+    M: torch.Tensor,
+    a: torch.Tensor = None,
+    b: torch.Tensor = None,
+    v: torch.Tensor = None,
+    gamma: float = 0.01,
+    budget: int = 10,
 ):
-    n, m = dist.shape
-    log_K = -dist / gamma
-    log_a = torch.log(dist.new_ones(n) / n) if a is None else torch.log(a)
-    log_b = torch.log(dist.new_ones(m) / n) if b is None else torch.log(b)
-    log_v = dist.new_zeros(m) if v is None else torch.log(v)
-    for _ in range(step):
+    n, m = M.shape
+    log_K = -M / gamma
+    log_a = torch.log(M.new_ones(n) / n) if a is None else torch.log(a)
+    log_b = torch.log(M.new_ones(m) / n) if b is None else torch.log(b)
+    log_v = M.new_zeros(m) if v is None else torch.log(v)
+    log_u = M.new_zeros(n)
+
+    for _ in range(budget):
         log_u = log_a - logmm(log_K, log_v[:, None]).view(-1)
         log_v = log_b - logmm(log_u[None, :], log_K).view(-1)
 
     log_P = log_u[:, None] + log_K + log_v[None, :]
     P = torch.exp(log_P)
-    loss = (P * dist).sum()
+    loss = (P * M).sum()
 
     return loss, P, torch.exp(log_u), torch.exp(log_v)
