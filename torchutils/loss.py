@@ -1,7 +1,5 @@
-import numpy as np
 import torch
 import torch.nn.functional as F
-from scipy.optimize import linear_sum_assignment as hungarian
 
 from .ops import logmm
 
@@ -53,60 +51,61 @@ def contrastive_loss(im, s, margin=0.1, norm=False, reduction="none"):
         return vse_loss.mean()
     else:
         raise KeyError
-    return vse_loss
 
 
-def soft_margin_loss(posi, nega=None, reduction="none"):
+def soft_margin_loss(pos, neg=None, reduction="none"):
     """Compute the BPR loss."""
-    if nega is None:
-        x = posi
+    if neg is None:
+        x = pos
     else:
-        x = posi - nega
+        x = pos - neg
     return F.soft_margin_loss(x, torch.ones_like(x), reduction=reduction)
 
 
 def sinkhorn_div(
-    dist: torch.Tensor,
+    distance: torch.Tensor,
     a: torch.Tensor = None,
     b: torch.Tensor = None,
     v: torch.Tensor = None,
     gamma=0.01,
     budget=10,
 ):
-    n, m = dist.shape
-    K = torch.exp(-dist / gamma)
-    a = dist.new_ones(n) / n if a is None else a
-    b = dist.new_ones(m) / m if b is None else b
-    v = dist.new_ones(m) if v is None else v
+    n, m = distance.shape
+    K = torch.exp(-distance / gamma)
+    a = distance.new_ones(n) / n if a is None else a
+    b = distance.new_ones(m) / m if b is None else b
+    v = distance.new_ones(m) if v is None else v
+    u = distance.new_ones(n)
 
-    for i in range(budget):
+    for _ in range(budget):
         u = a / torch.matmul(K, v)
         v = b / torch.matmul(u, K)
     P = u[:, None] * K * v[None, :]
-    loss = (P * dist).sum()
+    loss = (P * distance).sum()
     return loss, P, u, v
 
 
 def sinkhorn_div_stable(
-    dist: torch.Tensor,
+    distance: torch.Tensor,
     a: torch.Tensor = None,
     b: torch.Tensor = None,
     v: torch.Tensor = None,
     gamma=0.01,
     budget=10,
 ):
-    n, m = dist.shape
-    log_K = -dist / gamma
-    log_a = torch.log(dist.new_ones(n) / n) if a is None else torch.log(a)
-    log_b = torch.log(dist.new_ones(m) / n) if b is None else torch.log(b)
-    log_v = dist.new_zeros(m) if v is None else torch.log(v)
+    n, m = distance.shape
+    log_K = -distance / gamma
+    log_a = torch.log(distance.new_ones(n) / n) if a is None else torch.log(a)
+    log_b = torch.log(distance.new_ones(m) / n) if b is None else torch.log(b)
+    log_v = distance.new_zeros(m) if v is None else torch.log(v)
+    log_u = distance.new_zeros(n)
 
-    for i in range(budget):
+    for _ in range(budget):
         log_u = log_a - logmm(log_K, log_v[:, None]).view(-1)
         log_v = log_b - logmm(log_u[None, :], log_K).view(-1)
 
     log_P = log_u[:, None] + log_K + log_v[None, :]
     P = torch.exp(log_P)
-    loss = (P * dist).sum()
+    loss = (P * distance).sum()
 
     return loss, P, torch.exp(log_u), torch.exp(log_v)
