@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from colorama import Back, Fore, Style
 from torch import nn
-
+import pprint
 from .overrides import set_module
 
 LOGGER = logging.getLogger(__name__)
@@ -28,35 +28,16 @@ __all__ = [
 
 
 @set_module("torchutils")
-def format_display(opt, num=1):
+def format_display(opt, num=1, symbol=" "):
     """Convert dictionary to format string.
 
     Args:
         opt (dict): configuration to be displayed
         num (int): number of indent
     """
-    indent = "  " * num
-    string = ""
-    for k, v in opt.items():
-        if v is None:
-            continue
-        if isinstance(v, dict):
-            string += "{}{} : {{\n".format(indent, k)
-            string += format_display(v, num + 1)
-            string += "{}}},\n".format(indent)
-        elif isinstance(v, list):
-            string += "{}{} : ".format(indent, k)
-            one_line = ",".join(map(str, v))
-            if len(one_line) < 87:
-                string += "[" + one_line + "]\n"
-            else:
-                prefix = "  " + indent
-                string += "[\n"
-                for i in v:
-                    string += "{}{},\n".format(prefix, i)
-                string += "{}]\n".format(indent)
-        else:
-            string += "{}{} : {},\n".format(indent, k, v)
+    indent = symbol * num
+    string = pprint.pformat(opt)
+    string = indent + string.replace("\n", "\n" + indent)
     return string
 
 
