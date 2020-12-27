@@ -51,6 +51,12 @@ def sinkhorn(
         budget (int, optional): number of iterations. Defaults to 10.
         stable (bool, optional): whether to use stable version.
 
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+            1. value of :math:`<P,M_{xy}>`
+            2. optimal :math:`P_{\gamma}`
+            3. solved :math:`u`
+            4. solved :math:`v`
     """
     if stable:
         return sinkhorn_div_stable(M, a, b, v, gamma, budget)
