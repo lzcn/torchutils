@@ -12,6 +12,7 @@ Welcome to torchutils's documentation!
    dist
    factory
    files
+   ignite
    layers
    logger
    loss
