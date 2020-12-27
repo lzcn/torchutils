@@ -37,3 +37,14 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     python_requires=">=3.6",
 )
+
+install_requires = [
+    "attrs",
+    "colorma",
+    "numpy",
+    "opencv-python",
+    "pandas",
+    "python-lmdb",
+    "pyyaml",
+    "scikit-learn",
+]
