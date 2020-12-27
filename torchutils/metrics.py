@@ -1,33 +1,92 @@
 import logging
 import threading
+from typing import Tuple
 
 import numpy as np
 import sklearn.metrics
 
-_POSILABEL = 1
-_NEGALABEL = 0
 
 LOGGER = logging.getLogger(__name__)
 
 
-def _canonical(posi, nega):
-    """Return the canonical representation.
+def to_canonical(pos: list, neg: list) -> Tuple[np.ndarray, np.ndarray]:
+    r"""Return the canonical representation for computing AUC.
 
-    Parameters
-    ----------
-    posi: positive scores
-    nege: negative scores
+    Args:
+        pos (list): positive scores
+        neg (list): negative scores
 
-    Return
-    ------
-    y_true: true label 0 for negative sample and 1 for positive
-    y_score: predicted score for corresponding samples
+    Returns:
+        Tuple[np.ndarray, np.ndarray]:
+
+            1. `y_label`: concatenated positive and negative labels
+            2. `y_score`: concatenated positive and negative scores
 
     """
-    posi, nega = np.array(posi), np.array(nega)
-    y_true = np.array([_POSILABEL] * len(posi) + [_NEGALABEL] * len(nega))
-    y_score = np.hstack((posi.flatten(), nega.flatten()))
-    return (y_true, y_score)
+    pos, neg = np.array(pos), np.array(neg)
+    y_label = np.array([1] * len(pos) + [0] * len(neg))
+    y_score = np.hstack((pos.flatten(), neg.flatten()))
+    return (y_label, y_score)
+
+
+def pair_accuracy(pos: list, neg: list) -> float:
+    r"""Compute pairwise accuracy.
+
+    Give positive and negative scores :math:`x,y\in\mathbb{R}^d`
+
+    .. math::
+
+        \text{accuracy}=\frac{\sum_{i,j} \mathbb{I}(x_i > y_j)}{d^2}
+
+    Args:
+        posi (list): positive scores
+        nega (list): negative scores
+    Return:
+        float: pairwise accuracy
+    """
+    pos = np.array(pos)
+    neg = np.array(neg)
+    diff = pos.reshape(-1, 1) - neg.reshape(1, -1)
+    return (diff > 0).sum() / diff.size
+
+
+def pair_rank_loss(pos, neg):
+    r"""Compute pairwise rank loss.
+
+    Give positive and negative scores :math:`x,y\in\mathbb{R}^d`
+
+    .. math::
+        l=\frac{1}{d^2}\sum_{i,j} \log\left(1.0+\exp(y_j-x_i))\right)
+
+    Args:
+        posi (list) : score for positive outfit
+        nega (list) : score for negative outfit
+    Return:
+        float: pair-wise loss
+    """
+    pos = np.array(pos)
+    neg = np.array(neg)
+    diff = pos.reshape(-1, 1) - neg.reshape(1, -1)
+    return np.log(1.0 + np.exp(-diff)).sum() / diff.size
+
+
+def margin_loss(posi, nega, margin=0.1):
+    r"""Compute margin loss
+
+    Give positive and negative scores :math:`x,y\in\mathbb{R}^d`:
+
+    .. math::
+        l=\frac{1}{d}\sum_i\left(\max(1-m-x_i,0) + \max(y_i-m,0)\right)
+    Args:
+        posi (list): score for positive outfit
+        nega (list): score for negative outfit
+
+    Returns:
+        float: margin loss
+    """
+    posi = np.maximum(1.0 - margin - np.array(posi), 0) ** 2
+    nega = np.maximum(np.array(nega) - margin, 0) ** 2
+    return (posi.sum() + nega.sum()) / (posi.size + nega.size)
 
 
 def _precision(posi, nega):
@@ -75,7 +134,7 @@ def ROC(posi, nega):
     mean_auc = 0.0
     aucs = []
     for p, n in zip(posi, nega):
-        y_true, y_score = _canonical(p, n)
+        y_true, y_score = to_canonical(p, n)
         auc = sklearn.metrics.roc_auc_score(y_true, y_score)
         aucs.append(auc)
         mean_auc += auc
@@ -113,7 +172,7 @@ def NDCG(posi, nega, wtype="max"):
     assert len(posi) == len(nega)
     u_labels, u_scores = [], []
     for p, n in zip(posi, nega):
-        label, score = _canonical(p, n)
+        label, score = to_canonical(p, n)
         u_labels.append(label)
         u_scores.append(score)
     return mean_ndcg_score(u_scores, u_labels, wtype)
@@ -138,8 +197,8 @@ def ndcg_score(y_score, y_label, wtype="max"):
     .. [1] Hu Y, Yi X, Davis L S. Collaborative fashion recommendation:
            A functional tensor factorization approach[C]
            Proceedings of the 23rd ACM international conference on Multimedia.
-           ACM, 2015: 129-138.
-       [2] Lee C P, Lin C J. Large-scale Linear RankSVM[J].
+           2015: 129-138.
+    .. [2] Lee C P, Lin C J. Large-scale Linear RankSVM[J].
            Neural computation, 2014, 26(4): 781-817.
 
     """
