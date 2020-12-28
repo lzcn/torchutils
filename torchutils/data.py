@@ -2,7 +2,7 @@ import logging
 import os
 import pickle
 from abc import ABCMeta, abstractmethod
-from typing import Any, Callable
+from typing import Any, Callable, Union
 
 import lmdb
 import numpy as np
@@ -12,7 +12,7 @@ import torch
 import torchvision.transforms as ts
 from tqdm import tqdm
 
-from . import files
+from torchutils.files import scan_files
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,14 +28,19 @@ __all__ = [
 ]
 
 
-def create_lmdb(dst, src):
+def create_lmdb(dst: str, src: Union[str, dict], key="relpath"):
     """Convert the image in src to dst in `LMDB`_ format
 
     .. _LMDB: https://lmdb.readthedocs.io/en/release/
 
     Args:
-        dst (str): dst folder
-        src (str): src folder
+        dst (str): folder to save lmdb file.
+        src (Union[str, dict]): folder or dict for (key, file) pairs
+        key (str, optional): Defaults to "relpath". If src is a directory, it decides which key is used.
+
+            - "relpath": use the relative path for key
+            - "filename": use filename for key
+            - "others": use fullpath for key
 
     Examples:
 
@@ -43,28 +48,38 @@ def create_lmdb(dst, src):
 
             dst = "/path/to/lmdb"
             src = "/path/to/images"
-            create(dst, src)
+            create(dst, src, key="relpath")
 
-    It reads images in ``src`` folder and creates two files:
+    It reads images in ``src`` folder and creates two files under ``dst`` folder:
         - ``data.mdb``
         - ``lock.mdb``
-    under ``dst`` folder.
-
-    Note:
-        The key of each image is the relative path to ``src``.
+    The key of each image is the relative path to ``src``.
 
     """
     LOGGER.info("Creating LMDB to %s", dst)
-    suffix = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif")
-    image_list = files.scan_files(src, suffix, recursive=True, relpath=True)
+    if isinstance(src, dict):
+        # assume all values are filenames
+        file_list = src.values()
+        key_list = src.keys()
+    elif isinstance(src, str):
+        # assume src is a directory
+        suffix = (".jpg", ".jpeg", ".png", ".ppm", ".bmp", ".pgm", ".tif")
+        file_list = scan_files(src, suffix, recursive=True, relpath=False)
+        if key == "relpath":
+            key_list = [os.path.relpath(src, f) for f in file_list]
+        elif key == "filename":
+            key_list = [os.path.basename(f) for f in file_list]
+        else:
+            key_list = file_list
+    else:
+        raise ValueError("argument src must be a dict or directory path, but get {}".format(type(src)))
     env = lmdb.open(dst, map_size=2 ** 40)
     # open json file
     with env.begin(write=True) as txn:
-        for image_name in tqdm(image_list):
-            fn = os.path.join(src, image_name)
+        for k, fn in tqdm(zip(key_list, file_list), total=len(key_list)):
             with open(fn, "rb") as f:
                 img_data = f.read()
-                txn.put(image_name.encode("ascii"), img_data)
+                txn.put(k.encode("utf-8"), img_data)
     env.close()
     LOGGER.info("Converted dst to LDMB")
 
