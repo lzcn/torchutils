@@ -1,9 +1,8 @@
 import operator
 from numbers import Number
 import pprint
-
+import torch.optim
 import attr
-import torch
 import yaml
 
 from . import misc
@@ -86,7 +85,7 @@ class DataReaderParam(Param):
 
     reader = attr.ib()
     path = attr.ib()
-    data_transform = attr.ib()
+    data_transform = attr.ib(default=None)
 
     @reader.validator
     def check(self, attribute, value):
@@ -161,7 +160,7 @@ class OptimParam(Param):
     lr = attr.ib(default=1e-3, repr=False)
     weight_decay = attr.ib(default=0, repr=False)
     param = attr.ib(factory=dict, repr=False)
-    lr_scheduler = attr.ib(default=None, converter=SchedulerParam.new)
+    lr_scheduler: SchedulerParam = attr.ib(default=None, converter=SchedulerParam.new)
     # hidden parameters
     groups = attr.ib(factory=dict, init=False)
     default = attr.ib(factory=dict, init=False)

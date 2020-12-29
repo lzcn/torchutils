@@ -9,10 +9,11 @@ import numpy as np
 import PIL
 import six
 import torch
-import torchvision.transforms as ts
+from torchvision import transforms
 from tqdm import tqdm
 
 from torchutils.files import scan_files
+from torchutils.param import DataReaderParam
 
 LOGGER = logging.getLogger(__name__)
 
@@ -121,33 +122,6 @@ class ResizeToSquare(object):
         return self.__class__.__name__ + "(size={0})".format(self.s)
 
 
-_normalize_transform = ts.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-
-_preset_transforms = {
-    "augment": ts.Compose([ts.RandomHorizontalFlip(), ts.ToTensor(), _normalize_transform]),
-    "totensor": ts.Compose([ts.ToTensor(), _normalize_transform]),
-    "identity": lambda x: x,
-}
-
-
-def _get_transforms(transforms):
-    if isinstance(transforms, str) and transforms in _preset_transforms:
-        return _preset_transforms[transforms]
-    elif isinstance(transforms, list):
-        trans = []
-        for x in transforms:
-            if isinstance(x, str):
-                trans.append(getattr(ts, x)())
-            else:
-                name, kwargs = x
-                trans.append(getattr(ts, name)(**kwargs))
-        return ts.Compose(trans)
-    elif isinstance(transforms, Callable):
-        return transforms
-    else:
-        raise KeyError("Transforms: '{}' is not defined".format(transforms))
-
-
 def _load_pkl_data(path):
     fn = os.path.join(path)
     with open(fn, "rb") as f:
@@ -167,7 +141,7 @@ class DataReader(metaclass=ABCMeta):
         data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x
     """
 
-    def __init__(self, path: str, data_transform: Callable = lambda x: x):
+    def __init__(self, path: str, data_transform: Callable = None):
         self.path = path
         self.data_transform = data_transform
 
@@ -181,17 +155,19 @@ class DataReader(metaclass=ABCMeta):
         Returns:
             Any: raw data before data transform.
         """
-        pass
+        raise NotImplementedError
 
     def __call__(self, key):
         data = self.load(key)
+        if self.data_transform is None:
+            return data
         return self.data_transform(data)
 
 
 class TensorLMDBReader(DataReader):
     """Reader for tensor data with LMDB backend."""
 
-    def __init__(self, path, data_transform=lambda x: x):
+    def __init__(self, path, data_transform=None):
         super().__init__(path, data_transform=data_transform)
         self._env = _open_lmdb_env(path)
 
@@ -218,7 +194,7 @@ class ImagePILReader(DataReader):
         data_transform (Callable, optional): data transform. Defaults to lambdax:x.
     """
 
-    def __init__(self, path, data_transform=lambda x: x):
+    def __init__(self, path, data_transform=None):
         super().__init__(path, data_transform=data_transform)
 
     def load(self, name: str) -> PIL.Image.Image:
@@ -245,7 +221,7 @@ class ImageLMDBReader(DataReader):
 
     """
 
-    def __init__(self, path, data_transform=lambda x: x):
+    def __init__(self, path, data_transform=None):
         super().__init__(path, data_transform=data_transform)
         self._env = _open_lmdb_env(path)
 
@@ -270,17 +246,40 @@ class ImageLMDBReader(DataReader):
 class TensorPKLReader(DataReader):
     """Reader for tensor data."""
 
-    def __init__(self, path, data_transform=lambda x: x):
+    def __init__(self, path, data_transform=None):
         super().__init__(path, data_transform=data_transform)
         self._data = _load_pkl_data(path)
 
-    def load(self, name):
+    def load(self, name) -> torch.Tensor:
         feature = self._data[name].astype(np.float32)
         return torch.from_numpy(feature.copy())
 
 
-def getReader(reader=None, path=None, data_transform="identity", param=None) -> DataReader:
-    """Factory for DataReader.
+_Readers = {
+    "ImageLMDB": ImageLMDBReader,
+    "ImagePIL": ImagePILReader,
+    "TensorLMDB": TensorLMDBReader,
+    "TensorPKL": TensorPKLReader,
+}
+
+
+def _get_transforms(data_transform):
+    if isinstance(data_transform, str):
+        data_transform = eval(data_transform)
+        if isinstance(data_transform, Callable):
+            return data_transform
+        else:
+            return transforms.Compose(data_transform)
+    elif isinstance(data_transform, Callable):
+        return data_transform
+    else:
+        return lambda x: x
+
+
+def getReader(
+    reader: str = None, path: str = None, data_transform: Union[str, Callable] = None, param: DataReaderParam = None
+) -> DataReader:
+    r"""Factory for DataReader.
 
     There are following types of data readers:
         - "ImageLMDB"(:class:`~torchutils.data.ImageLMDBReader`): image data with LMDB backend.
@@ -291,24 +290,33 @@ def getReader(reader=None, path=None, data_transform="identity", param=None) -> 
     Args:
         reader (str): reader type
         path (str): data path
-        data_transform (Optional[Union[str, list]], optional): data transform. Defaults to "identity".
+        data_transform (Union[str, Callable], optional): callable or string to eval. Defaults to None.
+        param ([DataReaderParam], optional): use ReaderPraram to define. Defaults to None.
 
     Returns:
         DataReader: a callable instance of DataReader
 
-    Todo:
-        Add detailed ducomentation for ``data_transform``
+    Examples:
+
+        .. code-block:: python
+
+            reader = "ImageLMDB"
+            path = "/path/to/lmdb"
+            data_transform = '''
+            [
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
+            '''
+            reader = getReader(reader, path, data_transform)
+
+        Within the above example, the ``data_trainsform`` is defined in string.
 
     """
     if param is not None:
         reader = param.reader
         path = param.path
         data_transform = param.data_transform
-    _Readers = {
-        "ImageLMDB": ImageLMDBReader,
-        "ImagePIL": ImagePILReader,
-        "TensorLMDB": TensorLMDBReader,
-        "TensorPKL": TensorPKLReader,
-    }
     data_transform = _get_transforms(data_transform)
     return _Readers[reader](path, data_transform)
