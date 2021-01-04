@@ -46,6 +46,13 @@ Misc
 
     colour
     format_display
+    from_yaml
+    gather_loss
+    gather_mean
     get_named_class
     get_named_function
     infer_parallel_device
+    init_optimizer
+    load_pretrained
+    one_hot
+    to_device

@@ -1,13 +1,17 @@
+import json
 import logging
 import operator
 import os
+import pprint
 from numbers import Number
+from typing import IO, Any
 
 import numpy as np
 import torch
+import yaml
 from colorama import Back, Fore, Style
 from torch import nn
-import pprint
+
 from .overrides import set_module
 
 LOGGER = logging.getLogger(__name__)
@@ -15,6 +19,7 @@ LOGGER = logging.getLogger(__name__)
 __all__ = [
     "colour",
     "format_display",
+    "from_yaml",
     "gather_loss",
     "gather_mean",
     "get_named_class",
@@ -24,6 +29,7 @@ __all__ = [
     "load_pretrained",
     "one_hot",
     "to_device",
+    "YAMLoader",
 ]
 
 
@@ -297,3 +303,71 @@ def init_optimizer(net, optim_param):
     optimizer = grad_class(param_groups, **grad_param)
     lr_scheduler = lr_class(optimizer, **lr_param)
     return optimizer, lr_scheduler
+
+
+@set_module("torchutils")
+class YAMLoader(yaml.SafeLoader):
+    """YAML Loader with `!include` constructor.
+
+    Example:
+
+
+    """
+
+    def __init__(self, stream: IO) -> None:
+
+        try:
+            self._root = os.path.split(stream.name)[0]
+        except AttributeError:
+            self._root = os.path.curdir
+
+        super().__init__(stream)
+
+
+def construct_include(loader: YAMLoader, node: yaml.Node) -> Any:
+    """Include file referenced at node."""
+
+    filename = os.path.abspath(os.path.join(loader._root, loader.construct_scalar(node)))
+    extension = os.path.splitext(filename)[1].lstrip(".")
+
+    with open(filename, "r") as f:
+        if extension in ("yaml", "yml"):
+            return yaml.load(f, YAMLoader)
+        elif extension in ("json",):
+            return json.load(f)
+        else:
+            return "".join(f.readlines())
+
+
+yaml.add_constructor("!include", construct_include, YAMLoader)
+
+
+@set_module("torchutils")
+def from_yaml(file):
+    """Load configuration from YAML file with include constructor.
+
+    To include another file use "!include filename".
+
+    Examples:
+
+        .. code-block::
+
+            # file: bar.yaml
+            - 3.6
+            - [1, 2, 3]
+
+            # file: foo.yaml
+            a: 1
+            b:
+                - 1.43
+                - 543.55
+            c: !include bar.yaml
+
+            kwds = from_yaml("foo.yaml")
+
+    Note:
+        Under MIT License: Copyright (c) 2018 Josh Bode
+    """
+    with open(file) as f:
+        kwds = yaml.load(f, Loader=YAMLoader)
+    return kwds
