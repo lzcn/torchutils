@@ -1,8 +1,11 @@
 import operator
-from numbers import Number
+import os
 import pprint
-import torch.optim
+from numbers import Number
+from typing import Union
+
 import attr
+import torch.optim
 import yaml
 
 from . import misc
@@ -67,9 +70,22 @@ class Param(object):
             Param: new intance
         """
         with open(f, "r") as f:
-            kwargs = yaml.load(f, Loader=yaml.FullLoader)
+            kwargs = yaml.load(f, Loader=misc.YAMLoader)
             param = cls(**kwargs)
         return param
+
+    @classmethod
+    def from_dict(cls, value=None):
+        """Return a new intance from dictionary.
+
+        If value is `None`, return `None`. So:
+
+        - If a default instance is preferred, use `attr.ib(factory=dict, converter=cls.from_dict)`.
+        - If no default instance is needed, use `attr.ib(default=None, converter=cls.from_dict)`.
+        """
+        if value is None or isinstance(value, cls):
+            return value
+        return cls(**value)
 
 
 @attr.s
@@ -160,7 +176,7 @@ class OptimParam(Param):
     lr = attr.ib(default=1e-3, repr=False)
     weight_decay = attr.ib(default=0, repr=False)
     param = attr.ib(factory=dict, repr=False)
-    lr_scheduler: SchedulerParam = attr.ib(default=None, converter=SchedulerParam.new)
+    lr_scheduler: SchedulerParam = attr.ib(factory=dict, converter=SchedulerParam.from_dict)
     # hidden parameters
     groups = attr.ib(factory=dict, init=False)
     default = attr.ib(factory=dict, init=False)
