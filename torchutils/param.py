@@ -243,3 +243,57 @@ class OptimParam(Param):
         # get instances
         lr_scheduler = lr_class(optim, **self.lr_scheduler.param)
         return optim, lr_scheduler
+
+
+@attr.s
+class IConfig(Param):
+    """Configration interface.
+
+    Attributes:
+        epoch (int):  Number of epochs
+        data_param (Param):
+        train_data_param (dict):
+        valid_data_param (dict):
+        test_data_param (dict):
+        net_param (Param):
+        optim_param (OptimParam):
+        summary_interval (int):
+        display_interval (int):
+        load_traiend (str):
+        log_dir (str):
+        log_level (str):
+        log_file (str):
+        gpus (int): which gpu to use
+
+    Example:
+
+        .. code-block:: python
+
+            class Config(IConfig):
+                data_param = attr.ib(factory=dict, covnert=DataParam.from_dict)
+                net_param = attr.ib(factory=dict, covnert=NetParam.from_dict)
+
+            config = Config.from_yaml(filename)
+    """
+
+    epochs: int = attr.ib(default=100)
+    data_param: Param = attr.ib(factory=dict, converter=Param.from_dict)
+    valid_data_param: Param = attr.ib(factory=dict)
+    test_data_param: Param = attr.ib(factory=dict)
+    train_data_param: Param = attr.ib(factory=dict)
+    net_param: Param = attr.ib(factory=dict, converter=Param.from_dict)
+    optim_param: OptimParam = attr.ib(default=None, converter=OptimParam.from_dict)
+    summary_interval: int = attr.ib(default=10)
+    display_interval: int = attr.ib(default=50)
+    load_trained: str = attr.ib(default=None)
+    log_dir: str = attr.ib(default=None)
+    gpus: Union[int, list] = attr.ib(default=0)
+
+    def __attrs_post_init__(self):
+        self.train_data_param = attr.evolve(self.data_param, **self.train_data_param)
+        self.valid_data_param = attr.evolve(self.data_param, **self.valid_data_param)
+        self.test_data_param = attr.evolve(self.data_param, **self.test_data_param)
+        # for gpus
+        gpus = [self.gpus] if isinstance(self.gpus, int) else self.gpus
+        os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpus))
+        self.gpus = list(range(len(gpus)))
