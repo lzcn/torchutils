@@ -1,5 +1,9 @@
+from typing import Union
+
 from torch import nn
 from torch.utils import data
+
+from torchutils.param import Param
 
 __all__ = [
     "DataLoader",
@@ -72,19 +76,25 @@ class Module(nn.Module):
         _module_registry[cls.__name__] = cls
 
 
-def get_dataloader(name):
+def get_dataloader(name_or_param: Union[str, Param], **kwargs) -> data.DataLoader:
     """Return registered dataloader."""
-    return _dataloader_regisrty[name]
+    if isinstance(name_or_param, Param):
+        return _dataloader_regisrty[name_or_param.name](name_or_param)
+    return _dataloader_regisrty[name_or_param](**kwargs)
 
 
-def get_dataset(name):
+def get_dataset(name_or_param: Union[str, Param], **kwargs) -> data.Dataset:
     """Return registered dataset."""
-    return _dataset_registry[name]
+    if isinstance(name_or_param, Param):
+        return _dataset_registry[name_or_param.name](name_or_param)
+    return _dataset_registry[name_or_param](**kwargs)
 
 
-def get_module(name):
+def get_module(name_or_param: Union[str, Param], **kwargs) -> nn.Module:
     """Return registered module."""
-    return _module_registry[name]
+    if isinstance(name_or_param, Param):
+        return _module_registry[name_or_param.name](name_or_param)
+    return _module_registry[name_or_param](**kwargs)
 
 
 def get_named_dataloaders():
