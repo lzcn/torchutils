@@ -216,8 +216,6 @@ class OptimParam(Param):
             default = dict(alpha=0.99, eps=1e-08, momentum=0.9)
         elif self.name.startswith("Adam"):
             default = dict(betas=(0.9, 0.999), eps=1e-8)
-        elif self.name == "Adabound":
-            default = dict(betas=(0.9, 0.999), final_lr=0.1, gamme=1e-3, eps=1e-8)
         else:
             raise KeyError
         default.update(self.param)
