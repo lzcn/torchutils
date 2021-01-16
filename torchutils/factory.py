@@ -97,16 +97,16 @@ def get_module(name_or_param: Union[str, Param], **kwargs) -> nn.Module:
     return _module_registry[name_or_param](**kwargs)
 
 
-def get_named_dataloaders():
+def get_named_dataloaders() -> dict:
     """Return all registered dataloaders with name."""
     return _dataloader_regisrty.copy()
 
 
-def get_named_datasets():
+def get_named_datasets() -> dict:
     """Return all registered datasets with name."""
     return _dataset_registry.copy()
 
 
-def get_named_modules():
+def get_named_modules() -> dict:
     """Return all registered modules with name."""
     return _module_registry.copy()

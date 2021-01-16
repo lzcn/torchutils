@@ -46,8 +46,8 @@ class Param(object):
         - `load` and `save` for interactiving with file.
         - support for different packages, e.g, yaml, json etc.
     """
-
-    factory = attr.ib(default=None, kw_only=True, repr=False)
+    # class name for param
+    factory: str = attr.ib(default=None, kw_only=True)
 
     def __init_subclass__(cls):
         super().__init_subclass__()
