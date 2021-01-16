@@ -2,13 +2,29 @@ import operator
 import os
 import pprint
 from numbers import Number
-from typing import Union
+from typing import Any, Union
 
 import attr
 import torch.optim
 import yaml
 
 from . import misc
+
+_factory = {}
+
+_FACTORY_ATTR_NAME = "factory"
+
+
+def toParam(kwargs):
+    if isinstance(kwargs, dict) and "factory" in kwargs:
+        return _factory[kwargs["factory"]](**kwargs)
+    return kwargs
+
+
+def filter(attribute: attr.Attribute, value: Any) -> bool:
+    if attribute.name == _FACTORY_ATTR_NAME and value is None:
+        return False
+    return attribute.init
 
 
 @attr.s
@@ -31,13 +47,19 @@ class Param(object):
         - support for different packages, e.g, yaml, json etc.
     """
 
+    factory = attr.ib(default=None, kw_only=True, repr=False)
+
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        _factory[cls.__name__] = cls
+
     def __str__(self):
         d = attr.asdict(self, filter=lambda attribute, _: attribute.repr is True)
         return self.__class__.__name__ + ":\n" + pprint.pformat(d)
 
     def asdict(self):
         """Return configurable attributes (e.g. whose init=True)."""
-        return attr.asdict(self, filter=lambda attribute, _: attribute.init is True)
+        return attr.asdict(self, filter=filter)
 
     def serialize(self):
         """Serialize configurable setttings to yaml foramt."""
