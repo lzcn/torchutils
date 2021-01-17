@@ -22,15 +22,68 @@ _dataset_registry = {}
 _module_registry = {}
 
 
-class DataLoader(data.DataLoader):
-    r"""Wrapped base class for :class:`torch.utils.data.DataLoader`.
+class DataLoader(object):
+    r"""Dataloader factory.
 
-    Subclass will be registered by it's name::
+    Subclass will be registered by class name.
+
+    Attributes:
+        dataset (torch.utils.data.Dataset): dataset instance.
+        dataloader (torch.utils.data.DataLoader): dataloader instance.
+        num_batch (int): number of mini-batch.
+        num_sample(int): length of dataset.
+
+    Example:
+
+    .. code-block:: python
+
+        # simple_data.py
+        import torchutils.factory as factory
+
+        class SimpleData(factory.DataLoader):
+            def __init__(self, batch_size):
+                self.dataset = Dataset()
+                self.dataloader = DataLoader(self.dataset, batch_size=batch_size)
+
+        # main.py
+        import torchutils.factory as factory
+        loader = factory.get_dataloader("SimpleData", batch_size=16)
+        for batch in loader:
+            output = net(batch)
+
     """
+    dataset: data.Dataset = None
+    dataloader: data.DataLoader = None
 
     def __init_subclass__(cls):
         super().__init_subclass__()
         _dataloader_regisrty[cls.__name__] = cls
+
+    def __len__(self):
+        """Return number of batches."""
+        return self.num_batch
+
+    @property
+    def num_batch(self):
+        """Get number of batches."""
+        try:
+            loader = self.dataloader
+            return len(loader)
+        except AttributeError:
+            raise AttributeError(f"{self.__class__.__name__} needs attribute dataloader")
+
+    @property
+    def num_sample(self):
+        """Get number of samples."""
+        try:
+            dataset = self.dataset
+            return len(dataset)
+        except AttributeError:
+            raise AttributeError(f"{self.__class__.__name__} needs attribute dataset")
+
+    def __iter__(self):
+        for batch in self.dataloader:
+            yield batch
 
 
 class Dataset(data.Dataset):
@@ -55,10 +108,10 @@ class Module(nn.Module):
         import torch.nn.functional as F
 
         class SimpleModel(factory.Module):
-            def __init__(self):
+            def __init__(self, out_channels=64):
                 super(Model, self).__init__()
                 self.conv1 = nn.Conv2d(3, 64, 3, 1)
-                self.conv2 = nn.Conv2d(64, 64, 3, 1)
+                self.conv2 = nn.Conv2d(64, out_channels, 3, 1)
 
             def forward(self, x):
                 x = F.relu(self.conv1(x))
@@ -67,7 +120,7 @@ class Module(nn.Module):
 
         # main.py
         import torchutils.factory as factory
-        net = factory.get_module["SimpleModel"]()
+        net = factory.get_module("SimpleModel", out_channels=64)
 
     """
 
