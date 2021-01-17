@@ -1,3 +1,3 @@
-from torchutils.ignite import hanlders
+from torchutils.ignite import handlers
 
-__all__ = ["hanlders"]
+__all__ = ["handlers"]

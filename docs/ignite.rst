@@ -2,10 +2,10 @@ torchutils.ignite
 =================
 
 
-Hanlders
+Handlers
 --------
 
-.. currentmodule:: torchutils.ignite.hanlders
+.. currentmodule:: torchutils.ignite.handlers
 
-.. automodule:: torchutils.ignite.hanlders
+.. automodule:: torchutils.ignite.handlers
     :members:

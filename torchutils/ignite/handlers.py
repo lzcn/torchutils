@@ -23,6 +23,7 @@ class ModelTimer(object):
     Version:
         - ignite>=0.4.2
     """
+
     def __init__(self):
         self.data_timer = Timer(average=True)
         self.nn_timer = Timer(average=True)
@@ -44,9 +45,7 @@ class ModelTimer(object):
             step=Events.ITERATION_COMPLETED,
         )
         self.timer.attach(
-            enginer,
-            start=Events.EPOCH_STARTED,
-            step=Events.ITERATION_COMPLETED,
+            enginer, start=Events.EPOCH_STARTED, step=Events.ITERATION_COMPLETED,
         )
 
     def __str__(self):
