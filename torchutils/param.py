@@ -46,6 +46,7 @@ class Param(object):
         - `load` and `save` for interactiving with file.
         - support for different packages, e.g, yaml, json etc.
     """
+
     # class name for param
     factory: str = attr.ib(default=None, kw_only=True)
 
@@ -132,6 +133,7 @@ class DataReaderParam(Param):
             "ImagePIL",
             "TensorLMDB",
             "TensorPKL",
+            "Dummy",
         ]
         if value not in support:
             raise ValueError("reader must be on of {}".format("|".joint(support)))

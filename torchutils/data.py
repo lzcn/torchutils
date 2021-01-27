@@ -255,11 +255,28 @@ class TensorPKLReader(DataReader):
         return torch.from_numpy(feature.copy())
 
 
+class DummyReader(DataReader):
+    """Dummy data reader.
+
+    Args:
+        path (str): data root for images
+        data_transform (Callable, optional): data transform. Defaults to lambdax:x.
+    """
+
+    def __init__(self, path, data_transform=None):
+        super().__init__(path, data_transform=None)
+
+    def load(self, name: str):
+        data = torch.zeros(1)
+        return data
+
+
 _Readers = {
     "ImageLMDB": ImageLMDBReader,
     "ImagePIL": ImagePILReader,
     "TensorLMDB": TensorLMDBReader,
     "TensorPKL": TensorPKLReader,
+    "Dummy": DummyReader,
 }
 
 
