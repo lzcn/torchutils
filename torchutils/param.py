@@ -122,21 +122,9 @@ class DataReaderParam(Param):
 
     """
 
-    reader = attr.ib()
-    path = attr.ib()
+    reader = attr.ib(default="Dummy")
+    path = attr.ib(default=None)
     data_transform = attr.ib(default=None)
-
-    @reader.validator
-    def check(self, attribute, value):
-        support = [
-            "ImageLMDB",
-            "ImagePIL",
-            "TensorLMDB",
-            "TensorPKL",
-            "Dummy",
-        ]
-        if value not in support:
-            raise ValueError("reader must be on of {}".format("|".joint(support)))
 
 
 @attr.s

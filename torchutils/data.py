@@ -335,5 +335,7 @@ def getReader(
         reader = param.reader
         path = param.path
         data_transform = param.data_transform
+    if reader not in _Readers:
+        raise ValueError("reader must be on of {}".format("|".join(_Readers.keys())))
     data_transform = _get_transforms(data_transform)
     return _Readers[reader](path, data_transform)
