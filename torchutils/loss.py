@@ -26,20 +26,21 @@ def contrastive_loss(im: torch.Tensor, s: torch.Tensor, margin=0.2, mask=None, r
 
     """
     # compute the cosine similarity
-    im = im / im.norm(dim=1, keepdim=True)
-    s = s / s.norm(dim=1, keepdim=True)
-    scores = im.matmul(s.t())
+    im = F.normalize(im, dim=1)
+    s = F.normalize(s, dim=-1)
+    sim = im.matmul(s.t())
     # d(f,v)
-    diag = scores.diag()
-    zeros = torch.zeros_like(scores)
+    diag = sim.diag()
+    zeros = torch.zeros_like(sim)
     # sum along the row to get the VSE loss for each image
-    cost_im = torch.max(zeros, margin - diag.view(-1, 1) + scores)
+    cost_im = torch.max(zeros, margin - diag.view(-1, 1) + sim)
     # sum along the column to get the VSE loss for each sentence
-    cost_s = torch.max(zeros, margin - diag.view(1, -1) + scores)
+    cost_s = torch.max(zeros, margin - diag.view(1, -1) + sim)
     if mask is not None:
-        cost_im = cost_im * mask.view(1, -1)
-        cost_s = cost_s * mask.view(-1, 1)
         num = mask.sum()
+        mask = mask.matmul(mask.t()) > 0
+        cost_im = cost_im.masked_fill_(~mask, 0.0)
+        cost_s = cost_s.masked_fill_(~mask, 0.0)
     else:
         num = im.size(0)
     # to fit parallel, only compute the average for each item
