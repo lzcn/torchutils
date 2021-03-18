@@ -66,12 +66,18 @@ class RunConfig(Param):
         os.environ["CUDA_VISIBLE_DEVICES"] = ",".join(map(str, gpus))
         self.gpus = list(range(len(gpus)))
 
-    def get_net(self, **changes):
+    def get_net(self, training=False, cuda=False, **changes):
         net_param = attr.evolve(self.net_param, **changes)
         net = factory.get_module(net_param)
         LOGGER.info("Get network:\n{}".format(net_param))
         if self.load_trained:
             net = misc.load_pretrained(net, self.load_trained)
+        if training:
+            net.train()
+        else:
+            net.eval()
+        if cuda:
+            net.cuda()
         return net
 
     def get_train_loader(self, **changes):
