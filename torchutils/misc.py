@@ -245,8 +245,8 @@ def gather_mean(tensors):
 
 
 @set_module("torchutils")
-def load_pretrained(net: nn.Module, path: str) -> nn.Module:
-    """Load weights lossly.
+def load_pretrained(net: nn.Module, path: str = None, state_dict: dict = None, strict=False) -> nn.Module:
+    """Load weights lossly or strictly.
 
     Load weights that match the the model. Unloaded weighted will be logged.
 
@@ -257,13 +257,18 @@ def load_pretrained(net: nn.Module, path: str) -> nn.Module:
     Args:
         net (nn.Module): model
         path (str): path to pre-traiend model
+        state_dict (dict): model weights
+        strict (bool): whether to load weights strictly
 
     """
+    assert not (path is None and state_dict is None), "one of path and state_dict must be given"
+    assert not (path is None or state_dict is None), "only one path and state_dict is acceptable"
     # load weights from pre-trained model lossly
     num_devices = torch.cuda.device_count()
     map_location = {"cuda:{}".format(i): "cpu" for i in range(num_devices)}
     LOGGER.info("Loading pre-trained model from %s.", path)
-    state_dict = torch.load(path, map_location=map_location)
+    if path is not None:
+        state_dict = torch.load(path, map_location=map_location)
     net_param = net.state_dict()
     unmatched_keys = []
     for name, param in state_dict.items():
@@ -276,6 +281,8 @@ def load_pretrained(net: nn.Module, path: str) -> nn.Module:
     LOGGER.info("Missing keys: %s", ", ".join(missing_keys))
     LOGGER.info("Unexpected keys: %s", ", ".join(unexpected_keys))
     LOGGER.info("Unmatched keys: %s", ", ".join(unmatched_keys))
+    if strict:
+        assert len(missing_keys) == len(unexpected_keys) == len(unmatched_keys) == 0
     return net
 
 
