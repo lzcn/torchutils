@@ -24,8 +24,8 @@ Model
 
 .. autosummary::
     :toctree: generated
-    :nosignatures:
 
+    backbone
     load_pretrained
 
 Optimizer
@@ -33,7 +33,6 @@ Optimizer
 
 .. autosummary::
     :toctree: generated
-    :nosignatures:
 
     init_optimizer
 
@@ -42,7 +41,6 @@ Misc
 
 .. autosummary::
     :toctree: generated
-    :nosignatures:
 
     colour
     format_display

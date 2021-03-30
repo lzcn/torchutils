@@ -1,8 +1,24 @@
 from torchutils.misc import *  # noqa F401
-
-from . import data, dist, factory, files, ignite, layers, logger, loss, meter, metrics, ops, ot, param, singleton
+from torchutils.backbones import backbone
+from . import (
+    data,
+    dist,
+    factory,
+    files,
+    ignite,
+    layers,
+    logger,
+    loss,
+    meter,
+    metrics,
+    ops,
+    ot,
+    param,
+    singleton,
+)
 
 __all__ = [
+    "backbone",
     "data",
     "dist",
     "factory",
