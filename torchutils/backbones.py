@@ -108,7 +108,7 @@ class AffineBatchNorm2d(nn.Module):
         super().__init__()
         self.register_buffer("running_mean", torch.zeros(num_features))
         self.register_buffer("running_var", torch.ones(num_features))
-        self.register_buffer("num_batches_tracked", torch.ones(1))
+        self.register_buffer('num_batches_tracked', torch.tensor(0, dtype=torch.long))
         self.weight = nn.Parameter(torch.ones(num_features))
         self.bias = nn.Parameter(torch.zeros(num_features))
         self.num_features = num_features
