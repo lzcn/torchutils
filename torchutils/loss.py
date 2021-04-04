@@ -41,7 +41,7 @@ def contrastive_loss(s_data: torch.Tensor, t_data: torch.Tensor, margin=0.2, mas
     """
     # compute the cosine similarity
     assert s_data.size(0) == t_data.size(0)
-    s_data = F.normalize(s_data, dim=1)
+    s_data = F.normalize(s_data, dim=-1)
     t_data = F.normalize(t_data, dim=-1)
     sim = s_data.matmul(t_data.t())
     # d(f,v)
