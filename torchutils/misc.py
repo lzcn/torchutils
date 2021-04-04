@@ -262,7 +262,7 @@ def load_pretrained(net: nn.Module, path: str = None, state_dict: dict = None, s
 
     """
     assert not (path is None and state_dict is None), "one of path and state_dict must be given"
-    assert not (path is None or state_dict is None), "only one path and state_dict is acceptable"
+    assert not (path is not None and state_dict is not None), "only one of path and state_dict is acceptable"
     # load weights from pre-trained model lossly
     num_devices = torch.cuda.device_count()
     map_location = {"cuda:{}".format(i): "cpu" for i in range(num_devices)}
