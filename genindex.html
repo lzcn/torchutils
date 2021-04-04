@@ -13,6 +13,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -56,12 +57,15 @@
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -72,6 +76,10 @@
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.Param.asdict">asdict() (torchutils.param.Param method)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="meter.html#torchutils.meter.BundleMeter.avg">avg() (torchutils.meter.BundleMeter property)</a>
 
@@ -103,6 +111,8 @@
 </li>
       <li><a href="files.html#torchutils.files.check_files">check_files() (in module torchutils.files)</a>
 </li>
+      <li><a href="layers.html#torchutils.layers.ConditionalBatchNorm2d">ConditionalBatchNorm2d (class in torchutils.layers)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="logger.html#torchutils.logger.config">config() (in module torchutils.logger)</a>
@@ -119,7 +129,31 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.RunConfig.data_param">data_param (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.DataLoader">DataLoader (class in torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.DataLoader.dataloader">dataloader (torchutils.factory.DataLoader attribute)</a>
+</li>
       <li><a href="data.html#torchutils.data.DataReader">DataReader (class in torchutils.data)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.DataReaderParam">DataReaderParam (class in torchutils.param)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.Dataset">Dataset (class in torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.DataLoader.dataset">dataset (torchutils.factory.DataLoader attribute)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.display_interval">display_interval (torchutils.param.RunConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.RunConfig.epoch">epoch (torchutils.param.RunConfig attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -127,7 +161,19 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ops.html#torchutils.ops.SPMM.forward">forward() (torchutils.ops.SPMM static method)</a>
+      <li><a href="dist.html#torchutils.dist.fid_score">fid_score() (in module torchutils.dist)</a>
+</li>
+      <li><a href="layers.html#torchutils.layers.ConditionalBatchNorm2d.forward">forward() (torchutils.layers.ConditionalBatchNorm2d method)</a>
+
+      <ul>
+        <li><a href="ops.html#torchutils.ops.SPMM.forward">(torchutils.ops.SPMM static method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.Param.from_dict">from_dict() (torchutils.param.Param class method)</a>
+</li>
+      <li><a href="param.html#torchutils.param.Param.from_yaml">from_yaml() (torchutils.param.Param class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -135,10 +181,24 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#torchutils.data.getReader">getReader() (in module torchutils.data)</a>
+      <li><a href="factory.html#torchutils.factory.get_dataloader">get_dataloader() (in module torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.get_dataset">get_dataset() (in module torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.get_module">get_module() (in module torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.get_named_dataloaders">get_named_dataloaders() (in module torchutils.factory)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="factory.html#torchutils.factory.get_named_datasets">get_named_datasets() (in module torchutils.factory)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.get_named_modules">get_named_modules() (in module torchutils.factory)</a>
+</li>
+      <li><a href="data.html#torchutils.data.getReader">getReader() (in module torchutils.data)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.gpus">gpus (torchutils.param.RunConfig attribute)</a>
+</li>
       <li><a href="meter.html#torchutils.meter.GroupMeter">GroupMeter (class in torchutils.meter)</a>
 </li>
   </ul></td>
@@ -149,9 +209,21 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="data.html#torchutils.data.ImageLMDBReader">ImageLMDBReader (class in torchutils.data)</a>
 </li>
+      <li><a href="data.html#torchutils.data.ImagePILReader">ImagePILReader (class in torchutils.data)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="data.html#torchutils.data.ImagePILReader">ImagePILReader (class in torchutils.data)</a>
+      <li><a href="dist.html#torchutils.dist.inception_score">inception_score() (in module torchutils.dist)</a>
+</li>
+      <li><a href="param.html#torchutils.param.OptimParam.init_optimizer">init_optimizer() (torchutils.param.OptimParam method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ops.html#torchutils.ops.kaiming_uniform">kaiming_uniform() (in module torchutils.ops)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -174,16 +246,36 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.RunConfig.load_traiend">load_traiend (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.log_dir">log_dir (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.log_file">log_file (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.log_level">log_level (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="meter.html#torchutils.meter.GroupMeter.logging">logging() (torchutils.meter.GroupMeter method)</a>
+</li>
+      <li><a href="ops.html#torchutils.ops.logmm">logmm() (in module torchutils.ops)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dist.html#torchutils.dist.make_1D_gauss">make_1D_gauss() (in module torchutils.dist)</a>
+</li>
+      <li><a href="metrics.html#torchutils.metrics.margin_loss">margin_loss() (in module torchutils.metrics)</a>
+</li>
       <li><a href="metrics.html#torchutils.metrics.mean_ndcg_score">mean_ndcg_score() (in module torchutils.metrics)</a>
 </li>
       <li><a href="meter.html#torchutils.meter.Meter">Meter (class in torchutils.meter)</a>
 </li>
       <li><a href="metrics.html#torchutils.metrics.MetricThreading">MetricThreading (class in torchutils.metrics)</a>
+</li>
+      <li><a href="ignite.html#torchutils.ignite.handlers.ModelTimer">ModelTimer (class in torchutils.ignite.handlers)</a>
 </li>
       <li>
     module
@@ -191,7 +283,15 @@
       <ul>
         <li><a href="data.html#module-torchutils.data">torchutils.data</a>
 </li>
+        <li><a href="dist.html#module-torchutils.dist">torchutils.dist</a>
+</li>
+        <li><a href="factory.html#module-torchutils.factory">torchutils.factory</a>
+</li>
         <li><a href="files.html#module-torchutils.files">torchutils.files</a>
+</li>
+        <li><a href="ignite.html#module-torchutils.ignite.handlers">torchutils.ignite.handlers</a>
+</li>
+        <li><a href="layers.html#module-torchutils.layers">torchutils.layers</a>
 </li>
         <li><a href="logger.html#module-torchutils.logger">torchutils.logger</a>
 </li>
@@ -203,9 +303,17 @@
 </li>
         <li><a href="ops.html#module-torchutils.ops">torchutils.ops</a>
 </li>
+        <li><a href="ot.html#module-torchutils.ot">torchutils.ot</a>
+</li>
+        <li><a href="param.html#module-torchutils.param">torchutils.param</a>
+</li>
         <li><a href="singleton.html#module-torchutils.singleton">torchutils.singleton</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="factory.html#torchutils.factory.Module">Module (class in torchutils.factory)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -214,9 +322,33 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="metrics.html#torchutils.metrics.NDCG">NDCG() (in module torchutils.metrics)</a>
 </li>
+      <li><a href="metrics.html#torchutils.metrics.ndcg_score">ndcg_score() (in module torchutils.metrics)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.net_param">net_param (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="param.html#torchutils.param.Param.new">new() (torchutils.param.Param class method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="metrics.html#torchutils.metrics.ndcg_score">ndcg_score() (in module torchutils.metrics)</a>
+      <li><a href="factory.html#torchutils.factory.DataLoader.num_batch">num_batch (torchutils.factory.DataLoader attribute)</a>
+</li>
+      <li><a href="factory.html#id0">num_batch() (torchutils.factory.DataLoader property)</a>
+</li>
+      <li><a href="factory.html#torchutils.factory.DataLoader.num_sample">num_sample (torchutils.factory.DataLoader attribute)</a>
+</li>
+      <li><a href="factory.html#id1">num_sample() (torchutils.factory.DataLoader property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.RunConfig.optim_param">optim_param (torchutils.param.RunConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.OptimParam">OptimParam (class in torchutils.param)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -224,6 +356,16 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="metrics.html#torchutils.metrics.pair_accuracy">pair_accuracy() (in module torchutils.metrics)</a>
+</li>
+      <li><a href="metrics.html#torchutils.metrics.pair_rank_loss">pair_rank_loss() (in module torchutils.metrics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ops.html#torchutils.ops.pairwise_distances">pairwise_distances() (in module torchutils.ops)</a>
+</li>
+      <li><a href="param.html#torchutils.param.Param">Param (class in torchutils.param)</a>
+</li>
       <li><a href="metrics.html#torchutils.metrics.Precision">Precision() (in module torchutils.metrics)</a>
 </li>
   </ul></td>
@@ -234,12 +376,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="metrics.html#torchutils.metrics.RankMetric">RankMetric (class in torchutils.metrics)</a>
 </li>
-      <li><a href="files.html#torchutils.files.resize_image">resize_image() (in module torchutils.files)</a>
+      <li><a href="meter.html#torchutils.meter.BundleMeter.reset">reset() (torchutils.meter.BundleMeter method)</a>
+
+      <ul>
+        <li><a href="meter.html#torchutils.meter.Meter.reset">(torchutils.meter.Meter method)</a>
 </li>
-      <li><a href="data.html#torchutils.data.ResizeToSquare">ResizeToSquare (class in torchutils.data)</a>
+      </ul></li>
+      <li><a href="files.html#torchutils.files.resize_image">resize_image() (in module torchutils.files)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="data.html#torchutils.data.ResizeToSquare">ResizeToSquare (class in torchutils.data)</a>
+</li>
       <li><a href="metrics.html#torchutils.metrics.ROC">ROC() (in module torchutils.metrics)</a>
 </li>
       <li><a href="metrics.html#torchutils.metrics.MetricThreading.run">run() (torchutils.metrics.MetricThreading method)</a>
@@ -248,21 +396,31 @@
         <li><a href="metrics.html#torchutils.metrics.UserMetricThreading.run">(torchutils.metrics.UserMetricThreading method)</a>
 </li>
       </ul></li>
+      <li><a href="param.html#torchutils.param.RunConfig">RunConfig (class in torchutils.param)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="files.html#torchutils.files.scan_files">scan_files() (in module torchutils.files)</a>
+</li>
+      <li><a href="param.html#torchutils.param.Param.serialize">serialize() (torchutils.param.Param method)</a>
+</li>
       <li><a href="singleton.html#torchutils.singleton.singleton">singleton() (in module torchutils.singleton)</a>
 </li>
-      <li><a href="ops.html#torchutils.ops.smooth">smooth() (in module torchutils.ops)</a>
+      <li><a href="ot.html#torchutils.ot.sinkhorn">sinkhorn() (in module torchutils.ot)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ops.html#torchutils.ops.smooth">smooth() (in module torchutils.ops)</a>
+</li>
       <li><a href="loss.html#torchutils.loss.soft_margin_loss">soft_margin_loss() (in module torchutils.loss)</a>
 </li>
       <li><a href="ops.html#torchutils.ops.SPMM">SPMM (class in torchutils.ops)</a>
+</li>
+      <li><a href="param.html#torchutils.param.RunConfig.summary_interval">summary_interval (torchutils.param.RunConfig attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -274,11 +432,29 @@
 </li>
       <li><a href="data.html#torchutils.data.TensorPKLReader">TensorPKLReader (class in torchutils.data)</a>
 </li>
+      <li><a href="param.html#torchutils.param.RunConfig.test_data_param">test_data_param (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="metrics.html#torchutils.metrics.to_canonical">to_canonical() (in module torchutils.metrics)</a>
+</li>
       <li>
     torchutils.data
 
       <ul>
         <li><a href="data.html#module-torchutils.data">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchutils.dist
+
+      <ul>
+        <li><a href="dist.html#module-torchutils.dist">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchutils.factory
+
+      <ul>
+        <li><a href="factory.html#module-torchutils.factory">module</a>
 </li>
       </ul></li>
       <li>
@@ -288,6 +464,22 @@
         <li><a href="files.html#module-torchutils.files">module</a>
 </li>
       </ul></li>
+      <li>
+    torchutils.ignite.handlers
+
+      <ul>
+        <li><a href="ignite.html#module-torchutils.ignite.handlers">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchutils.layers
+
+      <ul>
+        <li><a href="layers.html#module-torchutils.layers">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchutils.logger
 
@@ -302,8 +494,6 @@
         <li><a href="loss.html#module-torchutils.loss">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     torchutils.meter
 
@@ -326,12 +516,28 @@
 </li>
       </ul></li>
       <li>
+    torchutils.ot
+
+      <ul>
+        <li><a href="ot.html#module-torchutils.ot">module</a>
+</li>
+      </ul></li>
+      <li>
+    torchutils.param
+
+      <ul>
+        <li><a href="param.html#module-torchutils.param">module</a>
+</li>
+      </ul></li>
+      <li>
     torchutils.singleton
 
       <ul>
         <li><a href="singleton.html#module-torchutils.singleton">module</a>
 </li>
       </ul></li>
+      <li><a href="param.html#torchutils.param.RunConfig.train_data_param">train_data_param (torchutils.param.RunConfig attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -361,6 +567,12 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="param.html#torchutils.param.RunConfig.valid_data_param">valid_data_param (torchutils.param.RunConfig attribute)</a>
+</li>
+      <li><a href="ignite.html#torchutils.ignite.handlers.ModelTimer.value">value() (torchutils.ignite.handlers.ModelTimer method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 
@@ -384,7 +596,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

@@ -1,0 +1,6 @@
+torchutils.sum\_of\_loss
+========================
+
+.. currentmodule:: torchutils
+
+.. autofunction:: sum_of_loss

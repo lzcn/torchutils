@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.factory &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.factory</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.utils</span> <span class="kn">import</span> <span class="n">data</span>
+
+<span class="kn">from</span> <span class="nn">torchutils.param</span> <span class="kn">import</span> <span class="n">Param</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;DataLoader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Dataset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Module&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_dataloader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_dataset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_module&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_named_dataloaders&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_named_datasets&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_named_modules&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_dataloader_regisrty</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_dataset_registry</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_module_registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="DataLoader"><a class="viewcode-back" href="../../factory.html#torchutils.factory.DataLoader">[docs]</a><span class="k">class</span> <span class="nc">DataLoader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Dataloader factory.</span>
+
+<span class="sd">    Subclass will be registered by class name.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        dataset (torch.utils.data.Dataset): dataset instance.</span>
+<span class="sd">        dataloader (torch.utils.data.DataLoader): dataloader instance.</span>
+<span class="sd">        num_batch (int): number of mini-batch.</span>
+<span class="sd">        num_sample(int): length of dataset.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # simple_data.py</span>
+<span class="sd">        import torchutils.factory as factory</span>
+
+<span class="sd">        class SimpleData(factory.DataLoader):</span>
+<span class="sd">            def __init__(self, batch_size):</span>
+<span class="sd">                self.dataset = Dataset()</span>
+<span class="sd">                self.dataloader = DataLoader(self.dataset, batch_size=batch_size)</span>
+
+<span class="sd">        # main.py</span>
+<span class="sd">        import torchutils.factory as factory</span>
+<span class="sd">        loader = factory.get_dataloader(&quot;SimpleData&quot;, batch_size=16)</span>
+<span class="sd">        for batch in loader:</span>
+<span class="sd">            output = net(batch)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dataloader</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">()</span>
+        <span class="n">_dataloader_regisrty</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of batches.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_batch</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get number of batches.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">loader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataloader</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> needs attribute dataloader&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get number of samples.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> needs attribute dataset&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataloader</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">batch</span></div>
+
+
+<div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../factory.html#torchutils.factory.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Wrapped base class for :class:`torch.utils.data.Dataset`.</span>
+
+<span class="sd">    Subclass will be registered by it&#39;s name::</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">()</span>
+        <span class="n">_dataset_registry</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span></div>
+
+
+<div class="viewcode-block" id="Module"><a class="viewcode-back" href="../../factory.html#torchutils.factory.Module">[docs]</a><span class="k">class</span> <span class="nc">Module</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Wrapped base class for :class:`torch.nn.Module`.</span>
+
+<span class="sd">    Subclass will be registered by it&#39;s name::</span>
+
+
+<span class="sd">        # simple_model.py</span>
+<span class="sd">        import torchutils.factory as factory</span>
+<span class="sd">        import torch.nn.functional as F</span>
+
+<span class="sd">        class SimpleModel(factory.Module):</span>
+<span class="sd">            def __init__(self, out_channels=64):</span>
+<span class="sd">                super(Model, self).__init__()</span>
+<span class="sd">                self.conv1 = nn.Conv2d(3, 64, 3, 1)</span>
+<span class="sd">                self.conv2 = nn.Conv2d(64, out_channels, 3, 1)</span>
+
+<span class="sd">            def forward(self, x):</span>
+<span class="sd">                x = F.relu(self.conv1(x))</span>
+<span class="sd">                return F.relu(self.conv2(x))</span>
+
+
+<span class="sd">        # main.py</span>
+<span class="sd">        import torchutils.factory as factory</span>
+<span class="sd">        net = factory.get_module(&quot;SimpleModel&quot;, out_channels=64)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">()</span>
+        <span class="n">_module_registry</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span></div>
+
+
+<div class="viewcode-block" id="get_dataloader"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_dataloader">[docs]</a><span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Param</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return registered dataloader.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">,</span> <span class="n">Param</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_dataloader_regisrty</span><span class="p">[</span><span class="n">name_or_param</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">name_or_param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_dataloader_regisrty</span><span class="p">[</span><span class="n">name_or_param</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_dataset"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_dataset">[docs]</a><span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Param</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return registered dataset.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">,</span> <span class="n">Param</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_dataset_registry</span><span class="p">[</span><span class="n">name_or_param</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">name_or_param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_dataset_registry</span><span class="p">[</span><span class="n">name_or_param</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_module"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_module">[docs]</a><span class="k">def</span> <span class="nf">get_module</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Param</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return registered module.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_or_param</span><span class="p">,</span> <span class="n">Param</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_module_registry</span><span class="p">[</span><span class="n">name_or_param</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">name_or_param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_module_registry</span><span class="p">[</span><span class="n">name_or_param</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_named_dataloaders"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_named_dataloaders">[docs]</a><span class="k">def</span> <span class="nf">get_named_dataloaders</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return all registered dataloaders with name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataloader_regisrty</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_named_datasets"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_named_datasets">[docs]</a><span class="k">def</span> <span class="nf">get_named_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return all registered datasets with name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_dataset_registry</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_named_modules"><a class="viewcode-back" href="../../factory.html#torchutils.factory.get_named_modules">[docs]</a><span class="k">def</span> <span class="nf">get_named_modules</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return all registered modules with name.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_module_registry</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

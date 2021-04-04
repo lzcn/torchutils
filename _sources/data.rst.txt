@@ -3,18 +3,21 @@ torchutils.data
 
 .. currentmodule:: torchutils.data
 
-This module defines the the data reader and some utility functions.
+Module :mod:`torchutils.data` defines the data reader class and some utility functions.
 
 Data Readers
 ------------
 
 The instance of :class:`~DataReader` class is callable. It calls the method :meth:`~DataReader.load` to load data.
-The ``key`` argument has different meanings in different readers. The supported data readers are:
+The ``key`` argument has different meanings in different readers.
+Suppose data is saved in ``key:value`` manner. Specially, for data saved in file, the key is the relative path.
 
-- :class:`~ImagePILReader`: A data reader with PIL backend for image. Data is read directly from path using PIL.
-- :class:`~TensorLMDBReader`: A data reader with LMDB backend for :class:`numpy.ndarray`. Data is saved in ``key:value`` format.
-- :class:`~ImageLMDBReader`: A data reader with LMDB backend for image raw data. Data is saved in ``key:value`` format.
-- :class:`~TensorPKLReader`: A data reader with pickle backend for :class:`numpy.ndarray`. Data is saved in ``key:value`` format.
+The supported data readers are:
+
+- :class:`~ImageLMDBReader`: A data reader with LMDB backend for image raw data.
+- :class:`~ImagePILReader`: A data reader with PIL backend for image.
+- :class:`~TensorLMDBReader`: A data reader with LMDB backend for :class:`numpy.ndarray`.
+- :class:`~TensorPKLReader`: A data reader with pickle backend for :class:`numpy.ndarray`.
 
 Converting Images to LMDB
 -------------------------

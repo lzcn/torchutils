@@ -1,0 +1,6 @@
+torchutils.infer\_device
+========================
+
+.. currentmodule:: torchutils
+
+.. autofunction:: infer_device

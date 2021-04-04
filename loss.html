@@ -12,6 +12,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="torchutils.meter" href="meter.html" />
@@ -72,37 +73,55 @@
 <span id="torchutils-loss"></span><h1>torchutils.loss<a class="headerlink" href="#module-torchutils.loss" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="torchutils.loss.contrastive_loss">
-<code class="sig-prename descclassname">torchutils.loss.</code><code class="sig-name descname">contrastive_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">im</span></em>, <em class="sig-param"><span class="n">s</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.1</span></em>, <em class="sig-param"><span class="n">norm</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reduction</span><span class="o">=</span><span class="default_value">'none'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/loss.html#contrastive_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.loss.contrastive_loss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the contrastive loss for two modalities.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>loss =</dt><dd><p>sum{im,k}max(0, margin - sim(im,s) + sim(im,s_k)) +
-sum{s,k}max(0, margin - sim(im,s) + sim(im_k,s))</p>
-</dd>
-</dl>
-</div></blockquote>
+<code class="sig-prename descclassname">torchutils.loss.</code><code class="sig-name descname">contrastive_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s_data</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span></em>, <em class="sig-param"><span class="n">t_data</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reduction</span><span class="o">=</span><span class="default_value">'mean'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/loss.html#contrastive_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.loss.contrastive_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the contrastive loss for two domains as follows:</p>
+<div class="math notranslate nohighlight">
+\[\ell(t,s) = \frac{1}{n-1}\left(
+    \sum_{i}^{n}\max(0, m - \text{sim}(t,s) + \text{sim}(t,s_i)) +
+    \sum_{j}^{n}\max(0, m - \text{sim}(t,s) + \text{sim}(f_j,s))\right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(t\)</span> and <span class="math notranslate nohighlight">\(s\)</span> are the features of different domains of the same
+sample and <span class="math notranslate nohighlight">\(f_i\)</span> and <span class="math notranslate nohighlight">\(s_j\)</span> are the features of different samples.</p>
+<p>We compute the similarity using cosine similarity.</p>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>to support more similarity.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>im</strong> (<em>array of shape</em><em> (</em><em>N</em><em>, </em><em>D</em><em>)</em>) – image features</p></li>
-<li><p><strong>s</strong> (<em>array of shape</em><em> (</em><em>N</em><em>, </em><em>D</em><em>)</em>) – sentence features</p></li>
-<li><p><strong>margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>, </em><em>optional</em>) – margin, by default 0.1</p></li>
-<li><p><strong>norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – whether to normarlize features</p></li>
-<li><p><strong>reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>s_data</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a>) – array of shape <span class="math notranslate nohighlight">\((N, D)\)</span>, source features</p></li>
+<li><p><strong>t_data</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a>) – array of shape <span class="math notranslate nohighlight">\((N, D)\)</span>, target features</p></li>
+<li><p><strong>margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – the margin <span class="math notranslate nohighlight">\(m\)</span>. Defaults to 0.1.</p></li>
+<li><p><strong>mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em>, </em><em>optional</em>) – array of shape <span class="math notranslate nohighlight">\((N)\)</span>. mask for samples.</p></li>
+<li><p><strong>reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – <p>Defaults to “mean”. Specifies the reduction to
+apply to the output:</p>
+<ul>
+<li><p><cite>’none’</cite>: no reduction will be applied,</p></li>
+<li><p><cite>’mean’</cite>: the sum of the output will be divided by the number of elements in the output,</p></li>
+<li><p><cite>’sum’</cite>: the output will be summed.</p></li>
+</ul>
+</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>loss</strong> – contrastive loss between two modalities.</p>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If mask is not None, the output with “none” reduction may contains zeros.
+Such that simply averaging the output will give a smaller result.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>shape <span class="math notranslate nohighlight">\((N)\)</span> or <span class="math notranslate nohighlight">\((1)\)</span></p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>shape (N, 1)</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="torchutils.loss.soft_margin_loss">
-<code class="sig-prename descclassname">torchutils.loss.</code><code class="sig-name descname">soft_margin_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">posi</span></em>, <em class="sig-param"><span class="n">nega</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reduction</span><span class="o">=</span><span class="default_value">'none'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/loss.html#soft_margin_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.loss.soft_margin_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">torchutils.loss.</code><code class="sig-name descname">soft_margin_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">neg</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reduction</span><span class="o">=</span><span class="default_value">'none'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/loss.html#soft_margin_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.loss.soft_margin_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the BPR loss.</p>
 </dd></dl>
 
@@ -134,7 +153,7 @@ sum{s,k}max(0, margin - sim(im,s) + sim(im_k,s))</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

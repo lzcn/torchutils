@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.ot &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.param" href="param.html" />
+    <link rel="prev" title="torchutils.ops" href="ops.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="param.html" title="torchutils.param"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="torchutils.ops"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ops.html"
+                        title="previous chapter">torchutils.ops</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="param.html"
+                        title="next chapter">torchutils.param</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ot.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.ot">
+<span id="torchutils-ot"></span><h1>torchutils.ot<a class="headerlink" href="#module-torchutils.ot" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="torchutils.ot.sinkhorn">
+<code class="sig-prename descclassname">torchutils.ot.</code><code class="sig-name descname">sinkhorn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span></em>, <em class="sig-param"><span class="n">a</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">b</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">v</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">gamma</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></span> <span class="o">=</span> <span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">budget</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span> <span class="o">=</span> <span class="default_value">10</span></em>, <em class="sig-param"><span class="n">stable</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a><span class="p">, </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a><span class="p">, </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a><span class="p">, </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a><span class="p">]</span><a class="reference internal" href="_modules/torchutils/ot.html#sinkhorn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.ot.sinkhorn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute sinkhorn divergence and solve the entropic regularization optimal transport problem.</p>
+<p>The optimiazation problem is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+P_{\gamma} &amp;=\underset{P\in \Pi(a,b)}{\text{argmin}}&lt;P,M_{xy}&gt;-\gamma E(P)\\
+s.t. &amp;P_{\gamma} 1 = a \\
+     &amp;P_{\gamma}^\intercal 1= b \\
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(M_{xy}\)</span> is the cost (distance) matrix over two set of points <span class="math notranslate nohighlight">\(x\sim P_x,y\sim P_y\)</span>,
+<span class="math notranslate nohighlight">\(a,b\)</span> is the distribution of <span class="math notranslate nohighlight">\(x,y\)</span> and <span class="math notranslate nohighlight">\(E(P)\)</span> is the entropic regularization.</p>
+<p>The solver iterates over the following two steps:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+\left\{\begin{aligned}
+u&amp;=a / K v \\
+v&amp;=b / K^\intercal u
+\end{aligned}\right.
+\end{equation}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(P_{\gamma}=\text{diag}(u)K\text{diag}(v)\)</span> and <span class="math notranslate nohighlight">\(K=\exp{(-M_{xy}/\gamma})\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a>) – the cost (distance) matrix <span class="math notranslate nohighlight">\(M_{xy}\)</span>.</p></li>
+<li><p><strong>a</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Dirichlet distribution over <span class="math notranslate nohighlight">\(x\)</span>. Defaults to None (uniform).</p></li>
+<li><p><strong>b</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – Dirichlet distribution over <span class="math notranslate nohighlight">\(y\)</span>. Defaults to None (uniform).</p></li>
+<li><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)"><em>torch.Tensor</em></a><em>, </em><em>optional</em>) – initial state of <span class="math notranslate nohighlight">\(v\)</span> . Defaults to None.</p></li>
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a><em>, </em><em>optional</em>) – regularization strength. Defaults to 0.01.</p></li>
+<li><p><strong>budget</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><em>optional</em>) – number of iterations. Defaults to 10.</p></li>
+<li><p><strong>stable</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – whether to use stable version.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ol class="arabic simple">
+<li><p>value of <span class="math notranslate nohighlight">\(&lt;P,M_{xy}&gt;\)</span></p></li>
+<li><p>optimal <span class="math notranslate nohighlight">\(P_{\gamma}\)</span></p></li>
+<li><p>solved <span class="math notranslate nohighlight">\(u\)</span></p></li>
+<li><p>solved <span class="math notranslate nohighlight">\(v\)</span></p></li>
+</ol>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v1.8.0a0+56b43f4)">torch.Tensor</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="param.html" title="torchutils.param"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="torchutils.ops"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

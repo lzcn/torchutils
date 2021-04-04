@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.param &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.singleton" href="singleton.html" />
+    <link rel="prev" title="torchutils.ot" href="ot.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="singleton.html" title="torchutils.singleton"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ot.html" title="torchutils.ot"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ot.html"
+                        title="previous chapter">torchutils.ot</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="singleton.html"
+                        title="next chapter">torchutils.singleton</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/param.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.param">
+<span id="torchutils-param"></span><h1>torchutils.param<a class="headerlink" href="#module-torchutils.param" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="torchutils.param.DataReaderParam">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.param.</code><code class="sig-name descname">DataReaderParam</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reader</span><span class="o">=</span><span class="default_value">'Dummy'</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data_transform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">factory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/data_param.html#DataReaderParam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.DataReaderParam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parameter class for <a class="reference internal" href="data.html#torchutils.data.DataReader" title="torchutils.data.DataReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">torchutils.data.DataReader</span></code></a>.</p>
+<p>It supports an alternative way to initialize a DataReader intance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">param</span> <span class="o">=</span> <span class="n">DataReaderParam</span><span class="p">(</span><span class="n">reader</span><span class="o">=</span><span class="s2">&quot;ImageLMDB&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">data_transform</span><span class="o">=</span><span class="s2">&quot;identity&quot;</span><span class="p">)</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">getReader</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="n">param</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.param.OptimParam">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.param.</code><code class="sig-name descname">OptimParam</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">'SGD'</span></em>, <em class="sig-param"><span class="n">lr</span><span class="o">=</span><span class="default_value">0.001</span></em>, <em class="sig-param"><span class="n">weight_decay</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">param</span><span class="o">=</span><span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">lr_scheduler</span><span class="o">=</span><span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">factory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/optiom_param.html#OptimParam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.OptimParam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define parameters for optimizer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – str
+which optimizer class to use, default SGD</p></li>
+<li><p><strong>lr</strong> – [Number, list]
+number or a dict of {module name: lr} for each part in network</p></li>
+<li><p><strong>weight_deacy</strong> – float
+same as learning rates</p></li>
+<li><p><strong>param</strong> – dict
+specific setttings for each optimizer</p></li>
+<li><p><strong>lr_scheduler</strong> – dict
+schedular for learning rate decay</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="torchutils.param.OptimParam.init_optimizer">
+<code class="sig-name descname">init_optimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">net</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/optiom_param.html#OptimParam.init_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.OptimParam.init_optimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init Optimizer for net.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.param.Param">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.param.</code><code class="sig-name descname">Param</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">factory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic Param interface.</p>
+<p>Param class interface for all customizable classes.</p>
+<p>Only attributes whose repr is True will be displayed. The attributes defined
+with <code class="docutils literal notranslate"><span class="pre">init=True</span></code> is configurable, and <code class="docutils literal notranslate"><span class="pre">repr=True</span></code> printable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Param is an abstract class whose implementation depends on <a class="reference external" href="https://www.attrs.org">attrs</a>.</p>
+</div>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<ul class="simple">
+<li><p><cite>load</cite> and <cite>save</cite> for interactiving with file.</p></li>
+<li><p>support for different packages, e.g, yaml, json etc.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt id="torchutils.param.Param.asdict">
+<code class="sig-name descname">asdict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param.asdict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param.asdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return configurable attributes (e.g. whose init=True).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.param.Param.from_dict">
+<em class="property">classmethod </em><code class="sig-name descname">from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new intance from dictionary.</p>
+<p>If value is <cite>None</cite>, return <cite>None</cite>. So:</p>
+<ul class="simple">
+<li><p>If a default instance is preferred, use <cite>attr.ib(factory=dict, converter=cls.from_dict)</cite>.</p></li>
+<li><p>If no default instance is needed, use <cite>attr.ib(default=None, converter=cls.from_dict)</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.param.Param.from_yaml">
+<em class="property">classmethod </em><code class="sig-name descname">from_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param.from_yaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param.from_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new intance from yaml file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>f</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – filename</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new intance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torchutils.param.Param" title="torchutils.param.Param">Param</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.param.Param.new">
+<em class="property">classmethod </em><code class="sig-name descname">new</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param.new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new instance.</p>
+<p>If value is None, return an instance with default settings.</p>
+<div class="admonition-todo admonition" id="id2">
+<p class="admonition-title">Todo</p>
+<p>A better way for sub-class initialization.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="torchutils.param.Param.serialize">
+<code class="sig-name descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/param.html#Param.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.Param.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize configurable setttings to yaml foramt.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.param.RunConfig">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.param.</code><code class="sig-name descname">RunConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epochs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span> <span class="o">=</span> <span class="default_value">100</span></em>, <em class="sig-param"><span class="n">data_param</span><span class="o">=</span><span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">valid_data_param</span><span class="p">:</span> <span class="n">torchutils.param.param.Param</span> <span class="o">=</span> <span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">test_data_param</span><span class="p">:</span> <span class="n">torchutils.param.param.Param</span> <span class="o">=</span> <span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">train_data_param</span><span class="p">:</span> <span class="n">torchutils.param.param.Param</span> <span class="o">=</span> <span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">net_param</span><span class="o">=</span><span class="default_value">NOTHING</span></em>, <em class="sig-param"><span class="n">optim_param</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">summary_interval</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span> <span class="o">=</span> <span class="default_value">10</span></em>, <em class="sig-param"><span class="n">display_interval</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span> <span class="o">=</span> <span class="default_value">50</span></em>, <em class="sig-param"><span class="n">load_trained</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_dir</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">log_level</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">'INFO'</span></em>, <em class="sig-param"><span class="n">gpus</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">0</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">factory</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/param/run_config.html#RunConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.param.RunConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configration interface for training/testing.</p>
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.epoch">
+<code class="sig-name descname">epoch</code><a class="headerlink" href="#torchutils.param.RunConfig.epoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of epochs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.data_param">
+<code class="sig-name descname">data_param</code><a class="headerlink" href="#torchutils.param.RunConfig.data_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torchutils.param.Param" title="torchutils.param.Param">Param</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.train_data_param">
+<code class="sig-name descname">train_data_param</code><a class="headerlink" href="#torchutils.param.RunConfig.train_data_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.valid_data_param">
+<code class="sig-name descname">valid_data_param</code><a class="headerlink" href="#torchutils.param.RunConfig.valid_data_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.test_data_param">
+<code class="sig-name descname">test_data_param</code><a class="headerlink" href="#torchutils.param.RunConfig.test_data_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.net_param">
+<code class="sig-name descname">net_param</code><a class="headerlink" href="#torchutils.param.RunConfig.net_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torchutils.param.Param" title="torchutils.param.Param">Param</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.optim_param">
+<code class="sig-name descname">optim_param</code><a class="headerlink" href="#torchutils.param.RunConfig.optim_param" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#torchutils.param.OptimParam" title="torchutils.param.OptimParam">OptimParam</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.summary_interval">
+<code class="sig-name descname">summary_interval</code><a class="headerlink" href="#torchutils.param.RunConfig.summary_interval" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.display_interval">
+<code class="sig-name descname">display_interval</code><a class="headerlink" href="#torchutils.param.RunConfig.display_interval" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.load_traiend">
+<code class="sig-name descname">load_traiend</code><a class="headerlink" href="#torchutils.param.RunConfig.load_traiend" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.log_dir">
+<code class="sig-name descname">log_dir</code><a class="headerlink" href="#torchutils.param.RunConfig.log_dir" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.log_level">
+<code class="sig-name descname">log_level</code><a class="headerlink" href="#torchutils.param.RunConfig.log_level" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.log_file">
+<code class="sig-name descname">log_file</code><a class="headerlink" href="#torchutils.param.RunConfig.log_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.param.RunConfig.gpus">
+<code class="sig-name descname">gpus</code><a class="headerlink" href="#torchutils.param.RunConfig.gpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>which gpu to use</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">IConfig</span><span class="p">):</span>
+    <span class="n">data_param</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">covnert</span><span class="o">=</span><span class="n">DataParam</span><span class="o">.</span><span class="n">from_dict</span><span class="p">)</span>
+    <span class="n">net_param</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">covnert</span><span class="o">=</span><span class="n">NetParam</span><span class="o">.</span><span class="n">from_dict</span><span class="p">)</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="singleton.html" title="torchutils.singleton"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ot.html" title="torchutils.ot"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

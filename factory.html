@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.factory &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="torchutils.files" href="files.html" />
+    <link rel="prev" title="torchutils.dist" href="dist.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="torchutils.files"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dist.html" title="torchutils.dist"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dist.html"
+                        title="previous chapter">torchutils.dist</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="files.html"
+                        title="next chapter">torchutils.files</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/factory.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-torchutils.factory">
+<span id="torchutils-factory"></span><h1>torchutils.factory<a class="headerlink" href="#module-torchutils.factory" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="torchutils.factory.DataLoader">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">DataLoader</code><a class="reference internal" href="_modules/torchutils/factory.html#DataLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.DataLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dataloader factory.</p>
+<p>Subclass will be registered by class name.</p>
+<dl class="py attribute">
+<dt id="torchutils.factory.DataLoader.dataset">
+<code class="sig-name descname">dataset</code><a class="headerlink" href="#torchutils.factory.DataLoader.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>dataset instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset" title="(in PyTorch v1.8.0a0+56b43f4)">torch.utils.data.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.factory.DataLoader.dataloader">
+<code class="sig-name descname">dataloader</code><a class="headerlink" href="#torchutils.factory.DataLoader.dataloader" title="Permalink to this definition">¶</a></dt>
+<dd><p>dataloader instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v1.8.0a0+56b43f4)">torch.utils.data.DataLoader</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.factory.DataLoader.num_batch">
+<code class="sig-name descname">num_batch</code><a class="headerlink" href="#torchutils.factory.DataLoader.num_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of mini-batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="torchutils.factory.DataLoader.num_sample">
+<code class="sig-name descname">num_sample</code><a class="headerlink" href="#torchutils.factory.DataLoader.num_sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>length of dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># simple_data.py</span>
+<span class="kn">import</span> <span class="nn">torchutils.factory</span> <span class="k">as</span> <span class="nn">factory</span>
+
+<span class="k">class</span> <span class="nc">SimpleData</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+<span class="c1"># main.py</span>
+<span class="kn">import</span> <span class="nn">torchutils.factory</span> <span class="k">as</span> <span class="nn">factory</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get_dataloader</span><span class="p">(</span><span class="s2">&quot;SimpleData&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">num_batch</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of batches.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">num_sample</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get number of samples.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.factory.Dataset">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">Dataset</code><a class="reference internal" href="_modules/torchutils/factory.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped base class for <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.Dataset" title="(in PyTorch v1.8.0a0+56b43f4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code></a>.</p>
+<p>Subclass will be registered by it’s name:</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="torchutils.factory.Module">
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">Module</code><a class="reference internal" href="_modules/torchutils/factory.html#Module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped base class for <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v1.8.0a0+56b43f4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></a>.</p>
+<p>Subclass will be registered by it’s name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># simple_model.py</span>
+<span class="kn">import</span> <span class="nn">torchutils.factory</span> <span class="k">as</span> <span class="nn">factory</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="k">class</span> <span class="nc">SimpleModel</span><span class="p">(</span><span class="n">factory</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="c1"># main.py</span>
+<span class="kn">import</span> <span class="nn">torchutils.factory</span> <span class="k">as</span> <span class="nn">factory</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get_module</span><span class="p">(</span><span class="s2">&quot;SimpleModel&quot;</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_dataloader">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_dataloader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>torchutils.param.param.Param<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; torch.utils.data.dataloader.DataLoader<a class="reference internal" href="_modules/torchutils/factory.html#get_dataloader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_dataloader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return registered dataloader.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_dataset">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>torchutils.param.param.Param<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; torch.utils.data.dataset.Dataset<a class="reference internal" href="_modules/torchutils/factory.html#get_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return registered dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_module">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_module</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name_or_param</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span>torchutils.param.param.Param<span class="p">]</span></span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; torch.nn.modules.module.Module<a class="reference internal" href="_modules/torchutils/factory.html#get_module"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return registered module.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_named_dataloaders">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_named_dataloaders</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a><a class="reference internal" href="_modules/torchutils/factory.html#get_named_dataloaders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_named_dataloaders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all registered dataloaders with name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_named_datasets">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_named_datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a><a class="reference internal" href="_modules/torchutils/factory.html#get_named_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_named_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all registered datasets with name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.factory.get_named_modules">
+<code class="sig-prename descclassname">torchutils.factory.</code><code class="sig-name descname">get_named_modules</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a><a class="reference internal" href="_modules/torchutils/factory.html#get_named_modules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.factory.get_named_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all registered modules with name.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="torchutils.files"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dist.html" title="torchutils.dist"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

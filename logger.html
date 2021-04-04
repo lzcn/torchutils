@@ -12,10 +12,11 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="torchutils.loss" href="loss.html" />
-    <link rel="prev" title="torchutils.files" href="files.html" /> 
+    <link rel="prev" title="torchutils.layers" href="layers.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,7 +31,7 @@
           <a href="loss.html" title="torchutils.loss"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="files.html" title="torchutils.files"
+          <a href="layers.html" title="torchutils.layers"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
       </ul>
@@ -38,8 +39,8 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="files.html"
-                        title="previous chapter">torchutils.files</a></p>
+  <p class="topless"><a href="layers.html"
+                        title="previous chapter">torchutils.layers</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="loss.html"
                         title="next chapter">torchutils.loss</a></p>
@@ -72,7 +73,7 @@
 <span id="torchutils-logger"></span><h1>torchutils.logger<a class="headerlink" href="#module-torchutils.logger" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="torchutils.logger.config">
-<code class="sig-prename descclassname">torchutils.logger.</code><code class="sig-name descname">config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream_level</span><span class="o">=</span><span class="default_value">'INFO'</span></em>, <em class="sig-param"><span class="n">file_level</span><span class="o">=</span><span class="default_value">'INFO'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">formatter</span><span class="o">=</span><span class="default_value">'default'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/logger.html#config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.logger.config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">torchutils.logger.</code><code class="sig-name descname">config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream_level</span><span class="o">=</span><span class="default_value">'INFO'</span></em>, <em class="sig-param"><span class="n">file_level</span><span class="o">=</span><span class="default_value">'INFO'</span></em>, <em class="sig-param"><span class="n">log_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_mode</span><span class="o">=</span><span class="default_value">'a'</span></em>, <em class="sig-param"><span class="n">formatter</span><span class="o">=</span><span class="default_value">'default'</span></em>, <em class="sig-param"><span class="n">file_formatter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stream_formatter</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/logger.html#config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.logger.config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Config the loggers.</p>
 <p>There are two formats for messages:</p>
 <ul class="simple">
@@ -82,11 +83,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>stream_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – logging level for STDOUT. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code></p></li>
-<li><p><strong>file_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – logging level for log file Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>.</p></li>
-<li><p><strong>log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – log file. If it is not given, then disable logging to
+<li><p><strong>stream_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – logging level for STDOUT. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code></p></li>
+<li><p><strong>file_level</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – logging level for log file Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>.</p></li>
+<li><p><strong>log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – log file. If it is not given, then disable logging to
 file. Defauts to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p><strong>formatter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – message format. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>.</p></li>
+<li><p><strong>file_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – log file mode. Defaults to “a”.</p></li>
+<li><p><strong>formatter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – message format. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>.</p></li>
+<li><p><strong>file_formatter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – message format for stream. Defaults to <code class="docutils literal notranslate"><span class="pre">formatter</span></code>.</p></li>
+<li><p><strong>stream_formatter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – message format for file. Defaults to <code class="docutils literal notranslate"><span class="pre">formatter</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -113,14 +117,14 @@ file. Defauts to <code class="docutils literal notranslate"><span class="pre">No
           <a href="loss.html" title="torchutils.loss"
              >next</a> |</li>
         <li class="right" >
-          <a href="files.html" title="torchutils.files"
+          <a href="layers.html" title="torchutils.layers"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">torchutils 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

@@ -12,6 +12,7 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -25,7 +26,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -49,10 +51,19 @@
           <div class="body" role="main">
             
   <h1>Source code for torchutils.meter</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span></span><span class="sd">&quot;&quot;&quot;The :mod:`torchutils.meter` provides serveral average meters.</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="sd">The supported data readers are:</span>
+
+<span class="sd">- :class:`~Meter`: Average meter for single metric.</span>
+<span class="sd">- :class:`~BundleMeter`: Average meter for metrics with same window size.</span>
+<span class="sd">- :class:`~GroupMeter`: Average meter for different group of metrics with different window size.</span>
+
+<span class="sd">If `win_size==0`, then global average will be conducted.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 
 
 <span class="k">class</span> <span class="nc">_WindowMeter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -89,6 +100,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cum_val</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cum_weight</span> <span class="o">=</span> <span class="mf">0.0</span>
 
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cum_val</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cum_weight</span> <span class="o">=</span> <span class="mf">0.0</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">avg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -97,8 +113,8 @@
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cum_val</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cum_val</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">weight</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cum_weight</span> <span class="o">+=</span> <span class="n">weight</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -110,17 +126,46 @@
 
 
 <div class="viewcode-block" id="Meter"><a class="viewcode-back" href="../../meter.html#torchutils.meter.Meter">[docs]</a><span class="k">class</span> <span class="nc">Meter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Meter for history values.</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Record historical values with moving average.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        v = \frac{\sum_{i} w_i x_i}{\sum_{i} w_i}</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        win_size ([int]): window size for moving average. If `win_size==0`, then all</span>
 <span class="sd">            values will be considered.</span>
 
+<span class="sd">    Example:</span>
 
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from torchutils.meter import Meter</span>
+<span class="sd">        # history meter with window size 10</span>
+<span class="sd">        meter = Meter(10)</span>
+<span class="sd">        # update data</span>
+<span class="sd">        meter.update(0.1, weight=1.0)</span>
+<span class="sd">        # show values</span>
+<span class="sd">        print(meter.avg, meter.val)</span>
+
+<span class="sd">    Usually, the during testing phase, we need a global average meter::</span>
+
+<span class="sd">        from torchutils.meter import Meter</span>
+<span class="sd">        # history meter with window size 10</span>
+<span class="sd">        meter = Meter()</span>
+<span class="sd">        for x, y in loader:</span>
+<span class="sd">            # get loss</span>
+<span class="sd">            loss = criterion()</span>
+<span class="sd">            # get batch size</span>
+<span class="sd">            batch_size = len(x)</span>
+<span class="sd">            # update data</span>
+<span class="sd">            meter.update(loss, weight=batch_size)</span>
+<span class="sd">        # show values</span>
+<span class="sd">        print(meter.avg, meter.val)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">win_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">win_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">win_size</span> <span class="o">=</span> <span class="n">win_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_meter</span> <span class="o">=</span> <span class="n">_factory</span><span class="p">(</span><span class="n">win_size</span><span class="p">)</span>
 
@@ -133,6 +178,10 @@
     <span class="k">def</span> <span class="nf">avg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the averaged value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meter</span><span class="o">.</span><span class="n">avg</span>
+
+<div class="viewcode-block" id="Meter.reset"><a class="viewcode-back" href="../../meter.html#torchutils.meter.Meter.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset meter.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_meter</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Meter.update"><a class="viewcode-back" href="../../meter.html#torchutils.meter.Meter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update the meter.&quot;&quot;&quot;</span>
@@ -155,7 +204,7 @@
 <span class="sd">        # history tracer with window size 10</span>
 <span class="sd">        tracer = BundleMeter(10)</span>
 <span class="sd">        # update data</span>
-<span class="sd">        tracer.update(data={&#39;loss&#39;:0.1, &#39;accuracy&#39;:0.8}, score=0.3)</span>
+<span class="sd">        tracer.update(data_dict={&#39;loss&#39;:0.1, &#39;accuracy&#39;:0.8})</span>
 <span class="sd">        # show current status</span>
 <span class="sd">        tracer.logging()</span>
 
@@ -181,14 +230,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">win_size</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-<div class="viewcode-block" id="BundleMeter.update"><a class="viewcode-back" href="../../meter.html#torchutils.meter.BundleMeter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BundleMeter.reset"><a class="viewcode-back" href="../../meter.html#torchutils.meter.BundleMeter.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset all meters.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BundleMeter.update"><a class="viewcode-back" href="../../meter.html#torchutils.meter.BundleMeter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update meters.</span>
 
 <span class="sd">        If the metric is new, it will produce a new meter for the metric.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_meter</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -213,8 +264,8 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        tracer = GroupMeter(train=10, test=1)</span>
-<span class="sd">        tracer.update(&quot;train&quot;, data={&#39;loss&#39;:0.1, &#39;accuracy&#39;:0.8})</span>
-<span class="sd">        tracer.update(&quot;test&quot;, data={&#39;loss&#39;:0.2, &#39;accuracy&#39;:0.7})</span>
+<span class="sd">        tracer.update(&quot;train&quot;, data_dict={&#39;loss&#39;:0.1, &#39;accuracy&#39;:0.8})</span>
+<span class="sd">        tracer.update(&quot;test&quot;, data_dict={&#39;loss&#39;:0.2, &#39;accuracy&#39;:0.7})</span>
 <span class="sd">        tracer.logging() # print(tracer)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -230,13 +281,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_win_size</span><span class="p">[</span><span class="n">group</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="p">[</span><span class="n">group</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_meter</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span> <span class="o">=</span> <span class="p">{</span><span class="n">g</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">win_size</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="GroupMeter.logging"><a class="viewcode-back" href="../../meter.html#torchutils.meter.GroupMeter.logging">[docs]</a>    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Log current results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            group (str, optional): group name. Defaults to None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-------- </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
@@ -244,7 +302,7 @@
             <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">history</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-------- Group: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-------- </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-------- </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">str_</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -272,12 +330,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

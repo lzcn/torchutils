@@ -12,6 +12,7 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -25,7 +26,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -53,64 +55,82 @@
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 
 
-<div class="viewcode-block" id="contrastive_loss"><a class="viewcode-back" href="../../loss.html#torchutils.loss.contrastive_loss">[docs]</a><span class="k">def</span> <span class="nf">contrastive_loss</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the contrastive loss for two modalities.</span>
+<div class="viewcode-block" id="contrastive_loss"><a class="viewcode-back" href="../../loss.html#torchutils.loss.contrastive_loss">[docs]</a><span class="k">def</span> <span class="nf">contrastive_loss</span><span class="p">(</span><span class="n">s_data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">t_data</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the contrastive loss for two domains as follows:</span>
 
-<span class="sd">        loss =</span>
-<span class="sd">            \\sum{im,k}\\max(0, margin - sim(im,s) + sim(im,s_k)) +</span>
-<span class="sd">            \\sum{s,k}\\max(0, margin - sim(im,s) + sim(im_k,s))</span>
+<span class="sd">    .. math::</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    im : array of shape (N, D)</span>
-<span class="sd">        image features</span>
-<span class="sd">    s : array of shape (N, D)</span>
-<span class="sd">        sentence features</span>
-<span class="sd">    margin : float, optional</span>
-<span class="sd">        margin, by default 0.1</span>
-<span class="sd">    norm : bool, optional</span>
-<span class="sd">        whether to normarlize features</span>
-<span class="sd">    reduction: str, optional</span>
+<span class="sd">        \ell(t,s) = \frac{1}{n-1}\left(</span>
+<span class="sd">            \sum_{i}^{n}\max(0, m - \text{sim}(t,s) + \text{sim}(t,s_i)) +</span>
+<span class="sd">            \sum_{j}^{n}\max(0, m - \text{sim}(t,s) + \text{sim}(f_j,s))\right)</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    loss: shape (N, 1)</span>
-<span class="sd">        contrastive loss between two modalities.</span>
+<span class="sd">    where :math:`t` and :math:`s` are the features of different domains of the same</span>
+<span class="sd">    sample and :math:`f_i` and :math:`s_j` are the features of different samples.</span>
+
+<span class="sd">    We compute the similarity using cosine similarity.</span>
+
+<span class="sd">    Todo:</span>
+<span class="sd">        to support more similarity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        s_data (torch.Tensor) : array of shape :math:`(N, D)`, source features</span>
+<span class="sd">        t_data (torch.Tensor) : array of shape :math:`(N, D)`, target features</span>
+<span class="sd">        margin (float, optional): the margin :math:`m`. Defaults to 0.1.</span>
+<span class="sd">        mask (None, optional): array of shape :math:`(N)`. mask for samples.</span>
+<span class="sd">        reduction (str, optional): Defaults to &quot;mean&quot;. Specifies the reduction to</span>
+<span class="sd">            apply to the output:</span>
+
+<span class="sd">            - `&#39;none&#39;`: no reduction will be applied,</span>
+<span class="sd">            - `&#39;mean&#39;`: the sum of the output will be divided by the number of elements in the output,</span>
+<span class="sd">            - `&#39;sum&#39;`: the output will be summed.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        If mask is not None, the output with &quot;none&quot; reduction may contains zeros.</span>
+<span class="sd">        Such that simply averaging the output will give a smaller result.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor: shape :math:`(N)` or :math:`(1)`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">size</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">shape</span>
-    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
-        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span> <span class="o">/</span> <span class="n">im</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">t</span><span class="p">())</span> <span class="o">/</span> <span class="n">dim</span>
-    <span class="n">diag</span> <span class="o">=</span> <span class="n">scores</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
-    <span class="n">zeros</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
-    <span class="c1"># shape #item x #item</span>
-    <span class="c1"># sum along the row to get the VSE loss from each image</span>
-    <span class="n">cost_im</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">zeros</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">diag</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">scores</span><span class="p">)</span>
-    <span class="c1"># sum along the column to get the VSE loss from each sentence</span>
-    <span class="n">cost_s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">zeros</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">diag</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">scores</span><span class="p">)</span>
-    <span class="c1"># to fit parallel, only compute the average for each item</span>
-    <span class="n">vse_loss</span> <span class="o">=</span> <span class="n">cost_im</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">cost_s</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">margin</span>
+    <span class="c1"># compute the cosine similarity</span>
+    <span class="k">assert</span> <span class="n">s_data</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">t_data</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">s_data</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">s_data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">t_data</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">t_data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">s_data</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">t_data</span><span class="o">.</span><span class="n">t</span><span class="p">())</span>
+    <span class="c1"># d(f,v)</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
+    <span class="n">zeros</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+    <span class="c1"># sum along the row to get the VSE loss for each image</span>
+    <span class="n">s_cost</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">zeros</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">diag</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">sim</span><span class="p">)</span>
+    <span class="c1"># sum along the column to get the VSE loss for each sentence</span>
+    <span class="n">t_cost</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">zeros</span><span class="p">,</span> <span class="n">margin</span> <span class="o">-</span> <span class="n">diag</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">sim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+        <span class="n">mat_mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">t</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">s_cost</span> <span class="o">=</span> <span class="n">s_cost</span><span class="o">.</span><span class="n">masked_fill_</span><span class="p">(</span><span class="o">~</span><span class="n">mat_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">t_cost</span> <span class="o">=</span> <span class="n">t_cost</span><span class="o">.</span><span class="n">masked_fill_</span><span class="p">(</span><span class="o">~</span><span class="n">mat_mask</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">diag</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># n x 1</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">s_cost</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">t_cost</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1"># normalized by the number of items</span>
-    <span class="n">vse_loss</span> <span class="o">=</span> <span class="n">vse_loss</span> <span class="o">/</span> <span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vse_loss</span>
+        <span class="k">return</span> <span class="n">loss</span>
     <span class="k">elif</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vse_loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">vse_loss</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span>
-    <span class="k">return</span> <span class="n">vse_loss</span></div>
+        <span class="k">raise</span> <span class="ne">KeyError</span></div>
 
 
-<div class="viewcode-block" id="soft_margin_loss"><a class="viewcode-back" href="../../loss.html#torchutils.loss.soft_margin_loss">[docs]</a><span class="k">def</span> <span class="nf">soft_margin_loss</span><span class="p">(</span><span class="n">posi</span><span class="p">,</span> <span class="n">nega</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="soft_margin_loss"><a class="viewcode-back" href="../../loss.html#torchutils.loss.soft_margin_loss">[docs]</a><span class="k">def</span> <span class="nf">soft_margin_loss</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compute the BPR loss.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">nega</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">posi</span>
+    <span class="k">if</span> <span class="n">neg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">posi</span> <span class="o">-</span> <span class="n">nega</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span> <span class="o">-</span> <span class="n">neg</span>
     <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">soft_margin_loss</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">reduction</span><span class="o">=</span><span class="n">reduction</span><span class="p">)</span></div>
 </pre></div>
 
@@ -129,12 +149,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

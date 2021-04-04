@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.infer_parallel_device &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="torchutils.data" href="../data.html" />
+    <link rel="prev" title="torchutils.get_named_function" href="torchutils.get_named_function.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data.html" title="torchutils.data"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="torchutils.get_named_function.html" title="torchutils.get_named_function"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../torchutils.html" accesskey="U">torhcutils</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="torchutils.get_named_function.html"
+                        title="previous chapter">torchutils.get_named_function</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../data.html"
+                        title="next chapter">torchutils.data</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/generated/torchutils.infer_parallel_device.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="torchutils-infer-parallel-device">
+<h1>torchutils.infer_parallel_device<a class="headerlink" href="#torchutils-infer-parallel-device" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="torchutils.infer_parallel_device">
+<code class="sig-prename descclassname">torchutils.</code><code class="sig-name descname">infer_parallel_device</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">device_ids</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#torchutils.infer_parallel_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decide which device to use for data when given device_ids.</p>
+<p>For <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.nn.data_parallel()</span></code>, if multiple GPUs are used, the data only need
+to be saved in CPU. If single GPU is used, then data must be moved to the GPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>device_ids</strong> (<em>list of int</em><em>, </em><em>optional</em>) – gpu id list</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p>parallel: True if len(device_ids) &gt; 1</p></li>
+<li><p>device: if single-gpu is used then return the gpu device, else return “cpu”</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../data.html" title="torchutils.data"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="torchutils.get_named_function.html" title="torchutils.get_named_function"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../torchutils.html" >torhcutils</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

@@ -12,6 +12,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="torchutils.ops" href="ops.html" />
@@ -148,12 +149,12 @@ from the args and kwargs arguments, respectively.</p>
 
 <dl class="py class">
 <dt id="torchutils.metrics.RankMetric">
-<em class="property">class </em><code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">RankMetric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_users</span></em>, <em class="sig-param"><span class="n">groups</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#RankMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.RankMetric" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">RankMetric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_users</span></em>, <em class="sig-param"><span class="n">groups</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#RankMetric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.RankMetric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rank matric for computing mean auc and mean averaged ndch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – number of users</p></li>
+<li><p><strong>num_users</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – number of users</p></li>
 <li><p><strong>groups</strong> (<em>list of str</em>) – different kinds of metric will be tracked.</p></li>
 </ul>
 </dd>
@@ -173,6 +174,29 @@ target argument, if any, with sequential and keyword arguments taken
 from the args and kwargs arguments, respectively.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.margin_loss">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">margin_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">posi</span></em>, <em class="sig-param"><span class="n">nega</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#margin_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.margin_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute margin loss</p>
+<p>Give positive and negative scores <span class="math notranslate nohighlight">\(x,y\in\mathbb{R}^d\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[l=\frac{1}{d}\sum_i\left(\max(1-m-x_i,0) + \max(y_i-m,0)\right)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posi</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – score for positive outfit</p></li>
+<li><p><strong>nega</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – score for negative outfit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>margin loss</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -219,14 +243,84 @@ from the args and kwargs arguments, respectively.</p>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id1"><span class="brackets">1</span></dt>
-<dd><dl class="simple">
-<dt>Hu Y, Yi X, Davis L S. Collaborative fashion recommendation:</dt><dd><p>A functional tensor factorization approach[C]
+<dd><p>Hu Y, Yi X, Davis L S. Collaborative fashion recommendation:
+A functional tensor factorization approach[C]
 Proceedings of the 23rd ACM international conference on Multimedia.
-ACM, 2015: 129-138.</p>
+2015: 129-138.</p>
 </dd>
-<dt>[2] Lee C P, Lin C J. Large-scale Linear RankSVM[J].</dt><dd><p>Neural computation, 2014, 26(4): 781-817.</p>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p>Lee C P, Lin C J. Large-scale Linear RankSVM[J].
+Neural computation, 2014, 26(4): 781-817.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.pair_accuracy">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">pair_accuracy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></span></em>, <em class="sig-param"><span class="n">neg</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a><a class="reference internal" href="_modules/torchutils/metrics.html#pair_accuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.pair_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute pairwise accuracy.</p>
+<p>Give positive and negative scores <span class="math notranslate nohighlight">\(x,y\in\mathbb{R}^d\)</span></p>
+<div class="math notranslate nohighlight">
+\[\text{accuracy}=\frac{\sum_{i,j} \mathbb{I}(x_i &gt; y_j)}{d^2}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posi</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – positive scores</p></li>
+<li><p><strong>nega</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – negative scores</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pairwise accuracy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.pair_rank_loss">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">pair_rank_loss</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span></em>, <em class="sig-param"><span class="n">neg</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/torchutils/metrics.html#pair_rank_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.pair_rank_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute pairwise rank loss.</p>
+<p>Give positive and negative scores <span class="math notranslate nohighlight">\(x,y\in\mathbb{R}^d\)</span></p>
+<div class="math notranslate nohighlight">
+\[l=\frac{1}{d^2}\sum_{i,j} \log\left(1.0+\exp(y_j-x_i))\right)\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posi</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – score for positive outfit</p></li>
+<li><p><strong>nega</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – score for negative outfit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pair-wise loss</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="torchutils.metrics.to_canonical">
+<code class="sig-prename descclassname">torchutils.metrics.</code><code class="sig-name descname">to_canonical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pos</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></span></em>, <em class="sig-param"><span class="n">neg</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a><span class="p">, </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)">numpy.ndarray</a><span class="p">]</span><a class="reference internal" href="_modules/torchutils/metrics.html#to_canonical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#torchutils.metrics.to_canonical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the canonical representation for computing AUC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – positive scores</p></li>
+<li><p><strong>neg</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – negative scores</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ol class="arabic simple">
+<li><p><cite>y_label</cite>: concatenated positive and negative labels</p></li>
+<li><p><cite>y_score</cite>: concatenated positive and negative scores</p></li>
+</ol>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -259,7 +353,7 @@ ACM, 2015: 129-138.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

@@ -12,6 +12,7 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
   </head><body>
@@ -25,7 +26,8 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -236,6 +238,68 @@
     <span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">p_logvar</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">q_mean</span> <span class="o">-</span> <span class="n">p_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">p_logvar</span> <span class="o">-</span> <span class="n">q_logvar</span>
     <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="logmm"><a class="viewcode-back" href="../../ops.html#torchutils.ops.logmm">[docs]</a><span class="k">def</span> <span class="nf">logmm</span><span class="p">(</span><span class="n">logx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">logy</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Performs a matrix multiplication of the matrices ``logx`` and ``logy`` with logarithm values.</span>
+
+<span class="sd">    ``logx`` is a :math:`(n\times m)` tensor, ``logy`` is a :math:`(m\times p)` tensor</span>
+<span class="sd">    and ``out`` is a :math:`(n\times p)` tensor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        logx (torch.Tensor): the first matrix.</span>
+<span class="sd">        logy (torch.Tensor): the second matrix.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor: output matrix</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This function does not broadcast.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># n x m x 1</span>
+    <span class="n">logx</span> <span class="o">=</span> <span class="n">logx</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># 1 x m x p</span>
+    <span class="n">logy</span> <span class="o">=</span> <span class="n">logy</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">logk</span> <span class="o">=</span> <span class="n">logx</span> <span class="o">+</span> <span class="n">logy</span>
+    <span class="n">logm</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">logk</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">logz</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logk</span> <span class="o">-</span> <span class="n">logm</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">logm</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">logz</span></div>
+
+
+<div class="viewcode-block" id="pairwise_distances"><a class="viewcode-back" href="../../ops.html#torchutils.ops.pairwise_distances">[docs]</a><span class="k">def</span> <span class="nf">pairwise_distances</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Computes (batched) pairwise distance with mm.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor): input tensor of shape :math:`(B\times N \times D)` or :math:`(N \times D)`</span>
+<span class="sd">        y (torch.Tensor): input tensor of shape :math:`(B\times M \times D)` or :math:`(M \times D)`</span>
+
+<span class="sd">    The output is tensor of shape :math:`(B\times N\times M)` or :math:`(N\times M)`.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        This implementation is similar to :meth:`~torch.cdist` with default setting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">x_norm</span> <span class="o">+</span> <span class="n">y_norm</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">dist</span> <span class="o">**</span> <span class="mf">0.5</span></div>
+
+
+<div class="viewcode-block" id="kaiming_uniform"><a class="viewcode-back" href="../../ops.html#torchutils.ops.kaiming_uniform">[docs]</a><span class="k">def</span> <span class="nf">kaiming_uniform</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">nonlinearity</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Kaiming uniform for neural networks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        module (nn.Module): module to apply the initialization</span>
+<span class="sd">        nonlinearity (str, optional): non-linearity. Defaults to &quot;relu&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">kaiming_uniform_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">nonlinearity</span><span class="o">=</span><span class="n">nonlinearity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">ones_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -253,12 +317,13 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Zhi Lu.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
     </div>
   </body>
 </html>

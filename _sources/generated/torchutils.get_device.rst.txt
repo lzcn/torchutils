@@ -1,0 +1,6 @@
+torchutils.get\_device
+======================
+
+.. currentmodule:: torchutils
+
+.. autofunction:: get_device

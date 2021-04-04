@@ -1,0 +1,6 @@
+torchutils.load\_pretrained\_lossly
+===================================
+
+.. currentmodule:: torchutils
+
+.. autofunction:: load_pretrained_lossly

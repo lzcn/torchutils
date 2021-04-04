@@ -1,0 +1,452 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.misc &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.misc</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Back</span><span class="p">,</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+
+<span class="kn">from</span> <span class="nn">.overrides</span> <span class="kn">import</span> <span class="n">set_module</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;colour&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;format_display&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gather_loss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;from_yaml&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gather_mean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_named_class&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_named_function&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;infer_parallel_device&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;init_optimizer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load_pretrained&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;one_hot&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;to_device&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;YAMLoader&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">format_display</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert dictionary to format string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        opt (dict): configuration to be displayed</span>
+<span class="sd">        num (int): number of indent</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">indent</span> <span class="o">=</span> <span class="n">symbol</span> <span class="o">*</span> <span class="n">num</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">indent</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">indent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string</span>
+
+
+<span class="k">def</span> <span class="nf">update_npz</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+        <span class="n">pre_results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">pre_results</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pre_results</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="o">**</span><span class="n">results</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">weights_init</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    usage: module.apply(weights_init)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">kaiming_normal_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">constant_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">kaiming_normal_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">constant_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">ConvTranspose2d</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">kaiming_normal_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">constant_</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">colour</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Colorize a string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string (str): string to colorize</span>
+<span class="sd">        *args (Any): string = string % tuple(args)</span>
+<span class="sd">        b (str): background color</span>
+<span class="sd">        s (str): style,</span>
+<span class="sd">        c (str): foreground color,</span>
+
+<span class="sd">    Available formatting:</span>
+<span class="sd">        See colorma_ for more details</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            c: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.</span>
+<span class="sd">            b: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.</span>
+<span class="sd">            s: DIM, NORMAL, BRIGHT, RESET_ALL</span>
+
+<span class="sd">    .. _colorma: https://pypi.org/project/colorama/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">string</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Fore</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Back</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Style</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span>
+    <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">string</span> <span class="o">+</span> <span class="n">suffix</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_named_class</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get class members in given module.&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_named_function</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get function members in given module.&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isfunction</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">isfunction</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">one_hot</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the index tensor to one-hot encoding.</span>
+
+<span class="sd">    The returned encoding is on the same device as the index tensor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        index (torch.LongTensor): index tensor</span>
+<span class="sd">        num (int): length of one-hot encoding</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.tensor: one-hot encoding</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            &gt;&gt; x = torch.tensor([2, 1, 1, 2])</span>
+<span class="sd">            &gt;&gt; one_hot(x, num=3)</span>
+<span class="sd">            tensor([[0., 0., 1.],</span>
+<span class="sd">                    [0., 1., 0.],</span>
+<span class="sd">                    [0., 1., 0.],</span>
+<span class="sd">                    [0., 0., 1.]])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">one_hot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">numel</span><span class="p">(),</span> <span class="n">num</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">one_hot</span><span class="o">.</span><span class="n">scatter_</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">infer_parallel_device</span><span class="p">(</span><span class="n">device_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decide which device to use for data when given device_ids.</span>
+
+<span class="sd">    For :func:`torch.nn.data_parallel`, if multiple GPUs are used, the data only need</span>
+<span class="sd">    to be saved in CPU. If single GPU is used, then data must be moved to the GPU.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        device_ids (list of int, optional): gpu id list</span>
+
+<span class="sd">    Outputs:</span>
+<span class="sd">        - parallel: True if len(device_ids) &gt; 1</span>
+<span class="sd">        - device: if single-gpu is used then return the gpu device, else return &quot;cpu&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_ids</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">device_ids</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">device_ids</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">device_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parallel</span><span class="p">,</span> <span class="n">device</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">device_ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parallel</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parallel</span><span class="p">,</span> <span class="n">device</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">to_device</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Move data to given device.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (Sequence): convert all data to given device.</span>
+<span class="sd">        device (torch.device, optional): target device.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;data must contains tensors or list of tensors; found </span><span class="si">{}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">to_device</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">to_device</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">to_device</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">error_msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">gather_loss</span><span class="p">(</span><span class="n">loss_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">loss_weight</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gather overall loss and compute mean of individual losses.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        loss_dict (dict): individual loss terms</span>
+<span class="sd">        loss_weight (dict): weights for each loss, only the loss with valid weight will</span>
+<span class="sd">            be meaned.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">scale_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">loss_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">loss_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">loss_weight</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weight</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">weight</span>
+        <span class="n">scale_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">scale_dict</span><span class="p">,</span> <span class="n">loss</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">gather_mean</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Gather mean value of each tensor.</span>
+
+<span class="sd">    Compute the averaged value for each element:</span>
+<span class="sd">    :math:`\frac{1}{n}\sum_i v_i, v \in\mathbb{R}^n`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tensors ([dict, list]): list of tensors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tensors</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Expcted list or dict, but got </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tensors</span><span class="p">)))</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_pretrained</span><span class="p">(</span><span class="n">net</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Load weights lossly.</span>
+
+<span class="sd">    Load weights that match the the model. Unloaded weighted will be logged.</span>
+
+<span class="sd">    Types of unloaded weights:</span>
+<span class="sd">        - Missing keys: weights not in pretrained state</span>
+<span class="sd">        - Unexpected keys: weights not in given net</span>
+<span class="sd">        - Unmatched keys: shape mismatched weights</span>
+<span class="sd">    Args:</span>
+<span class="sd">        net (nn.Module): model</span>
+<span class="sd">        path (str): path to pre-traiend model</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># load weights from pre-trained model lossly</span>
+    <span class="n">num_devices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span>
+    <span class="n">map_location</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cuda:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_devices</span><span class="p">)}</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading pre-trained model from </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">map_location</span><span class="p">)</span>
+    <span class="n">net_param</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+    <span class="n">unmatched_keys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">net_param</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">net_param</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">unmatched_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">unmatched_keys</span><span class="p">:</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">missing_keys</span><span class="p">,</span> <span class="n">unexpected_keys</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">missing_keys</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">unmatched_keys</span><span class="p">))</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Missing keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_keys</span><span class="p">))</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unexpected keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unexpected_keys</span><span class="p">))</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unmatched keys: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unmatched_keys</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">net</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">init_optimizer</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">optim_param</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Init Optimizer given OptimParam instance and net.&quot;&quot;&quot;</span>
+    <span class="c1"># Optimizer and LR policy class</span>
+    <span class="n">grad_class</span> <span class="o">=</span> <span class="n">get_named_class</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="p">)[</span><span class="n">optim_param</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+    <span class="n">lr_class</span> <span class="o">=</span> <span class="n">get_named_class</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="p">)[</span><span class="n">optim_param</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="p">]</span>
+    <span class="c1"># Optimizer LR policy configurations</span>
+    <span class="n">grad_param</span> <span class="o">=</span> <span class="n">optim_param</span><span class="o">.</span><span class="n">grad_param</span>
+    <span class="n">lr_param</span> <span class="o">=</span> <span class="n">optim_param</span><span class="o">.</span><span class="n">scheduler_param</span>
+    <span class="c1"># sub-module specific configuration</span>
+    <span class="n">named_groups</span> <span class="o">=</span> <span class="n">optim_param</span><span class="o">.</span><span class="n">groups</span>
+    <span class="n">param_groups</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">named_groups</span><span class="p">:</span>
+        <span class="n">param_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gropus</span> <span class="ow">in</span> <span class="n">named_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">sub_module</span> <span class="o">=</span> <span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="n">name</span><span class="p">)(</span><span class="n">net</span><span class="p">)</span>
+            <span class="n">param_group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">sub_module</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="o">**</span><span class="n">gropus</span><span class="p">)</span>
+            <span class="n">param_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_group</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">param_group</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">()</span>
+    <span class="c1"># get instances</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">grad_class</span><span class="p">(</span><span class="n">param_groups</span><span class="p">,</span> <span class="o">**</span><span class="n">grad_param</span><span class="p">)</span>
+    <span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">lr_class</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="o">**</span><span class="n">lr_param</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">lr_scheduler</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">YAMLoader</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;YAML Loader with `!include` constructor.</span>
+
+<span class="sd">    Example:</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="YAMLoader.__init__"><a class="viewcode-back" href="../../generated/torchutils.YAMLoader.html#torchutils.YAMLoader.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">IO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">curdir</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">construct_include</span><span class="p">(</span><span class="n">loader</span><span class="p">:</span> <span class="n">YAMLoader</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Include file referenced at node.&quot;&quot;&quot;</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="n">loader</span><span class="o">.</span><span class="n">construct_scalar</span><span class="p">(</span><span class="n">node</span><span class="p">)))</span>
+    <span class="n">extension</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;yml&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">YAMLoader</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">extension</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,):</span>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+
+
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s2">&quot;!include&quot;</span><span class="p">,</span> <span class="n">construct_include</span><span class="p">,</span> <span class="n">YAMLoader</span><span class="p">)</span>
+
+
+<span class="nd">@set_module</span><span class="p">(</span><span class="s2">&quot;torchutils&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load configuration from YAML file with include constructor.</span>
+
+<span class="sd">    To include another file: use &quot;!include filename&quot;</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            # file: bar.yaml</span>
+<span class="sd">            - 3.6</span>
+<span class="sd">            - [1, 2, 3]</span>
+
+<span class="sd">            # file: foo.yaml</span>
+<span class="sd">            a: 1</span>
+<span class="sd">            b:</span>
+<span class="sd">                - 1.43</span>
+<span class="sd">                - 543.55</span>
+<span class="sd">            c: !include bar.yaml</span>
+
+<span class="sd">            kwds = from_yaml(&quot;foo.yaml&quot;)</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Under MIT License: Copyright (c) 2018 Josh Bode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">YAMLoader</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

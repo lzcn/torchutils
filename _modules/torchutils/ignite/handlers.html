@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.ignite.handlers &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.ignite.handlers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ignite.engine</span> <span class="kn">import</span> <span class="n">Events</span>
+<span class="kn">from</span> <span class="nn">ignite.handlers</span> <span class="kn">import</span> <span class="n">Timer</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ModelTimer&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ModelTimer"><a class="viewcode-back" href="../../../ignite.html#torchutils.ignite.handlers.ModelTimer">[docs]</a><span class="k">class</span> <span class="nc">ModelTimer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Timer object can be used to measure average time.</span>
+
+<span class="sd">    This timer class compute averaged time for:</span>
+<span class="sd">        - &quot;batch&quot;: time of each iteration</span>
+<span class="sd">        - &quot;data&quot;: time of getting batch data</span>
+<span class="sd">        - &quot;forward&quot;: time of model forwarding</span>
+
+<span class="sd">    Exmaple:</span>
+
+<span class="sd">        &gt;&gt;&gt; from ignite.engine import Engine, Events</span>
+<span class="sd">        &gt;&gt;&gt; from ignite.handlers import Timer</span>
+<span class="sd">        &gt;&gt;&gt; trainer = Engine(function)</span>
+<span class="sd">        &gt;&gt;&gt; timer = ModelTimer()</span>
+<span class="sd">        &gt;&gt;&gt; timer.attach(trainer)</span>
+
+<span class="sd">    Version:</span>
+<span class="sd">        - ignite&gt;=0.4.2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enginer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_timer</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span>
+            <span class="n">enginer</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">EPOCH_STARTED</span><span class="p">,</span>
+            <span class="n">resume</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">GET_BATCH_STARTED</span><span class="p">,</span>
+            <span class="n">pause</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">GET_BATCH_COMPLETED</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">ITERATION_COMPLETED</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nn_timer</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span>
+            <span class="n">enginer</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">EPOCH_STARTED</span><span class="p">,</span>
+            <span class="n">resume</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">GET_BATCH_COMPLETED</span><span class="p">,</span>
+            <span class="n">pause</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">GET_BATCH_STARTED</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">ITERATION_COMPLETED</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span>
+            <span class="n">enginer</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">EPOCH_STARTED</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">Events</span><span class="o">.</span><span class="n">ITERATION_COMPLETED</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{:.3f}</span><span class="s2"> batch, </span><span class="si">{:.3f}</span><span class="s2"> data, </span><span class="si">{:.3f}</span><span class="s2"> forward&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_timer</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_timer</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ModelTimer.value"><a class="viewcode-back" href="../../../ignite.html#torchutils.ignite.handlers.ModelTimer.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return averaged time for each phase.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_timer</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="s2">&quot;batch&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="s2">&quot;forward&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nn_timer</span><span class="o">.</span><span class="n">value</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">time</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../torchutils.html" >torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

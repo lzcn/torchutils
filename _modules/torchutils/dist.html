@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>torchutils.dist &#8212; torchutils 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" accesskey="U">torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for torchutils.dist</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">functional</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.models.inception</span> <span class="kn">import</span> <span class="n">inception_v3</span>
+<span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">_inception_output</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">transform_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># auto-select device</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">normalize</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">))</span>
+    <span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">dataloader</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Forward Inception V3&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">progress</span> <span class="k">else</span> <span class="n">dataloader</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">batch</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The return of dataset can not be recognized&quot;</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transform_input</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resize</span><span class="p">:</span>
+            <span class="c1"># if align corners IS=10.254 else IS=10.511 on CIFAR10</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">299</span><span class="p">,</span> <span class="mi">299</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="inception_score"><a class="viewcode-back" href="../../dist.html#torchutils.dist.inception_score">[docs]</a><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">inception_score</span><span class="p">(</span>
+    <span class="n">dataset</span><span class="p">,</span> <span class="n">transform_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">splits</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the inception score (IS)</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \log(\text{IS}) = \mathbb{E}_{x\sim p_{data}} D_{KL}\big(p(y|x)|| p(y)\big)</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            from torchvision import datasets</span>
+<span class="sd">            from torchutils.dist import inception_score</span>
+
+<span class="sd">            dataset = datasets.ImageNet(</span>
+<span class="sd">                    &quot;data/imagenet&quot;,</span>
+<span class="sd">                    split=&quot;val&quot;,</span>
+<span class="sd">                    transform=transforms.Compose(</span>
+<span class="sd">                        [</span>
+<span class="sd">                            transforms.Resize(299),</span>
+<span class="sd">                            transforms.CenterCrop(299),</span>
+<span class="sd">                            transforms.ToTensor(),</span>
+<span class="sd">                            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),</span>
+<span class="sd">                        ]</span>
+<span class="sd">                    ),</span>
+<span class="sd">                )</span>
+<span class="sd">            mean, std = inception_score(dataset, resize=False, progress=True)</span>
+<span class="sd">            print(&quot;{:.3f}({:.3f})&quot;.format(mean, std))</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset (Dataset): dataset.</span>
+<span class="sd">        transform_input (bool, optional): whether to transform the input from range</span>
+<span class="sd">            (-1, 1) to desired range. Defaults to False.</span>
+<span class="sd">        batch_size (int, optional): batch size. Defaults to 32.</span>
+<span class="sd">        num_workers (int, optional): number of workers. Defaults to 4.</span>
+<span class="sd">        splits (int, optional): number of splits. Defaults to 1.</span>
+<span class="sd">        resize (bool, optional): whether to resize image. Defaults to True.</span>
+<span class="sd">        progress (bool, optional): show progress bar. Defaults to False.</span>
+<span class="sd">        device (str, optional): device to compute. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: mean IS and std IS</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">splits</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">inception_v3</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform_input</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">_inception_output</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">transform_input</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">//</span> <span class="n">splits</span><span class="p">)</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">probs</span><span class="p">:</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+        <span class="n">kl_div</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">kl_div</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">log</span><span class="p">(),</span> <span class="n">pr</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;batchmean&quot;</span><span class="p">)</span>
+        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kl_div</span><span class="p">))</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="n">splits</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span></div>
+
+
+<span class="k">def</span> <span class="nf">_inception_mean_and_cov</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">_inception_output</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span>
+
+
+<div class="viewcode-block" id="fid_score"><a class="viewcode-back" href="../../dist.html#torchutils.dist.fid_score">[docs]</a><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">fid_score</span><span class="p">(</span>
+    <span class="n">dataset_1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dataset_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mu_1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mu_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cov_1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cov_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transform_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">resize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_mean_and_cov</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the FID score.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{FID}=|\mu_{1}-\mu_{2}|^{2}+\text{tr}\big(\Sigma_{1}+\Sigma_{2}-2(\Sigma_{1}\Sigma_{2})^{1/2}\big)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset_1 ([Dataset, Tensor]): datasets to compare fid score</span>
+<span class="sd">        dataset_2 ([Dataset, Tensor]): datasets to compare fid score</span>
+<span class="sd">        batch_size (int, optional): batch size. Defaults to 32.</span>
+<span class="sd">        num_workers (int, optional): number of workers. Defaults to 4.</span>
+<span class="sd">        resize (bool, optional): whether to resize image. Defaults to True.</span>
+<span class="sd">        progress (bool, optional): show progress bar. Defaults to False.</span>
+<span class="sd">        device (str, optional): device to compute. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: FID score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">inception_v3</span><span class="p">(</span><span class="n">pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform_input</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">mu_1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cov_1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mu_1</span><span class="p">,</span> <span class="n">cov_1</span> <span class="o">=</span> <span class="n">_inception_mean_and_cov</span><span class="p">(</span>
+            <span class="n">dataset_1</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">transform_input</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">device</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">mu_2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cov_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mu_2</span><span class="p">,</span> <span class="n">cov_2</span> <span class="o">=</span> <span class="n">_inception_mean_and_cov</span><span class="p">(</span>
+            <span class="n">dataset_2</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">transform_input</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">device</span>
+        <span class="p">)</span>
+    <span class="n">sqrtm</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">cov_1</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cov_2</span><span class="p">),</span> <span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">mu_1</span> <span class="o">-</span> <span class="n">mu_2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">cov_1</span> <span class="o">+</span> <span class="n">cov_2</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">sqrtm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_mean_and_cov</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">score</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;mu_1&quot;</span><span class="p">:</span> <span class="n">mu_1</span><span class="p">,</span> <span class="s2">&quot;mu_2&quot;</span><span class="p">:</span> <span class="n">mu_2</span><span class="p">,</span> <span class="s2">&quot;cov_1&quot;</span><span class="p">:</span> <span class="n">cov_1</span><span class="p">,</span> <span class="s2">&quot;cov_2&quot;</span><span class="p">:</span> <span class="n">cov_2</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">score</span></div>
+
+
+<div class="viewcode-block" id="make_1D_gauss"><a class="viewcode-back" href="../../dist.html#torchutils.dist.make_1D_gauss">[docs]</a><span class="k">def</span> <span class="nf">make_1D_gauss</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;return a 1D histogram for a gaussian distribution</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n : int</span>
+<span class="sd">        number of bins in the histogram</span>
+<span class="sd">    mean : float</span>
+<span class="sd">        mean value of the gaussian distribution</span>
+<span class="sd">    std : float</span>
+<span class="sd">        standard deviaton of the gaussian distribution</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    h : ndarray (n,)</span>
+<span class="sd">        1D histogram for a gaussian distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">std</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">h</span> <span class="o">/</span> <span class="n">h</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">h</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">torchutils 0.0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../torchutils.html" >torchutils</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Zhi Lu.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.3.
+    </div>
+  </body>
+</html>

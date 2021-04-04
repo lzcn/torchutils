@@ -1,0 +1,191 @@
+torchutils.YAMLoader
+====================
+
+.. currentmodule:: torchutils
+
+.. autoclass:: YAMLoader
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~YAMLoader.__init__
+      ~YAMLoader.add_constructor
+      ~YAMLoader.add_implicit_resolver
+      ~YAMLoader.add_indent
+      ~YAMLoader.add_multi_constructor
+      ~YAMLoader.add_path_resolver
+      ~YAMLoader.ascend_resolver
+      ~YAMLoader.check_block_entry
+      ~YAMLoader.check_data
+      ~YAMLoader.check_directive
+      ~YAMLoader.check_document_end
+      ~YAMLoader.check_document_start
+      ~YAMLoader.check_event
+      ~YAMLoader.check_key
+      ~YAMLoader.check_node
+      ~YAMLoader.check_plain
+      ~YAMLoader.check_printable
+      ~YAMLoader.check_resolver_prefix
+      ~YAMLoader.check_state_key
+      ~YAMLoader.check_token
+      ~YAMLoader.check_value
+      ~YAMLoader.compose_document
+      ~YAMLoader.compose_mapping_node
+      ~YAMLoader.compose_node
+      ~YAMLoader.compose_scalar_node
+      ~YAMLoader.compose_sequence_node
+      ~YAMLoader.construct_document
+      ~YAMLoader.construct_mapping
+      ~YAMLoader.construct_object
+      ~YAMLoader.construct_pairs
+      ~YAMLoader.construct_scalar
+      ~YAMLoader.construct_sequence
+      ~YAMLoader.construct_undefined
+      ~YAMLoader.construct_yaml_binary
+      ~YAMLoader.construct_yaml_bool
+      ~YAMLoader.construct_yaml_float
+      ~YAMLoader.construct_yaml_int
+      ~YAMLoader.construct_yaml_map
+      ~YAMLoader.construct_yaml_null
+      ~YAMLoader.construct_yaml_object
+      ~YAMLoader.construct_yaml_omap
+      ~YAMLoader.construct_yaml_pairs
+      ~YAMLoader.construct_yaml_seq
+      ~YAMLoader.construct_yaml_set
+      ~YAMLoader.construct_yaml_str
+      ~YAMLoader.construct_yaml_timestamp
+      ~YAMLoader.descend_resolver
+      ~YAMLoader.determine_encoding
+      ~YAMLoader.dispose
+      ~YAMLoader.fetch_alias
+      ~YAMLoader.fetch_anchor
+      ~YAMLoader.fetch_block_entry
+      ~YAMLoader.fetch_block_scalar
+      ~YAMLoader.fetch_directive
+      ~YAMLoader.fetch_document_end
+      ~YAMLoader.fetch_document_indicator
+      ~YAMLoader.fetch_document_start
+      ~YAMLoader.fetch_double
+      ~YAMLoader.fetch_flow_collection_end
+      ~YAMLoader.fetch_flow_collection_start
+      ~YAMLoader.fetch_flow_entry
+      ~YAMLoader.fetch_flow_mapping_end
+      ~YAMLoader.fetch_flow_mapping_start
+      ~YAMLoader.fetch_flow_scalar
+      ~YAMLoader.fetch_flow_sequence_end
+      ~YAMLoader.fetch_flow_sequence_start
+      ~YAMLoader.fetch_folded
+      ~YAMLoader.fetch_key
+      ~YAMLoader.fetch_literal
+      ~YAMLoader.fetch_more_tokens
+      ~YAMLoader.fetch_plain
+      ~YAMLoader.fetch_single
+      ~YAMLoader.fetch_stream_end
+      ~YAMLoader.fetch_stream_start
+      ~YAMLoader.fetch_tag
+      ~YAMLoader.fetch_value
+      ~YAMLoader.flatten_mapping
+      ~YAMLoader.forward
+      ~YAMLoader.get_data
+      ~YAMLoader.get_event
+      ~YAMLoader.get_mark
+      ~YAMLoader.get_node
+      ~YAMLoader.get_single_data
+      ~YAMLoader.get_single_node
+      ~YAMLoader.get_token
+      ~YAMLoader.need_more_tokens
+      ~YAMLoader.next_possible_simple_key
+      ~YAMLoader.parse_block_mapping_first_key
+      ~YAMLoader.parse_block_mapping_key
+      ~YAMLoader.parse_block_mapping_value
+      ~YAMLoader.parse_block_node
+      ~YAMLoader.parse_block_node_or_indentless_sequence
+      ~YAMLoader.parse_block_sequence_entry
+      ~YAMLoader.parse_block_sequence_first_entry
+      ~YAMLoader.parse_document_content
+      ~YAMLoader.parse_document_end
+      ~YAMLoader.parse_document_start
+      ~YAMLoader.parse_flow_mapping_empty_value
+      ~YAMLoader.parse_flow_mapping_first_key
+      ~YAMLoader.parse_flow_mapping_key
+      ~YAMLoader.parse_flow_mapping_value
+      ~YAMLoader.parse_flow_node
+      ~YAMLoader.parse_flow_sequence_entry
+      ~YAMLoader.parse_flow_sequence_entry_mapping_end
+      ~YAMLoader.parse_flow_sequence_entry_mapping_key
+      ~YAMLoader.parse_flow_sequence_entry_mapping_value
+      ~YAMLoader.parse_flow_sequence_first_entry
+      ~YAMLoader.parse_implicit_document_start
+      ~YAMLoader.parse_indentless_sequence_entry
+      ~YAMLoader.parse_node
+      ~YAMLoader.parse_stream_start
+      ~YAMLoader.peek
+      ~YAMLoader.peek_event
+      ~YAMLoader.peek_token
+      ~YAMLoader.prefix
+      ~YAMLoader.process_directives
+      ~YAMLoader.process_empty_scalar
+      ~YAMLoader.remove_possible_simple_key
+      ~YAMLoader.resolve
+      ~YAMLoader.save_possible_simple_key
+      ~YAMLoader.scan_anchor
+      ~YAMLoader.scan_block_scalar
+      ~YAMLoader.scan_block_scalar_breaks
+      ~YAMLoader.scan_block_scalar_ignored_line
+      ~YAMLoader.scan_block_scalar_indentation
+      ~YAMLoader.scan_block_scalar_indicators
+      ~YAMLoader.scan_directive
+      ~YAMLoader.scan_directive_ignored_line
+      ~YAMLoader.scan_directive_name
+      ~YAMLoader.scan_flow_scalar
+      ~YAMLoader.scan_flow_scalar_breaks
+      ~YAMLoader.scan_flow_scalar_non_spaces
+      ~YAMLoader.scan_flow_scalar_spaces
+      ~YAMLoader.scan_line_break
+      ~YAMLoader.scan_plain
+      ~YAMLoader.scan_plain_spaces
+      ~YAMLoader.scan_tag
+      ~YAMLoader.scan_tag_directive_handle
+      ~YAMLoader.scan_tag_directive_prefix
+      ~YAMLoader.scan_tag_directive_value
+      ~YAMLoader.scan_tag_handle
+      ~YAMLoader.scan_tag_uri
+      ~YAMLoader.scan_to_next_token
+      ~YAMLoader.scan_uri_escapes
+      ~YAMLoader.scan_yaml_directive_number
+      ~YAMLoader.scan_yaml_directive_value
+      ~YAMLoader.stale_possible_simple_keys
+      ~YAMLoader.unwind_indent
+      ~YAMLoader.update
+      ~YAMLoader.update_raw
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~YAMLoader.DEFAULT_MAPPING_TAG
+      ~YAMLoader.DEFAULT_SCALAR_TAG
+      ~YAMLoader.DEFAULT_SEQUENCE_TAG
+      ~YAMLoader.DEFAULT_TAGS
+      ~YAMLoader.ESCAPE_CODES
+      ~YAMLoader.ESCAPE_REPLACEMENTS
+      ~YAMLoader.NON_PRINTABLE
+      ~YAMLoader.bool_values
+      ~YAMLoader.inf_value
+      ~YAMLoader.nan_value
+      ~YAMLoader.timestamp_regexp
+      ~YAMLoader.yaml_constructors
+      ~YAMLoader.yaml_implicit_resolvers
+      ~YAMLoader.yaml_multi_constructors
+      ~YAMLoader.yaml_path_resolvers
+   
+   

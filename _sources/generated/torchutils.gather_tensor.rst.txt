@@ -1,0 +1,6 @@
+torchutils.gather\_tensor
+=========================
+
+.. currentmodule:: torchutils
+
+.. autofunction:: gather_tensor
