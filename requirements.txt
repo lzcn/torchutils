@@ -1,0 +1,14 @@
+attrs
+colorama
+lmdb
+numpy
+opencv-python
+pandas
+pillow
+pytorch-ignite
+pyyaml
+scikit-learn
+scipy
+torch
+torchvision
+tqdm

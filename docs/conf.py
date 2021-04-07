@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # -- Project information -----------------------------------------------------
 
 project = "torchutils"
-copyright = "2020, Zhi Lu"
+copyright = "2021, Zhi Lu"
 author = "Zhi Lu"
 
 # The full version, including alpha/beta/rc tags

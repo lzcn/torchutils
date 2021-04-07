@@ -3,9 +3,6 @@ import os.path
 
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
@@ -24,27 +21,40 @@ def get_version(rel_path):
 
 VERSION = get_version("torchutils/__init__.py")
 
+with open("README.md", "r") as fh:
+    README = fh.read()
+
+requirements = [
+    "attrs",
+    "colorama",
+    "lmdb",
+    "numpy",
+    "opencv-python",
+    "pandas",
+    "pillow",
+    "pytorch-ignite",
+    "pyyaml",
+    "scikit-learn",
+    "scipy",
+    "torch",
+    "torchvision",
+    "tqdm",
+]
+
 setuptools.setup(
+    # Metadata
     name="torchutils",
     version=VERSION,
     author="Zhi Lu",
     author_email="zhilu@std.uestc.edu.cn",
     url="https://github.com/lzcn/torchutils",
     description="A bunch of personal utilities for PyTorch",
-    long_description=long_description,
+    long_description=README,
     long_description_content_type="text/markdown",
     license="MIT",
-    packages=setuptools.find_packages(),
     python_requires=">=3.6",
+    # Package info
+    packages=setuptools.find_packages(exclude=("tests", "tests.*",)),
+    zip_safe=True,
+    install_requires=requirements,
 )
-
-install_requires = [
-    "attrs",
-    "colorma",
-    "numpy",
-    "opencv-python",
-    "pandas",
-    "python-lmdb",
-    "pyyaml",
-    "scikit-learn",
-]
