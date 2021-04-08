@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
@@ -74,14 +75,19 @@ def check_exists(lists, mode="any", verbose=False):
     return ops[mode](exists)
 
 
-def scan_files(path="./", suffix="", recursive=False, relpath=False):
+def scan_files(
+    path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
+) -> List:
     """Scan files under path which follows the PEP 471.
 
-    Parameters
-    ----------
-    suffix: filename must end with suffix if given, it can also be a tuple
-    recursive: if True, scan files recursively
-    relpath: if True, return relative path with given path
+    Args:
+        path (str, optional): target path. Defaults to "./".
+        suffix (Union[str, Tuple[str]], optional): folder that ends with given suffix, it can also be a tuple. Defaults to "".
+        recursive (bool, optional): scan files recursively. Defaults to False.
+        relpath (bool, optional): return relative path. Defaults to False.
+
+    Returns:
+        List: list of files
 
     """
 
@@ -104,6 +110,43 @@ def scan_files(path="./", suffix="", recursive=False, relpath=False):
         if entry.name.endswith(suffix):
             files.append(os.path.relpath(entry.path, path) if relpath else entry.path)
     return files
+
+
+def scan_folders(
+    path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
+) -> List:
+    """Scan folders under path which follows the PEP 471.
+
+    Args:
+        path (str, optional): target path. Defaults to "./".
+        suffix (Union[str, Tuple[str]], optional): folder that ends with given suffix, it can also be a tuple. Defaults to "".
+        recursive (bool, optional): scan files recursively. Defaults to False.
+        relpath (bool, optional): return relative path. Defaults to False.
+
+    Returns:
+        List: list of folders
+
+    """
+
+    def scantree(path):
+        for entry in os.scandir(path):
+            if not entry.name.startswith("."):
+                if entry.is_dir(follow_symlinks=False):
+                    yield from scantree(entry.path)
+            if entry.is_dir():
+                yield entry
+
+    def scandir(path):
+        for entry in os.scandir(path):
+            if not entry.name.startswith(".") and entry.is_dir():
+                yield entry
+
+    folders = []
+    scan = scantree if recursive else scandir
+    for entry in scan(path):
+        if entry.name.endswith(suffix):
+            folders.append(os.path.relpath(entry.path, path) if relpath else entry.path)
+    return folders
 
 
 def list_files(folder="./", suffix="", recursive=False):
