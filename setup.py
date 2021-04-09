@@ -34,6 +34,7 @@ requirements = [
     "pillow",
     "pytorch-ignite",
     "pyyaml",
+    "matplotlib",
     "scikit-learn",
     "scipy",
     "torch",

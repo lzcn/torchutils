@@ -10,6 +10,7 @@ Welcome to torchutils's documentation!
    torchutils
    data
    dist
+   draw
    factory
    files
    ignite
