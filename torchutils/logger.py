@@ -15,6 +15,7 @@ def reigister_formatter(name, formatter):
 
 
 def config(
+    name="main",
     stream_level="INFO",
     file_level="INFO",
     log_file=None,
@@ -42,6 +43,7 @@ def config(
         stream_formatter (str, optional): message format for file. Defaults to ``formatter``.
 
     """
+    import logging
     from logging.config import dictConfig
 
     file_formatter = formatter if file_formatter is None else file_formatter
@@ -73,3 +75,5 @@ def config(
             "root": {"level": "DEBUG", "handlers": ["stream", "file"]},
         }
     )
+    logger = logging.getLogger(name)
+    return logger
