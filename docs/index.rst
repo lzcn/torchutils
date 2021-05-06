@@ -14,6 +14,7 @@ Welcome to torchutils's documentation!
    factory
    files
    ignite
+   io
    layers
    logger
    loss
