@@ -1,34 +1,42 @@
+import logging
+
 import pytest
 import torchutils
-import logging
 
 LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
 
+LOGGER = logging.getLogger("main")
 
-def test_logger_name(capsys):
-    name = "testing"
-    logger = torchutils.logger.config(name=name)
-    logger.critical("")
-    logger.error("")
-    logger.warning("")
-    logger.info("")
-    logger.debug("")
+
+def test_stream_logger(capsys):
+    torchutils.logger.config()
+    LOGGER.critical("")
     captured = capsys.readouterr()
-    assert name in captured.err
+    assert "main" in captured.err
 
 
-@pytest.mark.parametrize("stream_level", LEVELS)
-def test_logger_level(capsys, stream_level):
-    logger = torchutils.logger.config(stream_level=stream_level)
-    logger.critical("")
-    logger.error("")
-    logger.warning("")
-    logger.info("")
-    logger.debug("")
+def test_file_logger(tmp_path):
+    d = tmp_path / "log"
+    d.mkdir()
+    p = d / "file.log"
+    torchutils.logger.config(log_file=p)
+    LOGGER.critical("")
+    captured = p.read_text()
+    assert "main" in captured
+
+
+@pytest.mark.parametrize("level", LEVELS)
+def test_logger_level(capsys, level):
+    torchutils.logger.config(level=level)
+    LOGGER.critical("")
+    LOGGER.error("")
+    LOGGER.warning("")
+    LOGGER.info("")
+    LOGGER.debug("")
     captured = capsys.readouterr()
-    level = logging.getLevelName(stream_level)
+    value = logging.getLevelName(level)
     for name in LEVELS:
-        if logging.getLevelName(name) < level:
+        if logging.getLevelName(name) < value:
             assert name not in captured.err
         else:
             assert name in captured.err

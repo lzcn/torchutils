@@ -7,73 +7,85 @@ NAMED_FORMATTERS = {
         "format": "[%(levelname)s] - %(asctime)s - [%(name)s]: %(message)s",
         "datefmt": "%m-%d %H:%M:%S",
     },
+    "concise": {
+        "format": "%(asctime)s: %(message)s",
+        "datefmt": "%m-%d %H:%M:%S",
+    },
 }
 
 
-def reigister_formatter(name, formatter):
+def register_formatter(name, formatter):
     NAMED_FORMATTERS[name] = formatter
 
 
+def get_value(x, default):
+    return default if x is None else x
+
+
 def config(
-    name="main",
-    stream_level="INFO",
-    file_level="INFO",
+    level="INFO",
+    stream_level=None,
+    file_level=None,
     log_file=None,
     file_mode="a",
     formatter="default",
     file_formatter=None,
     stream_formatter=None,
 ):
-    """Config the loggers.
+    """Logger configuration with hanlders.
 
+    All loggers pase their message to the root logger. Thus, this method configures all
+    loggers by attaching hanlders to the root logger.
 
-    There are two formats for messages:
+    Predifned formatters:
 
-    - "default": [level] - time - [name.function.line]: message
-    - "simple"： [level] - time - [name]: message
+        - ``"default"``: ``[LEVEL] - %m-%d %H:%M:%S - [name.function.line]: message``
+        - ``"simple"``： ``[LEVEL] - %m-%d %H:%M:%S - [name]: message``
+        - ``"concise"``： ``%m-%d %H:%M:%S: message``
 
     Args:
-        stream_level (str, optional): logging level for STDOUT. Defaults to ``"INFO"``
-        file_level (str, optional): logging level for log file Defaults to ``"INFO"``.
-        log_file (str, optional): log file. If it is not given, then disable logging to
-            file. Defauts to ``None``.
-        file_mode (str, optional): log file mode. Defaults to "a".
+        level (str, optional):  default logging level for all hanlders. Defaults to ``"INFO"``
+        stream_level (str, optional): logging level for STDOUT. Defaults to ``level``
+        file_level (str, optional): logging level for log file Defaults to ``level``.
+        log_file (str, optional): log file. If given, file logger will be enabled. Defauts to ``None``.
+        file_mode (str, optional): log file mode. Defaults to ``"a"``.
         formatter (str, optional): message format. Defaults to ``"default"``.
         file_formatter (str, optional): message format for stream. Defaults to ``formatter``.
         stream_formatter (str, optional): message format for file. Defaults to ``formatter``.
 
     """
-    import logging
     from logging.config import dictConfig
 
-    file_formatter = formatter if file_formatter is None else file_formatter
-    stream_formatter = formatter if stream_formatter is None else stream_formatter
-    # get stream logger
+    file_level = get_value(file_level, level)
+    file_formatter = get_value(file_formatter, formatter)
+    stream_level = get_value(stream_level, level)
+    stream_formatter = get_value(stream_formatter, formatter)
+
+    # configure stream logger
     stream_hanlder = {
         "class": "logging.StreamHandler",
         "formatter": stream_formatter,
         "level": stream_level,
     }
-    # get file logger
+    # configure file logger
+    file_handler = {
+        "class": "logging.FileHandler",
+        "formatter": file_formatter,
+        "level": file_level,
+        "filename": log_file,
+        "mode": file_mode,
+    }
     if log_file is None:
-        file_handler = {"class": "logging.NullHandler"}
+        handlers = {"stream": stream_hanlder}
     else:
-        file_handler = {
-            "class": "logging.FileHandler",
-            "formatter": file_formatter,
-            "level": file_level,
-            "filename": log_file,
-            "mode": file_mode,
-        }
+        handlers = {"stream": stream_hanlder, "file": file_handler}
 
     dictConfig(
         {
             "version": 1.0,
             "disable_existing_loggers": False,
             "formatters": NAMED_FORMATTERS,
-            "handlers": {"stream": stream_hanlder, "file": file_handler},
-            "root": {"level": "DEBUG", "handlers": ["stream", "file"]},
+            "handlers": handlers,
+            "root": {"level": "DEBUG", "handlers": handlers.keys()},
         }
     )
-    logger = logging.getLogger(name)
-    return logger
