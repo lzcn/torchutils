@@ -39,4 +39,4 @@ __all__ = [
     "param",
     "singleton",
 ]
-__version__ = "0.0.1-dev210507"
+__version__ = "0.0.1-dev210524"

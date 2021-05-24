@@ -37,6 +37,7 @@ requirements = [
     "matplotlib",
     "scikit-learn",
     "scipy",
+    "tensorboard",
     "torch",
     "torchvision",
     "tqdm",
