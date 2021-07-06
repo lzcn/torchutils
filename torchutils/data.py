@@ -139,9 +139,11 @@ class DataReader(metaclass=ABCMeta):
     Args:
         path (str): data path, different data reader requires different path
         data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x
+        default (optional): returning default if key does not exist. Defaults to None
     """
 
-    def __init__(self, path: str, data_transform: Callable = None):
+    def __init__(self, path: str, data_transform: Callable = None, default=None):
+        self.default = default
         self.path = path
         self.data_transform = data_transform
 
@@ -159,6 +161,8 @@ class DataReader(metaclass=ABCMeta):
 
     def __call__(self, key):
         data = self.load(key)
+        if data is None:
+            return self.default
         if self.data_transform is None:
             return data
         return self.data_transform(data)
@@ -167,8 +171,8 @@ class DataReader(metaclass=ABCMeta):
 class TensorLMDBReader(DataReader):
     """Reader for tensor data with LMDB backend."""
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=data_transform)
+    def __init__(self, path, data_transform=None, default=None):
+        super().__init__(path, data_transform=data_transform, default=default)
         self._env = _open_lmdb_env(path)
 
     def load(self, key) -> torch.Tensor:
@@ -182,6 +186,8 @@ class TensorLMDBReader(DataReader):
         """
         with self._env.begin(write=False) as txn:
             buf = txn.get(key.encode())
+            if buf is None:
+                return None
         feature = np.frombuffer(buf, dtype=np.float32).reshape(1, -1)
         return torch.from_numpy(feature.copy()).view(-1)
 
@@ -194,8 +200,8 @@ class ImagePILReader(DataReader):
         data_transform (Callable, optional): data transform. Defaults to lambdax:x.
     """
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=data_transform)
+    def __init__(self, path, data_transform=None, default=None):
+        super().__init__(path, data_transform=data_transform, default=default)
 
     def load(self, name: str) -> PIL.Image.Image:
         """Load PIL.Image
@@ -208,6 +214,8 @@ class ImagePILReader(DataReader):
         """
         # read from raw image
         path = os.path.join(self.path, name)
+        if not os.path.exists(path):
+            return None
         with open(path, "rb") as f:
             img = PIL.Image.open(f).convert("RGB")
         return img
@@ -221,8 +229,8 @@ class ImageLMDBReader(DataReader):
 
     """
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=data_transform)
+    def __init__(self, path, data_transform=None, default=None):
+        super().__init__(path, data_transform=data_transform, default=default)
         self._env = _open_lmdb_env(path)
 
     def load(self, name: str) -> PIL.Image.Image:
@@ -236,6 +244,8 @@ class ImageLMDBReader(DataReader):
         """
         with self._env.begin(write=False) as txn:
             imgbuf = txn.get(name.encode())
+            if imgbuf is None:
+                return None
         buf = six.BytesIO()
         buf.write(imgbuf)
         buf.seek(0)
@@ -246,11 +256,13 @@ class ImageLMDBReader(DataReader):
 class TensorPKLReader(DataReader):
     """Reader for tensor data."""
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=data_transform)
+    def __init__(self, path, data_transform=None, default=None):
+        super().__init__(path, data_transform=data_transform, default=default)
         self._data = _load_pkl_data(path)
 
     def load(self, name) -> torch.Tensor:
+        if name not in self._data:
+            return None
         feature = self._data[name].astype(np.float32)
         return torch.from_numpy(feature.copy())
 
@@ -263,8 +275,8 @@ class DummyReader(DataReader):
         data_transform (Callable, optional): data transform. Defaults to lambdax:x.
     """
 
-    def __init__(self, path, data_transform=None):
-        super().__init__(path, data_transform=None)
+    def __init__(self, path, data_transform=None, default=None):
+        super().__init__(path, data_transform=None, default=default)
 
     def load(self, name: str):
         data = torch.zeros(1)
