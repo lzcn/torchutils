@@ -266,9 +266,11 @@ def load_pretrained(net: nn.Module, path: str = None, state_dict: dict = None, s
     # load weights from pre-trained model lossly
     num_devices = torch.cuda.device_count()
     map_location = {"cuda:{}".format(i): "cpu" for i in range(num_devices)}
-    LOGGER.info("Loading pre-trained model from %s.", path)
     if path is not None:
+        LOGGER.info("Loading pre-trained model from %s.", path)
         state_dict = torch.load(path, map_location=map_location)
+    else:
+        LOGGER.info("Loading pre-trained model from state.")
     net_param = net.state_dict()
     unmatched_keys = []
     for name, param in state_dict.items():
