@@ -5,7 +5,7 @@ from typing import Union
 import attr
 
 from .. import factory, misc
-from .optiom_param import OptimParam
+from .optim_param import OptimParam
 from .param import Param, toParam
 
 LOGGER = logging.getLogger(__name__)
