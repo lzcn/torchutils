@@ -40,7 +40,7 @@ class Param(object):
 
     .. _attrs: https://www.attrs.org
 
-    TODO:
+    TODO: serialization
         - `load` and `save` for interactiving with file.
         - support for different packages, e.g, yaml, json etc.
     """
@@ -70,8 +70,7 @@ class Param(object):
 
         If value is None, return an instance with default settings.
 
-        TODO:
-            A better way for sub-class initialization.
+        TODO: A better way for sub-class initialization.
 
         """
         if value is None:

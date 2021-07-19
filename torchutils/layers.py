@@ -46,3 +46,31 @@ class ConditionalBatchNorm2d(nn.Module):
         b = torch.matmul(c, self.bias).view(-1, self.num_features, 1, 1)
         y = w * h + b
         return y
+
+
+class LinerLN(nn.Module):
+    """Linear layer with LayerNorm, ReLU, and Dropout.
+
+    Args:
+        in_features: size of each input sample
+        out_features:  size of each output sample
+        bias: If set to `False`, the layer will not learn an additive bias. Default: `True`
+        dropout: probability of an element to be zeroed. Default: 0.0
+    """
+
+    def __init__(self, in_features, out_features, bias=True, dropout=0.0):
+        super().__init__()
+        self.fc = nn.Linear(in_features, out_features, bias)
+        self.ln = nn.LayerNorm(out_features)
+        self.relu = nn.ReLU()
+        if dropout > 0.0:
+            self.dropout = nn.Dropout(dropout)
+        else:
+            self.dropout = nn.Identity()
+
+    def forward(self, x):
+        x = self.fc(x)
+        x = self.relu(x)
+        x = self.ln(x)
+        x = self.dropout(x)
+        return x
