@@ -1,6 +1,83 @@
 import csv
 import json
-import numpy as np
+from typing import Optional
+
+from torch import nn
+from torch.types import Number
+
+from ignite import handlers
+
+
+class ModelSaver(object):
+    """Handler that saves model checkpoints on a disk.
+
+
+    This class uses :class:`~ignite.handlers.DiskSaver` as saver.
+
+    Args:
+        dirname (str): Directory path where the checkpoint will be saved
+        filename_prefix (str, optional): prefix for filename.
+        score_name (str, optional): if not given, it will use "epoch" as default
+        n_saved (int, optional): number of models to save.
+        atomic (bool, optional): if True, checkpoint is serialized to a temporary file, and then
+            moved to final destination, so that files are guaranteed to not be damaged
+            (for example if exception occurs during saving).
+        create_dir (bool, optional): if True, will create directory ``dirname`` if it doesnt exist.
+        require_empty (bool, optional): If True, will raise exception if there are any files in the
+            directory ``dirname``.
+
+
+    """
+
+    def __init__(
+        self,
+        dirname: str,
+        filename_prefix: str = None,
+        score_name: str = None,
+        n_saved: Optional[int] = 5,
+        atomic: bool = True,
+        create_dir: bool = True,
+        require_empty: bool = True,
+    ):
+        super().__init__()
+        self.saver = handlers.DiskSaver(dirname, atomic=atomic, create_dir=create_dir, require_empty=require_empty)
+        self.filename_predfix = filename_prefix
+        self.score_name = score_name
+        self.n_saved = n_saved
+        self.history = []
+
+    def filename(self, score, epoch=None):
+        name = f"{self.score_name}_{score:.4f}_" if self.score_name else f"{score:.4f}_"
+        suffix = f"epoch_{epoch}" if epoch is not None else ""
+        prefix = f"{self.filename_predfix}_" if self.filename_predfix else ""
+        return f"{prefix}{name}{suffix}.pt"
+
+    def save(self, model: nn.Module, score: Number, epoch=None):
+        """Save model given score or epoch.
+
+        Args:
+            model (nn.Module): model to save
+            score (Number): score or epoch
+        """
+        state_dict = model.state_dict()
+        filename = self.filename(score, epoch)
+        if len(self.history) < self.n_saved:  # history not full
+            self.saver(state_dict, filename=filename)
+            self.history.append((score, filename))
+        elif score > self.history[0][0]:  # top-n best results
+            self.saver(state_dict, filename=filename)
+            _, last_file = self.history[0]
+            self.saver.remove(last_file)
+            self.history[0] = (score, filename)
+        else:  # do not save
+            pass
+        self.history = sorted(self.history, key=lambda x: x[0])
+
+    @property
+    def last_checkpoint(self):
+        if len(self.history) < 1:
+            return None
+        return self.history[-1][-1]
 
 
 def load_json(fn):
