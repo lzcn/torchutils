@@ -6,6 +6,7 @@ from . import (
     dist,
     draw,
     factory,
+    fashion,
     files,
     ignite,
     io,
@@ -26,6 +27,7 @@ __all__ = [
     "dist",
     "draw",
     "factory",
+    "fashion",
     "files",
     "ignite",
     "io",
@@ -39,4 +41,4 @@ __all__ = [
     "param",
     "singleton",
 ]
-__version__ = "0.0.1-dev210728"
+__version__ = "0.0.1-dev210809"

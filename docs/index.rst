@@ -12,6 +12,7 @@ Welcome to torchutils's documentation!
    dist
    draw
    factory
+   fashion
    files
    ignite
    io
