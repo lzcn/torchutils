@@ -103,7 +103,7 @@ class RandomMixGenerator(Generator):
 class RandomReplaceGenerator(Generator):
     """Replace n item in outfit."""
 
-    def __init__(self, ratio=1, num_replace=1, type_aware=False):
+    def __init__(self, ratio=1, num_replace=1, type_aware=False, *args, **kwargs):
         super().__init__()
         self.ratio = ratio
         self.num_replace = num_replace
