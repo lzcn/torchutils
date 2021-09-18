@@ -1,5 +1,5 @@
 torchutils.loss
-===============
+---------------
 
 .. currentmodule:: torchutils.loss
 

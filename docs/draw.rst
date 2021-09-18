@@ -1,5 +1,5 @@
 torchutils.draw
-===============
+---------------
 
 .. currentmodule:: torchutils.draw
 

@@ -24,19 +24,19 @@ def contrastive_loss(s_data: torch.Tensor, t_data: torch.Tensor, margin=0.2, mas
         t_data (torch.Tensor) : array of shape :math:`(N, D)`, target features
         margin (float, optional): the margin :math:`m`. Defaults to 0.1.
         mask (None, optional): array of shape :math:`(N)`. mask for samples.
-        reduction (str, optional): Defaults to "mean". Specifies the reduction to
+        reduction (str, optional): Defaults to ``"mean"``. Specifies the reduction to
             apply to the output:
 
-            - `'none'`: no reduction will be applied,
-            - `'mean'`: the sum of the output will be divided by the number of elements in the output,
-            - `'sum'`: the output will be summed.
+            - ``'none'``: no reduction will be applied,
+            - ``'mean'``: the sum of the output will be divided by the number of elements in the output,
+            - ``'sum'``: the output will be summed.
 
     Note:
         If mask is not None, the output with "none" reduction may contains zeros.
         Such that simply averaging the output will give a smaller result.
 
     Returns:
-        torch.Tensor: shape :math:`(N)` or :math:`(1)`
+        torch.Tensor: contrastive loss of shape :math:`(N,)` or :math:`(1,)`
 
     """
     # compute the cosine similarity

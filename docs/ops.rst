@@ -1,5 +1,5 @@
 torchutils.ops
-==============
+--------------
 
 .. currentmodule:: torchutils.ops
 

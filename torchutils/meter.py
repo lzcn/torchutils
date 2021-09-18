@@ -85,15 +85,15 @@ class Meter(object):
 
     Example:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        from torchutils.meter import Meter
-        # history meter with window size 10
-        meter = Meter(10)
-        # update data
-        meter.update(0.1, weight=1.0)
-        # show values
-        print(meter.avg, meter.val)
+            from torchutils.meter import Meter
+            # history meter with window size 10
+            meter = Meter(10)
+            # update data
+            meter.update(0.1, weight=1.0)
+            # show values
+            print(meter.avg, meter.val)
 
     Usually, the during testing phase, we need a global average meter::
 

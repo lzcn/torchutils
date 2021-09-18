@@ -1,5 +1,5 @@
 torchutils.files
-================
+----------------
 
 .. currentmodule:: torchutils.files
 

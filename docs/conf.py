@@ -23,7 +23,7 @@ copyright = "2021, Zhi Lu"
 author = "Zhi Lu"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.1"
+release = "0.0.1-alpha"
 
 
 # -- General configuration ---------------------------------------------------
@@ -57,12 +57,17 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinxdoc"
+html_theme = "sphinx_book_theme"  # "sphinxdoc"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+html_theme_options = {
+    "repository_url": "https://github.com/lzcn/torchutils",
+    "use_repository_button": True,
+}
 
 
 # -- Options for intersphinx extension ---------------------------------------

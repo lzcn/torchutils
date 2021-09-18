@@ -18,7 +18,6 @@ from . import (
     ops,
     ot,
     param,
-    singleton,
 )
 
 __all__ = [
@@ -39,6 +38,6 @@ __all__ = [
     "ops",
     "ot",
     "param",
-    "singleton",
+    "plot",
 ]
 __version__ = "0.0.1-dev210809"

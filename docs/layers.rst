@@ -1,5 +1,5 @@
 torchutils.layers
-=================
+-----------------
 
 .. currentmodule:: torchutils.layers
 

@@ -1,5 +1,5 @@
 torchutils.meter
-================
+----------------
 
 .. currentmodule:: torchutils.meter
 

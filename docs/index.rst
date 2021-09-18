@@ -1,7 +1,5 @@
-Welcome to torchutils's documentation!
-======================================
-
-:mod:`torchutils` is a bundle of utilities for PyTorch.
+:mod:`torchutils` - A Bundle of PyTorch Utility
+===============================================
 
 .. toctree::
    :maxdepth: 1
@@ -24,12 +22,10 @@ Welcome to torchutils's documentation!
    ops
    ot
    param
-   singleton
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. 
+   Indices and tables
+   ==================
+   * :ref:`genindex`
+   * :ref:`modindex`
+   * :ref:`search`

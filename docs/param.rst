@@ -1,5 +1,5 @@
 torchutils.param
-================
+----------------
 
 .. currentmodule:: torchutils.param
 

@@ -1,5 +1,5 @@
 torchutils.logger
-=================
+-----------------
 
 .. currentmodule:: torchutils.logger
 

@@ -54,6 +54,7 @@ def create_lmdb(dst: str, src: Union[str, dict], key="relpath"):
     It reads images in ``src`` folder and creates two files under ``dst`` folder:
         - ``data.mdb``
         - ``lock.mdb``
+
     The key of each image is the relative path to ``src``.
 
     """

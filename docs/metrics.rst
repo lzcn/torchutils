@@ -1,5 +1,5 @@
 torchutils.metrics
-==================
+------------------
 
 .. currentmodule:: torchutils.metrics
 

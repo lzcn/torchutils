@@ -52,9 +52,8 @@ def to_canonical(pos: list, neg: list) -> Tuple[np.ndarray, np.ndarray]:
 
     Returns:
         Tuple[np.ndarray, np.ndarray]:
-
-            1. `y_label`: concatenated positive and negative labels
-            2. `y_score`: concatenated positive and negative scores
+            1. ``y_label``: concatenated positive and negative labels
+            2. ``y_score``: concatenated positive and negative scores
 
     """
     pos, neg = np.array(pos), np.array(neg)

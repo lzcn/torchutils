@@ -1,5 +1,5 @@
 torchutils.factory
-==================
+------------------
 
 .. currentmodule:: torchutils.factory
 

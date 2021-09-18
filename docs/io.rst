@@ -1,5 +1,5 @@
 torchutils.io
-=============
+-------------
 
 .. currentmodule:: torchutils.io
 

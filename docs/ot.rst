@@ -1,5 +1,5 @@
 torchutils.ot
-=============
+-------------
 
 .. currentmodule:: torchutils.ot
 

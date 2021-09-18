@@ -1,5 +1,5 @@
 torchutils.dist
-===============
+---------------
 
 .. currentmodule:: torchutils.dist
 

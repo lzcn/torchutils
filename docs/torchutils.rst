@@ -14,8 +14,6 @@ Tensor
     :toctree: generated
     :nosignatures:
 
-    gather_loss
-    gather_mean
     one_hot
     to_device
 
@@ -24,6 +22,7 @@ Model
 
 .. autosummary::
     :toctree: generated
+    :nosignatures:
 
     backbone
     load_pretrained
@@ -33,6 +32,7 @@ Optimizer
 
 .. autosummary::
     :toctree: generated
+    :nosignatures:
 
     init_optimizer
 
@@ -41,6 +41,7 @@ Misc
 
 .. autosummary::
     :toctree: generated
+    :nosignatures:
 
     colour
     format_display
@@ -50,7 +51,4 @@ Misc
     get_named_class
     get_named_function
     infer_parallel_device
-    init_optimizer
-    load_pretrained
-    one_hot
-    to_device
+    singleton
