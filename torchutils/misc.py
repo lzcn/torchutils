@@ -30,7 +30,6 @@ __all__ = [
     "one_hot",
     "to_device",
     "YAMLoader",
-    "singleton",
 ]
 
 
@@ -381,28 +380,3 @@ def from_yaml(file):
     with open(file) as f:
         kwds = yaml.load(f, Loader=YAMLoader)
     return kwds
-
-
-@set_module("torchutils")
-def singleton(cls):
-    """Decorator for singleton class.
-
-    Example:
-        .. code-block:: python
-
-            @torchutils.singleton
-            class A(object):
-            ...
-            x = A()
-            y = A()
-            assert id(x) == id(y)
-
-    """
-    _instance = {}
-
-    def inner(*args, **kwargs):
-        if cls not in _instance:
-            _instance[cls] = cls(*args, **kwargs)
-        return _instance[cls]
-
-    return inner

@@ -1,5 +1,6 @@
 from torchutils.backbones import backbone
 from torchutils.misc import *  # noqa F401
+from torchutils.singleton import singleton
 
 from . import (
     data,
