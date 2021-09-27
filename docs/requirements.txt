@@ -1,5 +1,6 @@
 attrs
 colorama
+furo
 lmdb
 numpy
 opencv-python
@@ -9,7 +10,6 @@ pytorch-ignite
 pyyaml
 scikit-learn
 scipy
-sphinx-book-theme
 torch
 torchvision
 tqdm
