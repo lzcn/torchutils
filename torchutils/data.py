@@ -124,13 +124,14 @@ class ResizeToSquare(object):
 
 
 def _load_pkl_data(path):
-    fn = os.path.join(path)
-    with open(fn, "rb") as f:
+    path = os.path.expanduser(path)
+    with open(path, "rb") as f:
         data = pickle.load(f)
     return data
 
 
 def _open_lmdb_env(path):
+    path = os.path.expanduser(path)
     return lmdb.open(path, max_readers=1, readonly=True, lock=False, readahead=False, meminit=False)
 
 

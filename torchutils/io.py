@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from typing import Optional
 
 from torch import nn
@@ -89,6 +90,7 @@ def load_json(fn):
     Returns:
         Any: data
     """
+    fn = os.path.expanduser(fn)
     with open(fn, "r") as f:
         data = json.load(f)
     return data
@@ -101,6 +103,7 @@ def save_json(fn, data):
         fn (str): file name
         data (Any): data to save
     """
+    fn = os.path.expanduser(fn)
     with open(fn, "w") as f:
         json.dump(data, f)
 
@@ -116,6 +119,7 @@ def load_csv(fn, num_skip=0, converter=None):
     Returns:
         List: data
     """
+    fn = os.path.expanduser(fn)
     with open(fn, "r") as f:
         reader = csv.reader(f, delimiter=",")
         for _ in range(num_skip):
@@ -133,6 +137,7 @@ def save_csv(fn, data):
         fn (str): file name
         data (Any): data to save
     """
+    fn = os.path.expanduser(fn)
     with open(fn, "w") as f:
         writer = csv.writer(f)
         writer.writerows(data)
