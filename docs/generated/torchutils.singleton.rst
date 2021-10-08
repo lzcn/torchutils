@@ -1,4 +1,4 @@
-torchutils.singleton
+﻿torchutils.singleton
 ====================
 
 .. currentmodule:: torchutils

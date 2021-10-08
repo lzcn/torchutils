@@ -13,26 +13,30 @@ _FACTORY_ATTR_NAME = "factory"
 LOGGER = logging.getLogger(__name__)
 
 
-def toParam(kwargs):
-    if isinstance(kwargs, dict) and "factory" in kwargs:
-        return _factory[kwargs["factory"]](**kwargs)
-    return kwargs
-
-
-def filter(attribute: attr.Attribute, value: Any) -> bool:
+def _configurable_filter(attribute: attr.Attribute, value: Any) -> bool:
     if attribute.name == _FACTORY_ATTR_NAME and value is None:
         return False
     return attribute.init
 
 
+def _printable_filter(attribute: attr.Attribute, value: Any) -> bool:
+    if attribute.name == _FACTORY_ATTR_NAME and value is None:
+        return False
+    return attribute.repr
+
+
 @attr.s
 class Param(object):
-    """Basic Param interface.
+    r"""Basic parameter class.
 
-    Param class interface for all customizable classes.
+    Any subclass will be registered. For attribute that is a subclass of :class:`Param`
+    use :meth:`toParam` as the converter, i.e. ``attr.ib(converter=toParam)``
 
     Only attributes whose repr is True will be displayed. The attributes defined
     with ``init=True`` is configurable, and ``repr=True`` printable.
+
+    Attributes:
+        factory (str): class name for used for initialization.
 
     Note:
         Param is an abstract class whose implementation depends on attrs_.
@@ -40,9 +44,16 @@ class Param(object):
 
     .. _attrs: https://www.attrs.org
 
-    TODO: serialization
-        - `load` and `save` for interactiving with file.
-        - support for different packages, e.g, yaml, json etc.
+    TODO:
+
+        serialization：
+            - `load` and `save` for interactiving with file.
+            - support for different packages, e.g, yaml, json etc.
+
+    TODO:
+
+        replace Param with FactoryParam
+
     """
 
     # class name for param
@@ -50,18 +61,20 @@ class Param(object):
 
     def __init_subclass__(cls):
         super().__init_subclass__()
+        if cls.__name__ in _factory:
+            LOGGER.warning("%s is already used", cls.__name__)
         _factory[cls.__name__] = cls
 
     def __str__(self):
-        d = attr.asdict(self, filter=lambda attribute, _: attribute.repr is True)
+        d = attr.asdict(self, filter=_printable_filter)
         return self.__class__.__name__ + ":\n" + pprint.pformat(d)
 
     def asdict(self):
-        """Return configurable attributes (e.g. whose init=True)."""
-        return attr.asdict(self, filter=filter)
+        r"""Return configurable attributes (e.g. whose init=True)."""
+        return attr.asdict(self, filter=_configurable_filter)
 
     def serialize(self):
-        """Serialize configurable setttings to yaml foramt."""
+        r"""Serialize configurable setttings to yaml foramt."""
         return yaml.dump(self.asdict())
 
     @classmethod
@@ -88,11 +101,13 @@ class Param(object):
 
     @classmethod
     def new(cls, value=None):
-        """Return a new instance.
+        r"""Return a new instance.
 
         If value is None, return an instance with default settings.
 
-        TODO: A better way for sub-class initialization.
+        TODO:
+
+            A better way for sub-class initialization.
 
         """
         if value is None:
@@ -102,29 +117,38 @@ class Param(object):
         return cls(**value)
 
     @classmethod
-    def from_yaml(cls, f):
-        """Return a new intance from yaml file
+    def from_yaml(cls, fn):
+        r"""Return a new intance from yaml file
 
         Args:
-            f (str): filename
+            fn (str): filename
 
         Returns:
             Param: new intance
         """
-        with open(f, "r") as f:
-            kwargs = yaml.load(f, Loader=misc.YAMLoader)
+        with open(fn, "r") as fn:
+            kwargs = yaml.load(fn, Loader=misc.YAMLoader)
             param = cls(**kwargs)
         return param
 
     @classmethod
     def from_dict(cls, value=None):
-        """Return a new intance from dictionary.
+        r"""Return a new intance from dictionary.
 
-        If value is `None`, return `None`. So:
+        If value is ``None``, return ``None``. So:
 
-        - If a default instance is preferred, use `attr.ib(factory=dict, converter=cls.from_dict)`.
-        - If no default instance is needed, use `attr.ib(default=None, converter=cls.from_dict)`.
+        - If a default instance is preferred, use ``attr.ib(factory=dict, converter=cls.from_dict)``.
+        - If no default instance is needed, use ``attr.ib(default=None, converter=cls.from_dict)``.
+
         """
         if value is None or isinstance(value, cls):
             return value
         return cls(**value)
+
+
+def toParam(kwargs) -> Param:
+    """factory converter.
+    """
+    if isinstance(kwargs, dict) and "factory" in kwargs:
+        return _factory[kwargs["factory"]](**kwargs)
+    return kwargs
