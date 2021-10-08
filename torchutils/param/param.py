@@ -65,6 +65,28 @@ class Param(object):
         return yaml.dump(self.asdict())
 
     @classmethod
+    def evolve(cls, inst=None, **changes):
+        r"""Create a new instance based on given instance and changes.
+
+        directly calling evolve() will create a new instance with default values.
+
+        Examples::
+
+                param = Param.evolve() # default instance
+                param = Param.evolve(x=1) # default instance with partial keywords.
+                param = Param.evolve(param, x=2) # instance with changes applied on param.
+
+        Args:
+            inst (Param, optional): instance of given class. Defaults to ``None``.
+            changes: keywords changes
+
+        Returns:
+            Param: new instance
+        """
+        inst = cls() if inst is None else inst
+        return attr.evolve(inst, **changes)
+
+    @classmethod
     def new(cls, value=None):
         """Return a new instance.
 
