@@ -41,4 +41,4 @@ __all__ = [
     "param",
     "plot",
 ]
-__version__ = "0.0.1-dev211009"
+__version__ = "0.0.1-dev211011"
