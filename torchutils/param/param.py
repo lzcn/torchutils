@@ -29,18 +29,21 @@ def _printable_filter(attribute: attr.Attribute, value: Any) -> bool:
 class Param(object):
     r"""Basic parameter class.
 
-    Any subclass will be registered. For attribute that is a subclass of :class:`Param`
-    use :meth:`toParam` as the converter, i.e. ``attr.ib(converter=toParam)``
+    This class supports hierarchy structure and its subclass will be registered by class
+    name. The implementation of :meth:`Param` depends on attrs_. For hierarchical
+    attribute, i.e., a subclass of :class:`Param`, you can use :meth:`toParam`
+    as the converter::
 
-    Only attributes whose repr is True will be displayed. The attributes defined
-    with ``init=True`` is configurable, and ``repr=True`` printable.
+        attr.ib(converter=toParam)
+
+    Note:
+
+        Only attributes whose repr is True will be displayed. The attributes defined
+        with ``init=True`` is configurable, and ``repr=True`` printable.
+
 
     Attributes:
         factory (str): class name for used for initialization.
-
-    Note:
-        Param is an abstract class whose implementation depends on attrs_.
-
 
     .. _attrs: https://www.attrs.org
 
@@ -49,11 +52,6 @@ class Param(object):
         serialization：
             - `load` and `save` for interactiving with file.
             - support for different packages, e.g, yaml, json etc.
-
-    TODO:
-
-        replace Param with FactoryParam
-
     """
 
     # class name for param
@@ -118,7 +116,7 @@ class Param(object):
 
     @classmethod
     def from_yaml(cls, fn):
-        r"""Return a new intance from yaml file
+        r"""Return a new intance from a yaml file.
 
         Args:
             fn (str): filename
@@ -133,12 +131,14 @@ class Param(object):
 
     @classmethod
     def from_dict(cls, value=None):
-        r"""Return a new intance from dictionary.
+        r"""Return a new intance from a dictionary.
 
-        If value is ``None``, return ``None``. So:
+        Args:
+            value (Any, optional): If value is ``None``, return ``None``. Defaults to None.
 
-        - If a default instance is preferred, use ``attr.ib(factory=dict, converter=cls.from_dict)``.
-        - If no default instance is needed, use ``attr.ib(default=None, converter=cls.from_dict)``.
+        Used as the convert for :meth:`attr.ib`:
+            - If a default instance is preferred, use ``attr.ib(factory=dict, converter=cls.from_dict)``.
+            - If no default instance is needed, use ``attr.ib(default=None, converter=cls.from_dict)``.
 
         """
         if value is None or isinstance(value, cls):

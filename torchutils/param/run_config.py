@@ -30,16 +30,6 @@ class RunConfig(Param):
         log_level (str):
         log_file (str):
         gpus (int): which gpu to use
-
-    Example:
-
-        .. code-block:: python
-
-            class Config(IConfig):
-                data_param = attr.ib(factory=dict, covnert=DataParam.from_dict)
-                net_param = attr.ib(factory=dict, covnert=NetParam.from_dict)
-
-            config = Config.from_yaml(filename)
     """
 
     epochs: int = attr.ib(default=100)
