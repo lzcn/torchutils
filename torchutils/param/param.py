@@ -146,9 +146,26 @@ class Param(object):
         return cls(**value)
 
 
-def toParam(kwargs) -> Param:
-    """factory converter.
+def to_param(value) -> Param:
+    r"""Converter for param
+
+    If the input is an instance of dict and value["factory"] is a subclass of
+    :class:`Param`, then return an instance, otherwise, input itself will be returned.
+
+    Args:
+        value (Any): configurations
+
+    Examples::
+
+        value = {
+            "factory": "OptimParam",
+            # ...,
+        }
+        param = to_param(value)
+        assert isinstance(param, OptimParam)
+
     """
-    if isinstance(kwargs, dict) and "factory" in kwargs:
-        return _factory[kwargs["factory"]](**kwargs)
-    return kwargs
+    class_name = value.get(_FACTORY_ATTR_NAME)
+    if isinstance(value, dict) and class_name in _factory:
+        return _factory[class_name](**value)
+    return value

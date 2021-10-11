@@ -6,7 +6,7 @@ import attr
 
 from .. import factory, misc
 from .optim_param import OptimParam
-from .param import Param, toParam
+from .param import Param, to_param
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,11 +43,11 @@ class RunConfig(Param):
     """
 
     epochs: int = attr.ib(default=100)
-    data_param: Param = attr.ib(factory=dict, converter=toParam)
+    data_param: Param = attr.ib(factory=dict, converter=to_param)
     valid_data_param: Param = attr.ib(factory=dict)
     test_data_param: Param = attr.ib(factory=dict)
     train_data_param: Param = attr.ib(factory=dict)
-    net_param: Param = attr.ib(factory=dict, converter=toParam)
+    net_param: Param = attr.ib(factory=dict, converter=to_param)
     optim_param: OptimParam = attr.ib(default=None, converter=OptimParam.from_dict)
     summary_interval: int = attr.ib(default=10)
     display_interval: int = attr.ib(default=50)
