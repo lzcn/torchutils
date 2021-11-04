@@ -96,14 +96,18 @@ def load_json(fn):
     return data
 
 
-def save_json(fn, data):
+def save_json(fn, data, overwrite=False):
     """Save data in json format.
 
     Args:
         fn (str): file name
         data (Any): data to save
+        overwrite (bool, optional): if True, will overwrite existing file. Defaults to False.
     """
     fn = os.path.expanduser(fn)
+    if os.path.exists(fn) and not overwrite:
+        print(f"{fn} already exists, skipping")
+        return
     with open(fn, "w") as f:
         json.dump(data, f)
 
@@ -114,7 +118,7 @@ def load_csv(fn, num_skip=0, converter=None):
     Args:
         fn (str): file name
         num_skip (int, optional): number of lines to skip. Defaults to 0.
-        converter (type, optional): convert str to desired type. Defaults to None.
+        converter (Callable, optional): function to convert each element. Defaults to None.
 
     Returns:
         List: data
@@ -130,14 +134,18 @@ def load_csv(fn, num_skip=0, converter=None):
     return data
 
 
-def save_csv(fn, data):
+def save_csv(fn, data, overwrite=False):
     """Save data in csv format.
 
     Args:
         fn (str): file name
         data (Any): data to save
+        overwrite (bool, optional): if True, will overwrite existing file. Defaults to False.
     """
     fn = os.path.expanduser(fn)
+    if os.path.exists(fn) and not overwrite:
+        print(f"{fn} already exists, skipping")
+        return
     with open(fn, "w") as f:
         writer = csv.writer(f)
         writer.writerows(data)

@@ -20,7 +20,10 @@ def test_json(tmp_path):
     io.save_json(fn, LIST_DATA)
     data = io.load_json(fn)
     assert data == LIST_DATA
-    io.save_json(fn, DICT_DATA)
+    io.save_json(fn, DICT_DATA, overwrite=False)
+    data = io.load_json(fn)
+    assert data == LIST_DATA
+    io.save_json(fn, DICT_DATA, overwrite=True)
     data = io.load_json(fn)
     assert data == DICT_DATA
 
