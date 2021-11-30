@@ -2,6 +2,8 @@ from torchutils.backbones import backbone
 from torchutils.misc import *  # noqa F401
 from torchutils.singleton import singleton
 
+# TODO: remove param module
+
 from . import (
     data,
     dist,
@@ -39,4 +41,4 @@ __all__ = [
     "param",
     "plot",
 ]
-__version__ = "0.0.1-dev211011"
+__version__ = "0.0.1-dev211030"
