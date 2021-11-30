@@ -127,11 +127,13 @@ class VisualSemanticEmbedding(nn.Module):
         Returns:
             torch.Tensor: margin loss between two embedding sets.
         """
-        assert len(i_data) == len(t_data)
+        assert len(i_data) == len(t_data) == len(mask)
+        *shape, _ = i_data.shape
         if self.bow:
             # normalize by number of words
             t_norm = t_data.sum(dim=-1, keepdim=True)
             t_data = t_data / t_norm.clamp_min(1e-10)
+            # mask for whether it has any word
             t_mask = t_norm > 0.0
             if mask is None:
                 # has at leat one word
@@ -142,7 +144,9 @@ class VisualSemanticEmbedding(nn.Module):
                 # mapping between image data and text data, it may introduce im-balance
                 # for the final loss
                 mask = mask * t_mask
+        else:
+            mask = None if mask is None else mask.view(-1, 1)
         i_feat = self.Wi(i_data).view(-1, self.c_dim)
         t_feat = self.Wt(t_data).view(-1, self.c_dim)
-        loss = contrastive_loss(i_feat, t_feat, self.margin, mask=mask, reduction="mean")
-        return loss
+        loss = contrastive_loss(i_feat, t_feat, self.margin, mask=mask, reduction="none")
+        return loss.view(*shape)
