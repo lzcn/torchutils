@@ -2,6 +2,7 @@ attrs
 colorama
 furo
 lmdb
+myst-nb
 numpy
 opencv-python
 pandas

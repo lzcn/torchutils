@@ -10,7 +10,6 @@
    dist
    draw
    factory
-   fashion
    files
    ignite
    io
@@ -22,6 +21,7 @@
    ops
    ot
    param
+   plot
 
 .. 
    Indices and tables
