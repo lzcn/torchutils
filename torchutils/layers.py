@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 
+from .loss import contrastive_loss
+
 
 class ConditionalBatchNorm2d(nn.Module):
     r"""Applies Conditional Batch Normalization over a 4D input.
@@ -88,3 +90,59 @@ class LinerLN(nn.Module):
         x = self.ln(x)
         x = self.dropout(x)
         return x
+
+
+class VisualSemanticEmbedding(nn.Module):
+    """The Visual Semantic embedding layer with ranking loss :meth:`torchutils.loss.contrastive_loss`
+
+    Args:
+        i_dim (int): dimension for image data
+        t_dim (int): dimension for text data
+        c_dim (int): dimension for embedding space
+        margin (float, optional): margin for loss. Defaults to 0.2.
+        bow (bool, optional): whether the input is bag of words. Defaults to False.
+    """
+
+    def __init__(self, i_dim, t_dim, c_dim, margin=0.2, bow=False):
+        super().__init__()
+        self.i_dim = i_dim
+        self.t_dim = t_dim
+        self.c_dim = c_dim
+        self.bow = bow
+        self.margin = margin
+        self.Wi = nn.Linear(i_dim, c_dim, bias=False)
+        self.Wt = nn.Linear(t_dim, c_dim, bias=False)
+
+    def forward(self, i_data: torch.Tensor, t_data: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
+        """Compute the visual-semantic loss.
+
+        Args:
+            i_data (torch.Tensor): image data of shape :math:`(B, N, D)`
+                or :math:`(B, D)`.
+            t_data (torch.Tensor): text data of shape :math:`(B, N, D)`
+                or :math:`(B, D)`.
+            mask (torch.Tensor, optional): mask for data of shape :math:`(B, N)`
+                or :math:`(B,)`. Defaults to None.
+
+        Returns:
+            torch.Tensor: margin loss between two embedding sets.
+        """
+        assert len(i_data) == len(t_data)
+        if self.bow:
+            # normalize by number of words
+            t_norm = t_data.sum(dim=-1, keepdim=True)
+            t_data = t_data / t_norm.clamp_min(1e-10)
+            t_mask = t_norm > 0.0
+            if mask is None:
+                # has at leat one word
+                mask = t_mask
+            else:
+                # has at leat one word and valid type
+                # although we can use non-valid type as long as there is one-to-one
+                # mapping between image data and text data, it may introduce im-balance
+                # for the final loss
+                mask = mask * t_mask
+        i_feat = self.Wi(i_data).view(-1, self.c_dim)
+        t_feat = self.Wt(t_data).view(-1, self.c_dim)
+        loss = contrastive_loss(i_feat, t_feat, self.margin, mask=mask, reduction="mean")
+        return loss
