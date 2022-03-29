@@ -93,14 +93,16 @@ class LinerLN(nn.Module):
 
 
 class VisualSemanticEmbedding(nn.Module):
-    """The Visual Semantic embedding layer with ranking loss :meth:`torchutils.loss.contrastive_loss`
+    """The visual-semantic embedding layer with :meth:`torchutils.loss.contrastive_loss`
+
+    Cosine similarity is used.
 
     Args:
-        i_dim (int): dimension for image data
-        t_dim (int): dimension for text data
+        i_dim (int): dimension for visual data
+        t_dim (int): dimension for semantic data or the size of vocabulary.
         c_dim (int): dimension for embedding space
-        margin (float, optional): margin for loss. Defaults to 0.2.
-        bow (bool, optional): whether the input is bag of words. Defaults to False.
+        margin (float, optional): margin for loss. Defaults to ``0.2``.
+        bow (bool, optional): whether the input is bag-of-word. Defaults to ``False``.
     """
 
     def __init__(self, i_dim, t_dim, c_dim, margin=0.2, bow=False):
@@ -108,18 +110,18 @@ class VisualSemanticEmbedding(nn.Module):
         self.i_dim = i_dim
         self.t_dim = t_dim
         self.c_dim = c_dim
-        self.bow = bow
         self.margin = margin
+        self.bow = bow
         self.Wi = nn.Linear(i_dim, c_dim, bias=False)
         self.Wt = nn.Linear(t_dim, c_dim, bias=False)
 
     def forward(self, i_data: torch.Tensor, t_data: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
-        """Compute the visual-semantic loss.
+        """Compute the visual-semantic contrastive loss.
 
         Args:
-            i_data (torch.Tensor): image data of shape :math:`(B, N, D)`
+            i_data (torch.Tensor): image data with shape :math:`(B, N, D)`
                 or :math:`(B, D)`.
-            t_data (torch.Tensor): text data of shape :math:`(B, N, D)`
+            t_data (torch.Tensor): text data with shape :math:`(B, N, D)`
                 or :math:`(B, D)`.
             mask (torch.Tensor, optional): mask for data of shape :math:`(B, N)`
                 or :math:`(B,)`. Defaults to None.
@@ -136,13 +138,8 @@ class VisualSemanticEmbedding(nn.Module):
             # mask for whether it has any word
             t_mask = t_norm > 0.0
             if mask is None:
-                # has at leat one word
                 mask = t_mask
             else:
-                # has at leat one word and valid type
-                # although we can use non-valid type as long as there is one-to-one
-                # mapping between image data and text data, it may introduce im-balance
-                # for the final loss
                 mask = mask * t_mask
         else:
             mask = None if mask is None else mask.view(-1, 1)

@@ -1,8 +1,10 @@
-from functools import partial, wraps
 import operator
+from functools import partial, wraps
+
 import torch
 import torch.nn as nn
 from torchvision import models
+
 from .overrides import set_module
 
 _BACKBONES = {}
@@ -27,7 +29,7 @@ def register_backbone(func=None, *, name=None):
 def backbone(name: str, pretrained=True, **kwargs):
     """Get backbone by name.
 
-    The last FC lays is remvoed for all backbone.
+    The last FC lays is removed for all backbone.
 
     Args:
         name (str): the name of backbone

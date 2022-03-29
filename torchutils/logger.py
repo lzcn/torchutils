@@ -32,10 +32,10 @@ def config(
     file_formatter=None,
     stream_formatter=None,
 ):
-    """Logger configuration with hanlders.
+    """Logger configuration with handlers.
 
-    All loggers pase their message to the root logger. Thus, this method configures all
-    loggers by attaching hanlders to the root logger.
+    All loggers pass their message to the root logger. Thus, this method configures all
+    loggers by attaching handlers to the root logger.
 
     Predifned formatters:
 
@@ -44,10 +44,10 @@ def config(
         - ``"concise"``： ``%m-%d %H:%M:%S: message``
 
     Args:
-        level (str, optional):  default logging level for all hanlders. Defaults to ``"INFO"``
+        level (str, optional):  default logging level for all handlers. Defaults to ``"INFO"``
         stream_level (str, optional): logging level for STDOUT. Defaults to ``level``
         file_level (str, optional): logging level for log file Defaults to ``level``.
-        log_file (str, optional): log file. If given, file logger will be enabled. Defauts to ``None``.
+        log_file (str, optional): log file. If given, file logger will be enabled. Defaults to ``None``.
         file_mode (str, optional): log file mode. Defaults to ``"a"``.
         formatter (str, optional): message format. Defaults to ``"default"``.
         file_formatter (str, optional): message format for stream. Defaults to ``formatter``.

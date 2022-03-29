@@ -12,7 +12,7 @@ class ModelTimer(object):
         - "data": time of getting batch data
         - "forward": time of model forwarding
 
-    Exmaple:
+    Example:
 
         >>> from ignite.engine import Engine, Events
         >>> from ignite.handlers import Timer

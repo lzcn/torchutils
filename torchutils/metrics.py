@@ -234,7 +234,7 @@ class BPRLoss(Metric):
     def __call__(self, y_pred, y_true) -> Any:
         label_set = np.unique(y_true)
         num_classes = len(label_set)
-        assert num_classes == 2, "BPRLoss only supports binary classification"
+        assert num_classes == 2, f"BPRLoss only supports binary classification, but get {num_classes}"
         assert 1 in label_set, "The label of positive class must be 1"
         score = np.array(y_pred).flatten()
         label = np.array(y_true).flatten()
@@ -287,6 +287,7 @@ class UserMetricDict(Metric):
 
     def update(self, *output: List[list]):
         y_pred, y_true, uidx = self._output_transform(*output)
+        assert len(y_pred) == len(y_true) == len(uidx)
         for x, y, u in zip(y_pred, y_true, uidx):
             self._y_pred[u].append(x)
             self._y_true[u].append(y)

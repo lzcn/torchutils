@@ -9,11 +9,10 @@ import numpy as np
 import PIL
 import six
 import torch
-from torchvision import transforms
-from tqdm import tqdm
-
 from torchutils.files import scan_files
 from torchutils.param import DataReaderParam
+from torchvision import transforms
+from tqdm import tqdm
 
 LOGGER = logging.getLogger(__name__)
 
@@ -278,7 +277,7 @@ class DummyReader(DataReader):
     """
 
     def __init__(self, path, data_transform=None, default=None):
-        super().__init__(path, data_transform=None, default=default)
+        super().__init__(path, data_transform=data_transform, default=default)
 
     def load(self, name: str):
         data = torch.zeros(1)

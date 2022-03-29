@@ -1,6 +1,29 @@
 ﻿torchutils.singleton
 ====================
 
-.. currentmodule:: torchutils
+.. automodule:: torchutils.singleton
 
-.. autofunction:: singleton
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      singleton
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

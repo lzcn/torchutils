@@ -3,10 +3,9 @@ import json
 import os
 from typing import Optional
 
+from ignite import handlers
 from torch import nn
 from torch.types import Number
-
-from ignite import handlers
 
 
 class ModelSaver(object):
@@ -38,7 +37,7 @@ class ModelSaver(object):
         atomic (bool, optional): if True, checkpoint is serialized to a temporary file, and then
             moved to final destination, so that files are guaranteed to not be damaged
             (for example if exception occurs during saving).
-        create_dir (bool, optional): if True, will create directory ``dirname`` if it doesnt exist.
+        create_dir (bool, optional): if True, will create directory ``dirname`` if it doesn't exist.
         require_empty (bool, optional): If True, will raise exception if there are any files in the
             directory ``dirname``.
 

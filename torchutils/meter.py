@@ -1,4 +1,4 @@
-"""The :mod:`torchutils.meter` provides serveral average meters.
+"""The :mod:`torchutils.meter` provides several average meters.
 
 The supported data readers are:
 

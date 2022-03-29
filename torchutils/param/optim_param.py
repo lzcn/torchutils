@@ -1,3 +1,4 @@
+from logging import warning
 import operator
 from numbers import Number
 
@@ -122,6 +123,9 @@ class OptimParam(Param):
         # sub-module specific configuration
         if self.use_group:
             assert len(self.groups) > 0
+            num_sumodule = len(list(net.children()))
+            if num_sumodule != len(self.groups):
+                warning(f"Number of sub-modules {num_sumodule} not equal to number of groups {len(self.groups)}")
             param_groups = []
             for name, param in self.groups.items():
                 sub_module = operator.attrgetter(name)(net)

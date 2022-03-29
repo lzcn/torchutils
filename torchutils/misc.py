@@ -241,7 +241,7 @@ def gather_mean(tensors):
     elif isinstance(tensors, list):
         return [v.sum().item() / v.numel() for v in tensors]
     else:
-        raise TypeError("Expcted list or dict, but got {}".format(type(tensors)))
+        raise TypeError("Expected list or dict, but got {}".format(type(tensors)))
 
 
 @set_module("torchutils")
@@ -302,9 +302,9 @@ def init_optimizer(net, optim_param):
     param_groups = []
     if named_groups:
         param_groups = []
-        for name, gropus in named_groups.items():
+        for name, groups in named_groups.items():
             sub_module = operator.attrgetter(name)(net)
-            param_group = dict(params=sub_module.parameters(), **gropus)
+            param_group = dict(params=sub_module.parameters(), **groups)
             param_groups.append(param_group)
     else:
         param_group = net.parameters()
