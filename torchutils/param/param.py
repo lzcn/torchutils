@@ -25,6 +25,32 @@ def _printable_filter(attribute: attr.Attribute, value: Any) -> bool:
     return attribute.repr
 
 
+def _format_display(opt: dict, num=1):
+    indent = "  " * num
+    string = ""
+    for k, v in opt.items():
+        if v is None:
+            continue
+        if isinstance(v, dict):
+            string += "{}{} : {{\n".format(indent, k)
+            string += _format_display(v, num + 2)
+            string += "{}}},\n".format(indent)
+        elif isinstance(v, list):
+            string += "{}{} : ".format(indent, k)
+            one_line = ",".join(map(str, v))
+            if len(one_line) < 87:
+                string += "[" + one_line + "]\n"
+            else:
+                prefix = "  " + indent
+                string += "[\n"
+                for i in v:
+                    string += "{}{},\n".format(prefix, i)
+                string += "{}]\n".format(indent)
+        else:
+            string += "{}{} : {},\n".format(indent, k, v)
+    return string
+
+
 @attr.s
 class Param(object):
     r"""Basic parameter class.
@@ -65,7 +91,7 @@ class Param(object):
 
     def __str__(self):
         d = attr.asdict(self, filter=_printable_filter)
-        return self.__class__.__name__ + ":\n" + pprint.pformat(d)
+        return self.__class__.__name__ + ":\n" + _format_display(d)
 
     def asdict(self):
         r"""Return configurable attributes (e.g. whose init=True)."""
