@@ -2,6 +2,7 @@ from typing import Union
 
 from torch import nn
 from torch.utils import data
+
 from torchutils.param import Param
 
 __all__ = [

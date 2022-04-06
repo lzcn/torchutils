@@ -45,7 +45,9 @@ class ModelTimer(object):
             step=Events.ITERATION_COMPLETED,
         )
         self.timer.attach(
-            enginer, start=Events.EPOCH_STARTED, step=Events.ITERATION_COMPLETED,
+            enginer,
+            start=Events.EPOCH_STARTED,
+            step=Events.ITERATION_COMPLETED,
         )
 
     def __str__(self):

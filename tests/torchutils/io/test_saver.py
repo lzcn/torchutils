@@ -1,6 +1,7 @@
 import os
 
 import torch.nn as nn
+
 from torchutils.io import ModelSaver
 
 model = nn.Linear(1, 1)
@@ -19,4 +20,4 @@ def test_saver_epoch(tmp_path):
         score = 1.0 * epoch
         d = tmp_path / f"net_score_{score:.4f}_epoch_{epoch}.pt"
         assert not os.path.isfile(d)
-    assert saver.last_checkpoint == f"net_score_{num_epochs-1:.4f}_epoch_{num_epochs-1}.pt"
+    assert saver.last_checkpoint == os.path.join(tmp_path, f"net_score_{num_epochs-1:.4f}_epoch_{num_epochs-1}.pt")

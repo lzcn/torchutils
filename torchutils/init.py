@@ -4,7 +4,7 @@ from torch import nn
 
 
 def xavier_normal_weight(gain=1.0):
-    """apply xavier normal weight initialization. """
+    """apply xavier normal weight initialization."""
 
     def _init_func(module, gain):
         if isinstance(module, (nn.Linear, nn.Conv2d)):
@@ -16,7 +16,7 @@ def xavier_normal_weight(gain=1.0):
 
 
 def xavier_uniform_weight(gain=1.0):
-    """apply xavier uniform weight initialization. """
+    """apply xavier uniform weight initialization."""
 
     def _init_func(module, gain):
         if isinstance(module, (nn.Linear, nn.Conv2d)):
@@ -28,7 +28,7 @@ def xavier_uniform_weight(gain=1.0):
 
 
 def kaiming_normal_weight(a=0, mode="fan_in", nonlinearity="leaky_relu"):
-    """apply kaiming normal weight initialization. """
+    """apply kaiming normal weight initialization."""
 
     def _init_func(module, a, mode, nonlinearity):
         if isinstance(module, (nn.Linear, nn.Conv2d)):
@@ -40,7 +40,7 @@ def kaiming_normal_weight(a=0, mode="fan_in", nonlinearity="leaky_relu"):
 
 
 def kaiming_uniform_weight(a=0, mode="fan_in", nonlinearity="leaky_relu"):
-    """apply kaiming uniform weight initialization. """
+    """apply kaiming uniform weight initialization."""
 
     def _init_func(module, a, mode, nonlinearity):
         if isinstance(module, (nn.Linear, nn.Conv2d)):

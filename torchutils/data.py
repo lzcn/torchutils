@@ -9,10 +9,11 @@ import numpy as np
 import PIL
 import six
 import torch
-from torchutils.files import scan_files
-from torchutils.param import DataReaderParam
 from torchvision import transforms
 from tqdm import tqdm
+
+from torchutils.files import scan_files
+from torchutils.param import DataReaderParam
 
 LOGGER = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ def create_lmdb(dst: str, src: Union[str, dict], key="relpath"):
             key_list = file_list
     else:
         raise ValueError("argument src must be a dict or directory path, but get {}".format(type(src)))
-    env = lmdb.open(dst, map_size=2 ** 40)
+    env = lmdb.open(dst, map_size=2**40)
     # open json file
     with env.begin(write=True) as txn:
         for k, fn in tqdm(zip(key_list, file_list), total=len(key_list)):

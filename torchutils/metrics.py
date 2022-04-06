@@ -34,8 +34,8 @@ def ndcg(y_true: List, y_score: List, wtype: str = "max") -> List:
     order = np.argsort(-y_score)
     p_label = np.take(y_true, order)
     i_label = np.sort(y_true)[::-1]
-    p_gain = 2 ** p_label - 1
-    i_gain = 2 ** i_label - 1
+    p_gain = 2**p_label - 1
+    i_gain = 2**i_label - 1
     if wtype.lower() == "max":
         discounts = np.log2(np.maximum(np.arange(len(y_true)) + 1, 2.0))
     else:

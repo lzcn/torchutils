@@ -7,7 +7,7 @@ from .param import Param
 class DataReaderParam(Param):
     """Parameter class for :class:`torchutils.data.DataReader`.
 
-    It supports an alternative way to initialize a DataReader intance::
+    It supports an alternative way to initialize a DataReader instance::
 
         param = DataReaderParam(reader="ImageLMDB", path="data", data_transform="identity")
         reader = getReader(param=param)

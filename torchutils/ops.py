@@ -123,7 +123,7 @@ def convert_to_binary(v, bits=8):
 
 def _build_one_table(weights, bits=8):
     table = []
-    for i in range(2 ** bits):
+    for i in range(2**bits):
         x = convert_to_binary(i, bits)
         # 0 -> 1 , 1 -> -1
         x = 1 - 2 * x
@@ -150,8 +150,8 @@ def test_whd(size=600, bits=8):
     w = np.random.randn(num)
     x = convert_to_int(a, bits)
     y = convert_to_int(b, bits)
-    tables = build_look_table(w, bits).reshape(size * (2 ** bits))
-    offset = np.arange(size) * (2 ** bits)
+    tables = build_look_table(w, bits).reshape(size * (2**bits))
+    offset = np.arange(size) * (2**bits)
     sim1 = np.sum(w * a * b)
     sim2 = tables[np.bitwise_xor(x, y) + offset].sum()
     assert np.abs(sim1 - sim2) < 1e-6
@@ -173,7 +173,7 @@ def bernoulli_log_likelihood(x, p, clip=True, eps=1e-6):
 
 
 def kl_diagnormal_stdnormal(mean, logvar):
-    return 0.5 * torch.sum(torch.exp(logvar) + mean ** 2 - 1 - logvar)
+    return 0.5 * torch.sum(torch.exp(logvar) + mean**2 - 1 - logvar)
 
 
 def kl_diagnormal_diagnormal(q_mean, q_logvar, p_mean, p_logvar):
@@ -229,7 +229,7 @@ def pairwise_distances(x: torch.Tensor, y: torch.Tensor):
     x_norm = (x * x).sum(dim=-1, keepdim=True)
     y_norm = (y * y).sum(dim=-1, keepdim=True).transpose(-1, -2)
     dist = x_norm + y_norm - 2.0 * torch.matmul(x, torch.transpose(y, -1, -2))
-    return dist ** 0.5
+    return dist**0.5
 
 
 def kaiming_uniform(module, nonlinearity="relu"):

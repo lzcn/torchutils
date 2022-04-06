@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from .loss import contrastive_loss
+from torchutils.loss import contrastive_loss
 
 
 class ConditionalBatchNorm2d(nn.Module):

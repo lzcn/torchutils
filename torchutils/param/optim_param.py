@@ -1,5 +1,5 @@
-from logging import warning
 import operator
+from logging import warning
 from numbers import Number
 
 import attr
@@ -61,7 +61,7 @@ class OptimParam(Param):
         weight_deacy : float
             same as learning rates
         param : dict
-            specific setttings for each optimizer
+            specific settings for each optimizer
         lr_scheduler : dict
             schedular for learning rate decay
     """
@@ -76,7 +76,7 @@ class OptimParam(Param):
     default = attr.ib(factory=dict, init=False)
 
     def __attrs_post_init__(self):
-        # default settting for gradient  descent
+        # default setting for gradient  descent
         self.__grad_param__init__()
         # specific setting for different sub-modules
         self.__param_groups__init__()

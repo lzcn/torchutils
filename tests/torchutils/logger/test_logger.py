@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+
 import torchutils
 
 LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]

@@ -2,7 +2,7 @@ from typing import Tuple
 
 import torch
 
-from .ops import logmm
+from torchutils.ops import logmm
 
 
 def sinkhorn(

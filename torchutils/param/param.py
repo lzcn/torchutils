@@ -72,7 +72,7 @@ class Param(object):
         return attr.asdict(self, filter=_configurable_filter)
 
     def serialize(self):
-        r"""Serialize configurable setttings to yaml foramt."""
+        r"""Serialize configurable settings to yaml format."""
         return yaml.dump(self.asdict())
 
     @classmethod
@@ -116,13 +116,13 @@ class Param(object):
 
     @classmethod
     def from_yaml(cls, fn):
-        r"""Return a new intance from a yaml file.
+        r"""Return a new instance from a yaml file.
 
         Args:
             fn (str): filename
 
         Returns:
-            Param: new intance
+            Param: new instance
         """
         with open(fn, "r") as fn:
             kwargs = yaml.load(fn, Loader=misc.YAMLoader)
@@ -131,7 +131,7 @@ class Param(object):
 
     @classmethod
     def from_dict(cls, value=None):
-        r"""Return a new intance from a dictionary.
+        r"""Return a new instance from a dictionary.
 
         Args:
             value (Any, optional): If value is ``None``, return ``None``. Defaults to None.
