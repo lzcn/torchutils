@@ -125,7 +125,7 @@ class ModelSaver(object):
             pass
         else:
             # replace the worst model
-            if self.history[0][1] and os.path.exists(self.dirname, self.history[0][1]):
+            if self.history[0][1] and os.path.exists(os.path.join(self.dirname, self.history[0][1])):
                 self.saver.remove(self.history[0][1])
             self.saver(state_dict, filename=filename)
             self.history[0] = (score, filename)
