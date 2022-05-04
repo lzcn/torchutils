@@ -34,7 +34,7 @@ class ModelSaver(object):
         filename_prefix (str, optional): prefix for filename.
         score_name (str, optional): if not given, it will use "epoch" as default
         n_saved (int, optional): number of models to save.
-        save_laset (bool, optional): if True, it will save the latest model. Defaults to ``False``
+        save_latest (bool, optional): if True, it will save the latest model. Defaults to ``False``
         save_best (bool, optional): if True, it will duplicate the best model with simple filename. Defaults to ``False``
         mode (str, optional): "max" or "min". If "max", the model with the highest score will be saved.
         atomic (bool, optional): if True, checkpoint is serialized to a temporary file, and then
@@ -53,7 +53,7 @@ class ModelSaver(object):
         filename_prefix: str = None,
         score_name: str = None,
         n_saved: Optional[int] = 5,
-        save_laset: bool = False,
+        save_latest: bool = False,
         save_best: bool = False,
         mode="max",
         atomic: bool = True,
@@ -66,7 +66,7 @@ class ModelSaver(object):
         self.filename_predfix = filename_prefix
         self.score_name = score_name
         self.n_saved = n_saved
-        self.save_latest = save_laset
+        self.save_latest = save_latest
         self.save_best = save_best
         self.mode = mode
         self.history = [(score, False) for _ in range(n_saved)]

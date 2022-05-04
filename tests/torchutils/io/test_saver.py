@@ -2,7 +2,6 @@ import os
 import random
 
 import torch.nn as nn
-
 from torchutils.io import ModelSaver
 
 model = nn.Linear(1, 1)
@@ -19,7 +18,7 @@ def test_min_saver(tmp_path):
         score_name="score",
         n_saved=n_saved,
         mode="min",
-        save_laset=True,
+        save_latest=True,
         save_best=True,
     )
     for score, epoch in zip(scores, epochs):
@@ -48,7 +47,7 @@ def test_max_saver(tmp_path):
         score_name="score",
         n_saved=n_saved,
         mode="max",
-        save_laset=True,
+        save_latest=True,
         save_best=True,
     )
     for score, epoch in zip(scores, epochs):
