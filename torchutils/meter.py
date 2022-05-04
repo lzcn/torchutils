@@ -228,7 +228,7 @@ class GroupMeter(object):
             self._meters[group][key] = _factory(self._win_size[group])
         return self._meters[group][key]
 
-    def update(self, group, data_dict, weight=1.0):
+    def update(self, group: dict, data_dict, weight=1.0):
         for key, value in data_dict.items():
             self._get_meter(group, key).update(value, weight=weight)
 
