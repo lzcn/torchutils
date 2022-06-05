@@ -14,9 +14,7 @@ class ModelTimer(object):
 
     Example:
 
-        >>> from ignite.engine import Engine, Events
         >>> from ignite.handlers import Timer
-        >>> trainer = Engine(function)
         >>> timer = ModelTimer()
         >>> timer.attach(trainer)
 
@@ -24,29 +22,34 @@ class ModelTimer(object):
         - ignite>=0.4.2
     """
 
-    def __init__(self):
-        self.data_timer = Timer(average=True)
-        self.nn_timer = Timer(average=True)
-        self.timer = Timer(average=True)
+    def __init__(self, average=True):
+        self.data_timer = Timer(average=average)
+        self.nn_timer = Timer(average=average)
+        self.timer = Timer(average=average)
 
     def attach(self, enginer):
+        # count time during data fetch
         self.data_timer.attach(
             enginer,
-            start=Events.EPOCH_STARTED,
+            start=Events.STARTED,
             resume=Events.GET_BATCH_STARTED,
             pause=Events.GET_BATCH_COMPLETED,
             step=Events.ITERATION_COMPLETED,
         )
+        # count time during network forward
         self.nn_timer.attach(
             enginer,
-            start=Events.EPOCH_STARTED,
-            resume=Events.GET_BATCH_COMPLETED,
-            pause=Events.GET_BATCH_STARTED,
+            start=Events.STARTED,
+            resume=Events.ITERATION_STARTED,
+            pause=Events.ITERATION_COMPLETED,
             step=Events.ITERATION_COMPLETED,
         )
+        # count time for each iteration
         self.timer.attach(
             enginer,
-            start=Events.EPOCH_STARTED,
+            start=Events.STARTED,
+            resume=Events.GET_BATCH_STARTED,
+            pause=Events.ITERATION_COMPLETED,
             step=Events.ITERATION_COMPLETED,
         )
 
