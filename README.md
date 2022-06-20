@@ -1,15 +1,11 @@
 # Personal library for PyTorch.
-
-No warranties, don't blame me.
-
-Any good ideas in here I probably copied from someone else.
+[![Documentation Status](https://readthedocs.org/projects/torchutils/badge/?version=latest)](https://torchutils.readthedocs.io/en/latest/?badge=latest)
 
 ## How to Install
+
+Install with pip
 
 ```bash
 pip install git+https://github.com/lzcn/torchutils.git --upgrade
 ```
 
-## Documentation
-
-Please see the [page](https://lzcn.github.io/torchutils/).
