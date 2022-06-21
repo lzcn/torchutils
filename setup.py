@@ -56,7 +56,12 @@ setuptools.setup(
     license="MIT",
     python_requires=">=3.6",
     # Package info
-    packages=setuptools.find_packages(exclude=("tests", "tests.*",)),
+    packages=setuptools.find_packages(
+        exclude=(
+            "tests",
+            "tests.*",
+        )
+    ),
     zip_safe=True,
     install_requires=requirements,
 )

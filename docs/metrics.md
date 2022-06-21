@@ -1,7 +1,5 @@
 ## torchutils.metrics
 
-## Module API
-
 ```{eval-rst}
 .. currentmodule:: torchutils.metrics
 

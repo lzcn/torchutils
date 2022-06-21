@@ -29,8 +29,8 @@ Converting Images to Square
 ---------------------------
 
 A new transform :class:`ResizeToSquare` for converting images to square in added.
-The longest side (width or hight) is firstly resized to match the given size. The raito of image is fixed.
-Then white pixes are padded to get a square image.
+The longest side (width or height) is firstly resized to match the given size. The raito of image is fixed.
+Then white pixels are padded to get a square image.
 
 Module Reference
 ----------------
