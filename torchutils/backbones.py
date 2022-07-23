@@ -56,6 +56,30 @@ def alexnet(pretrained=True, **kwargs):
 
 
 @register_backbone
+def vgg11(pretrained=True, **kwargs):
+    num_features = 4096
+    backbone = models.vgg11(pretrained, **kwargs)
+    backbone.classifier[-1] = nn.Identity()
+    return backbone, num_features
+
+
+@register_backbone
+def vgg16(pretrained=True, **kwargs):
+    num_features = 4096
+    backbone = models.vgg16(pretrained, **kwargs)
+    backbone.classifier[-1] = nn.Identity()
+    return backbone, num_features
+
+
+@register_backbone
+def vgg19(pretrained=True, **kwargs):
+    num_features = 4096
+    backbone = models.vgg19(pretrained, **kwargs)
+    backbone.classifier[-1] = nn.Identity()
+    return backbone, num_features
+
+
+@register_backbone
 def inception_v3(pretrained=True, **kwargs):
     num_features = 2048
     backbone = models.inception_v3(pretrained, aux_logits=False, **kwargs)
