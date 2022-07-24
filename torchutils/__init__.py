@@ -34,6 +34,7 @@ from . import (
     param,
     plot,
     singleton,
+    timer,
 )
 
 __all__ = [
@@ -69,5 +70,6 @@ __all__ = [
     "plot",
     "singleton",
     "to_device",
+    "timer",
 ]
 __version__ = "0.0.1-dev220620"

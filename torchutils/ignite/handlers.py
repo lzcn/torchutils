@@ -14,7 +14,7 @@ class ModelTimer(object):
 
     Example:
 
-        >>> from ignite.handlers import Timer
+        >>> from torchutils.handlers import ModelTimer
         >>> timer = ModelTimer()
         >>> timer.attach(trainer)
 
