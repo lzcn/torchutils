@@ -1,12 +1,16 @@
 import operator
 from logging import warning
 from numbers import Number
+from typing import Dict, List, Union
 
 import attr
-import torch.optim
+import torch
 
 from .. import misc
 from .param import Param
+
+Optimizer = torch.optim.Optimizer
+LRScheduler = Union[torch.optim.lr_scheduler._LRScheduler, torch.optim.lr_scheduler.ReduceLROnPlateau]
 
 
 @attr.s
@@ -115,26 +119,48 @@ class OptimParam(Param):
             self.default.update(lr=lrs, weight_decay=wds)
             self.use_group = False
 
-    def init_optimizer(self, net):
-        """Init Optimizer for net."""
+    def init_optimizer(self, net_or_params: Union[torch.nn.Module, List, Dict], strict=False):
+        """init_optimizer.
+
+        Args:
+            net_or_params (Union[torch.nn.Module, List, Dict]): model or parameters
+
+        Returns:
+            List[Optimizer, LRScheduler]: return the optimizer and lr schedular
+        """
         # Optimizer and LR policy class
-        grad_class = misc.get_named_class(torch.optim)[self.name]
+        optim_class = misc.get_named_class(torch.optim)[self.name]
         lr_class = misc.get_named_class(torch.optim.lr_scheduler)[self.lr_scheduler.name]
         # sub-module specific configuration
         if self.use_group:
+            assert not isinstance(net_or_params, List)
             assert len(self.groups) > 0
-            num_sumodule = len(list(net.children()))
-            if num_sumodule != len(self.groups):
-                warning(f"Number of sub-modules {num_sumodule} not equal to number of groups {len(self.groups)}")
+            # get sub-module
+            if isinstance(net_or_params, torch.nn.Module):
+                n = len(list(net_or_params.children()))
+            else:
+                n = len(net_or_params)
+            if n != len(self.groups):
+                if strict:
+                    raise ValueError(f"Number of sub-modules {n} not equal to number of groups {len(self.groups)}")
+                else:
+                    warning(f"Number of sub-modules {n} not equal to number of groups {len(self.groups)}")
             param_groups = []
             for name, param in self.groups.items():
-                sub_module = operator.attrgetter(name)(net)
-                param_group = dict(params=sub_module.parameters(), **param)
-                param_groups.append(param_group)
+                if isinstance(net_or_params, torch.nn.Module):
+                    sub_module = operator.attrgetter(name)(net_or_params)
+                else:
+                    sub_module = net_or_params[name]
+                param_groups.append(dict(params=sub_module.parameters(), **param))
             assert "lr" not in self.default
-            optim = grad_class(param_groups, **self.default)
+            optim = optim_class(param_groups, **self.default)
         else:
-            optim = grad_class(net.parameters(), **self.default)
+            if isinstance(net_or_params, torch.nn.Module):
+                optim = optim_class(net_or_params.parameters(), **self.default)
+            elif isinstance(net_or_params, Dict):
+                optim = optim_class(net_or_params.values(), **self.default)
+            else:
+                optim = optim_class(net_or_params, **self.default)
         # get instances
         lr_scheduler = lr_class(optim, **self.lr_scheduler.param)
         return optim, lr_scheduler
