@@ -41,88 +41,89 @@ def backbone(name: str, pretrained=True, **kwargs):
     Returns:
         List[nn.Module, int]: an instance of the backbone, number of features
     """
+    weights = "DEFAULT" if pretrained else None
     if name in _BACKBONES:
-        return _BACKBONES[name](pretrained=pretrained, **kwargs)
+        return _BACKBONES[name](weights=weights, **kwargs)
     else:
         raise ValueError("Unknown backbone {:s}".format(name))
 
 
 @register_backbone
-def alexnet(pretrained=True, **kwargs):
+def alexnet(weights="DEFAULT", **kwargs):
     num_features = 4096
-    backbone = models.alexnet(pretrained, **kwargs)
+    backbone = models.alexnet(weights=weights, **kwargs)
     backbone.classifier[-1] = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def vgg11(pretrained=True, **kwargs):
+def vgg11(weights=True, **kwargs):
     num_features = 4096
-    backbone = models.vgg11(pretrained, **kwargs)
+    backbone = models.vgg11(weights, **kwargs)
     backbone.classifier[-1] = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def vgg16(pretrained=True, **kwargs):
+def vgg16(weights="DEFAULT", **kwargs):
     num_features = 4096
-    backbone = models.vgg16(pretrained, **kwargs)
+    backbone = models.vgg16(weights=weights, **kwargs)
     backbone.classifier[-1] = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def vgg19(pretrained=True, **kwargs):
+def vgg19(weights="DEFAULT", **kwargs):
     num_features = 4096
-    backbone = models.vgg19(pretrained, **kwargs)
+    backbone = models.vgg19(weights=weights, **kwargs)
     backbone.classifier[-1] = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def inception_v3(pretrained=True, **kwargs):
+def inception_v3(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.inception_v3(pretrained, aux_logits=False, **kwargs)
+    backbone = models.inception_v3(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet18(pretrained=True, **kwargs):
+def resnet18(weights="DEFAULT", **kwargs):
     num_features = 512
-    backbone = models.resnet18(pretrained, **kwargs)
+    backbone = models.resnet18(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet34(pretrained=True, **kwargs):
+def resnet34(weights="DEFAULT", **kwargs):
     num_features = 512
-    backbone = models.resnet34(pretrained, **kwargs)
+    backbone = models.resnet34(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet50(pretrained=True, **kwargs):
+def resnet50(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet50(pretrained, **kwargs)
+    backbone = models.resnet50(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet101(pretrained=True, **kwargs):
+def resnet101(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet101(pretrained, **kwargs)
+    backbone = models.resnet101(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet152(pretrained=True, **kwargs):
+def resnet152(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet152(pretrained, **kwargs)
+    backbone = models.resnet152(weights=weights, **kwargs)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
@@ -170,45 +171,45 @@ def _replace_bn(resnet: nn.Module):
 
 
 @register_backbone
-def resnet18_affine(pretrained=True, **kwargs):
+def resnet18_affine(weights="DEFAULT", **kwargs):
     num_features = 512
-    backbone = models.resnet18(pretrained, **kwargs)
+    backbone = models.resnet18(weights=weights, **kwargs)
     backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet34_affine(pretrained=True, **kwargs):
+def resnet34_affine(weights="DEFAULT", **kwargs):
     num_features = 512
-    backbone = models.resnet34(pretrained, **kwargs)
+    backbone = models.resnet34(weights=weights, **kwargs)
     backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet50_affine(pretrained=True, **kwargs):
+def resnet50_affine(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet50(pretrained, **kwargs)
+    backbone = models.resnet50(weights=weights, **kwargs)
     backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet101_affine(pretrained=True, **kwargs):
+def resnet101_affine(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet101(pretrained, **kwargs)
+    backbone = models.resnet101(weights=weights, **kwargs)
     backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 @register_backbone
-def resnet152_affine(pretrained=True, **kwargs):
+def resnet152_affine(weights="DEFAULT", **kwargs):
     num_features = 2048
-    backbone = models.resnet152(pretrained, **kwargs)
+    backbone = models.resnet152(weights=weights, **kwargs)
     backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
