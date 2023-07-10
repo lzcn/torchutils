@@ -21,7 +21,6 @@ from . import (
     draw,
     factory,
     files,
-    ignite,
     init,
     io,
     layers,
@@ -34,8 +33,12 @@ from . import (
     param,
     plot,
     singleton,
-    timer,
 )
+
+try:
+    from . import timer
+except ImportError:
+    timer = None
 
 __all__ = [
     "YAMLoader",

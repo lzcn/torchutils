@@ -2,7 +2,6 @@ import logging
 import os
 from typing import List, Tuple, Union
 
-import cv2
 import numpy as np
 import pandas as pd
 
@@ -182,6 +181,8 @@ def resize_image(src, dest, sizes=[224, 224]):
     Cause all fashion image are with white background
     Then resize the image to given sizes [new_height, new_width]
     """
+    import cv2
+
     img = cv2.imread(src)
     height, width, depth = img.shape
     ratio = 1.0 * height / width
