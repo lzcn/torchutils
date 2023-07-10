@@ -15,7 +15,7 @@ def ndcg(y_true: List, y_score: List, wtype: str = "max") -> List:
     Args:
         y_true (List): shape: math:`N`. true score.
         y_score (List): shape: math:`N`. Predicted scores.
-        wtype (str, optional): tpye for discounts. Defaults to "max".
+        wtype (str, optional): type for discounts. Defaults to "max".
 
     Returns:
         List: NDCG@m
@@ -287,7 +287,9 @@ class UserMetricDict(Metric):
 
     def update(self, *output: List[list]):
         y_pred, y_true, uidx = self._output_transform(*output)
-        assert (len(y_pred) == len(y_true) == len(uidx)), f"The length of y_pred ({len(y_pred)}), y_true ({len(y_true)}), and uidx ({len(uidx)}) must be the same"
+        assert (
+            len(y_pred) == len(y_true) == len(uidx)
+        ), f"The length of y_pred ({len(y_pred)}), y_true ({len(y_true)}), and uidx ({len(uidx)}) must be the same"
         for x, y, u in zip(y_pred, y_true, uidx):
             self._y_pred[u].append(x)
             self._y_true[u].append(y)

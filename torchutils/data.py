@@ -140,8 +140,8 @@ class DataReader(metaclass=ABCMeta):
 
     Args:
         path (str): data path, different data reader requires different path
-        data_transform (Callable, optional): callable function for data transform. Defaults to lambdax:x
-        default (optional): returning default if key does not exist. Defaults to None
+        data_transform (Callable, optional): callable function for data transform. Defaults to lambda x: x
+        default (optional): returning default if key does not exist. Defaults to None.
     """
 
     def __init__(self, path: str, data_transform: Callable = None, default=None):
@@ -199,7 +199,7 @@ class ImagePILReader(DataReader):
 
     Args:
         path (str): data root for images
-        data_transform (Callable, optional): data transform. Defaults to lambdax:x.
+        data_transform (Callable, optional): data transform. Defaults to lambda x: x.
     """
 
     def __init__(self, path, data_transform=None, default=None):
@@ -274,15 +274,16 @@ class DummyReader(DataReader):
 
     Args:
         path (str): data root for images
-        data_transform (Callable, optional): data transform. Defaults to lambdax:x.
+        data_transform (Callable, optional): data transform. Defaults to lambda x:x.
     """
 
     def __init__(self, path, data_transform=None, default=None):
         super().__init__(path, data_transform=data_transform, default=default)
+        if default is None:
+            self.default = torch.zeros(1)
 
     def load(self, name: str):
-        data = torch.zeros(1)
-        return data
+        return None
 
 
 _Readers = {
