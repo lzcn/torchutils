@@ -3,6 +3,16 @@ from math import log, pi
 import numpy as np
 import torch
 import torch.nn as nn
+from scipy import stats
+
+
+def normalize(x: np.ndarray, axis=0) -> np.ndarray:
+    """Matlab's zscore function.
+
+    It centers the data to have mean 0 and scales it to have
+    standard deviation 1.
+    """
+    return stats.zscore(x, axis=axis, ddof=1)
 
 
 def smooth(xs, win_size=10):
