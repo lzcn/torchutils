@@ -15,3 +15,6 @@ scipy
 torch
 torchvision
 tqdm
+furo
+myst-parser
+sphinx_copybutton
