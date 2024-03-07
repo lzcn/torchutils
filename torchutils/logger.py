@@ -148,7 +148,7 @@ def config(
     # configure file logger
     file_handler = {
         "class": "logging.FileHandler",
-        "formatter": "file",  # file_formatter if not color_tags else "file",
+        "formatter": file_formatter if not color_tags else "file",
         "level": file_level,
         "filename": log_file,
         "mode": file_mode,
