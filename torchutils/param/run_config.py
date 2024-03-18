@@ -13,7 +13,9 @@ LOGGER = logging.getLogger(__name__)
 
 @attr.s
 class RunConfig(Param):
-    """Configuration interface for training/testing.
+    """Configuration interface for training/testing. 
+    
+    This Class is deprecated as it is not flexible enough.
 
     Attributes:
         epoch (int):  Number of epochs
