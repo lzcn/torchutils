@@ -11,23 +11,14 @@ from torch import nn
 class ModelSaver(object):
     """Handler that saves model checkpoints on a disk.
 
+    This is not a :class:`~ignite.handler`, but use :class:`~ignite.handler.DiskSaver` internally.
 
-    This class is built upon the basic saver :class:`~ignite.handlers.DiskSaver`.
     The filename of the checkpoint is ``{filename_prefix}[_{score_name}]_{score:.4f}[_{epoch}].pt``
+
     (Optional) The filename of latest model is ``{filename_prefix}_latest.pt``
     (Optional) The filename of best model is ``{filename_prefix}_best.pt``
 
-    Examples:
-        .. code-block:: python
-
-            from torchutils.io import ModelSaver
-            model_saver = ModelSaver(dirname="checkpoints", filename_prefix="model")
-            for epoch in range(max_epochs):
-                // train
-                score = evaluate(model)
-                model_saver.save(model, score, epoch)
-            best_model = model_saver.last_checkpoint
-            model.load_state_dict(torch.load(best_model))
+    We put the score fisrt in the filename so that the files are sorted by score and tab completion works well.
 
     Args:
         dirname (str): Directory path where the checkpoint will be saved
@@ -44,6 +35,17 @@ class ModelSaver(object):
         require_empty (bool, optional): If True, will raise exception if there are any files in the
             directory ``dirname``.
 
+    Examples:
+        .. code-block:: python
+
+            from torchutils.io import ModelSaver
+            model_saver = ModelSaver(dirname="checkpoints", filename_prefix="model")
+            for epoch in range(max_epochs):
+                // train
+                score = evaluate(model)
+                model_saver.save(model, score, epoch)
+            best_model = model_saver.last_checkpoint
+            model.load_state_dict(torch.load(best_model))
 
     """
 

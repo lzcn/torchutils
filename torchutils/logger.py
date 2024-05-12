@@ -59,7 +59,7 @@ class ColoramaFormatter(logging.Formatter):
 
 
 # Custom formatter for file that removes color tags
-class ColoramaFileFormatte(logging.Formatter):
+class ColoramaFileFormatter(logging.Formatter):
     def format(self, record):
         message = super().format(record)
         # Remove custom tags
@@ -78,7 +78,9 @@ def file_formatter_factory(formatter_name="default"):
     # Check if the formatter_name exists in NAMED_FORMATTERS, else use "default"
     formatter_config = NAMED_FORMATTERS.get(formatter_name, NAMED_FORMATTERS["default"])
     # Instantiate FileFormatter with the specified or default format and datefmt
-    return ColoramaFileFormatte(fmt=formatter_config["format"], datefmt=formatter_config["datefmt"])
+    return ColoramaFileFormatter(
+        fmt=formatter_config["format"], datefmt=formatter_config["datefmt"]
+    )
 
 
 def register_formatter(name, formatter):
@@ -87,6 +89,16 @@ def register_formatter(name, formatter):
 
 def get_value(x, default):
     return default if x is None else x
+
+
+def add_color(logger):
+    for handler in logger.handlers:
+        if isinstance(handler, logging.StreamHandler):
+            handler.setFormatter(ColoramaFormatter())
+        elif isinstance(handler, logging.FileHandler):
+            handler.setFormatter(ColoramaFileFormatter())
+        else:
+            pass
 
 
 def config(
@@ -108,8 +120,8 @@ def config(
     Predifned formatters:
 
         - ``"default"``: ``[LEVEL] - %m-%d %H:%M:%S - [name.function.line]: message``
-        - ``"simple"``： ``[LEVEL] - %m-%d %H:%M:%S - [name]: message``
-        - ``"concise"``： ``%m-%d %H:%M:%S: message``
+        - ``"simple"``: ``[LEVEL] - %m-%d %H:%M:%S - [name]: message``
+        - ``"concise"``: ``%m-%d %H:%M:%S: message``
 
     Args:
         level (str, optional):  default logging level for all handlers. Defaults to ``"INFO"``

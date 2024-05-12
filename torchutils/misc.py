@@ -80,6 +80,7 @@ def update_npz(fn, results):
 
 def weights_init(m):
     """
+    deprecated
     usage: module.apply(weights_init)
     """
     if isinstance(m, nn.Linear):
@@ -119,6 +120,9 @@ def colour(string, *args, b="", s="", c="green"):
             s: DIM, NORMAL, BRIGHT, RESET_ALL
 
     .. _colorma: https://pypi.org/project/colorama/
+
+    DEPRECATED:
+        The implementation is urgly and not recommended to use.
     """
     if isinstance(string, Number):
         string = str(string)
@@ -168,6 +172,8 @@ def one_hot(index, num):
                     [0., 1., 0.],
                     [0., 0., 1.]])
 
+    DEPRECATED:
+        use torch.nn.functional.one_hot instead.
     """
     index = index.view(-1, 1)
     one_hot = torch.zeros(index.numel(), num).to(index.device)
