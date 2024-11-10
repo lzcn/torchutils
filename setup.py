@@ -1,13 +1,15 @@
 import codecs
-import os.path
-
-import setuptools
+import os
+from setuptools import setup, find_packages
 
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), "r") as fp:
-        return fp.read()
+    try:
+        with codecs.open(os.path.join(here, rel_path), "r", encoding="utf-8") as fp:
+            return fp.read()
+    except FileNotFoundError:
+        raise RuntimeError(f"File {rel_path} not found.")
 
 
 def get_version(rel_path):
@@ -15,13 +17,12 @@ def get_version(rel_path):
         if line.startswith("__version__"):
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
-    else:
-        raise RuntimeError("Unable to find version string.")
+    raise RuntimeError("Unable to find version string.")
 
 
 VERSION = get_version("torchutils/__init__.py")
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     README = fh.read()
 
 requirements = [
@@ -43,7 +44,7 @@ requirements = [
     "tqdm",
 ]
 
-setuptools.setup(
+setup(
     # Metadata
     name="torchutils",
     version=VERSION,
@@ -56,7 +57,7 @@ setuptools.setup(
     license="MIT",
     python_requires=">=3.6",
     # Package info
-    packages=setuptools.find_packages(
+    packages=find_packages(
         exclude=(
             "tests",
             "tests.*",
