@@ -1,24 +1,24 @@
 import csv
 import json
 import os
-from typing import Optional
-
 import numpy as np
-from ignite import handlers
 from torch import nn
+import torch
+import tempfile
+import stat
+from pathlib import Path
+import torch.distributed as dist
 
 
-class ModelSaver(object):
+class ModelSaver:
     """Handler that saves model checkpoints on a disk.
-
-    This is not a :class:`~ignite.handler`, but use :class:`~ignite.handler.DiskSaver` internally.
 
     The filename of the checkpoint is ``{filename_prefix}[_{score_name}]_{score:.4f}[_{epoch}].pt``
 
     (Optional) The filename of latest model is ``{filename_prefix}_latest.pt``
     (Optional) The filename of best model is ``{filename_prefix}_best.pt``
 
-    We put the score fisrt in the filename so that the files are sorted by score and tab completion works well.
+    We put the score first in the filename so that the files are sorted by score and tab completion works well.
 
     Args:
         dirname (str): Directory path where the checkpoint will be saved
@@ -38,10 +38,9 @@ class ModelSaver(object):
     Examples:
         .. code-block:: python
 
-            from torchutils.io import ModelSaver
             model_saver = ModelSaver(dirname="checkpoints", filename_prefix="model")
             for epoch in range(max_epochs):
-                // train
+                # train
                 score = evaluate(model)
                 model_saver.save(model, score, epoch)
             best_model = model_saver.last_checkpoint
@@ -54,7 +53,7 @@ class ModelSaver(object):
         dirname: str,
         filename_prefix: str = None,
         score_name: str = None,
-        n_saved: Optional[int] = 5,
+        n_saved: int = 5,
         save_latest: bool = False,
         save_best: bool = False,
         mode="max",
@@ -65,7 +64,7 @@ class ModelSaver(object):
         super().__init__()
         score = np.inf if mode == "min" else -np.inf
         self.dirname = dirname
-        self.filename_predfix = filename_prefix
+        self.filename_prefix = filename_prefix
         self.score_name = score_name
         self.n_saved = n_saved
         self.save_latest = save_latest
@@ -73,21 +72,26 @@ class ModelSaver(object):
         self.mode = mode
         self.history = [(score, False) for _ in range(n_saved)]
         self.best_checkpoint = None
-        self.saver = handlers.DiskSaver(dirname, atomic=atomic, create_dir=create_dir, require_empty=require_empty)
+        self.atomic = atomic
+
+        if create_dir and not os.path.exists(dirname):
+            os.makedirs(dirname)
+        if require_empty and os.listdir(dirname):
+            raise ValueError(f"Directory {dirname} is not empty")
 
     def filename(self, score: float = None, epoch: int = None, latest=False, best=False) -> str:
-        prefix = f"{self.filename_predfix}_" if self.filename_predfix else ""
+        prefix = f"{self.filename_prefix}_" if self.filename_prefix else ""
         score_name = f"{self.score_name}_" if self.score_name else ""
         if latest:
-            return f"{prefix}latest.pt"
+            return f"{self.dirname}/{prefix}latest.pt"
         if best:
-            return f"{prefix}best.pt"
+            return f"{self.dirname}/{prefix}best.pt"
         if score is None and epoch is not None:
-            filename = f"{prefix}epoch_{epoch}.pt"
+            filename = f"{self.dirname}/{prefix}epoch_{epoch}.pt"
         elif score is not None and epoch is None:
-            filename = f"{prefix}{score_name}{score:.4f}.pt"
+            filename = f"{self.dirname}/{prefix}{score_name}{score:.4f}.pt"
         else:
-            filename = f"{prefix}{score_name}{score:.4f}_epoch_{epoch}.pt"
+            filename = f"{self.dirname}/{prefix}{score_name}{score:.4f}_epoch_{epoch}.pt"
         return filename
 
     def _is_worst(self, score):
@@ -104,6 +108,25 @@ class ModelSaver(object):
         else:
             self.history.sort(key=lambda x: x[0], reverse=True)
 
+    def _save_func(self, checkpoint: dict, path: Path, func: callable) -> None:
+        if not self.atomic:
+            func(checkpoint, path)
+        else:
+            tmp = tempfile.NamedTemporaryFile(delete=False, dir=self.dirname)
+            tmp_file = tmp.file
+            tmp_name = tmp.name
+            try:
+                func(checkpoint, tmp_file)
+            except BaseException:
+                tmp.close()
+                os.remove(tmp_name)
+                raise
+            else:
+                tmp.close()
+                os.replace(tmp.name, path)
+                # append group/others read mode
+                os.chmod(path, os.stat(path).st_mode | stat.S_IRGRP | stat.S_IROTH)
+
     def save(self, model: nn.Module, score, epoch=None):
         """Save model checkpoint.
 
@@ -115,24 +138,27 @@ class ModelSaver(object):
             score (float, Optional): score
             epoch (Number, Optional): current epoch
         """
+        if dist.is_initialized() and dist.get_rank() != 0:
+            return
+
         if self._is_worst(score) and not self.save_latest:
             return
         state_dict = model.state_dict()
         if self.save_latest:
-            self.saver(state_dict, filename=self.filename(latest=True))
+            self._save_func(state_dict, self.filename(latest=True), torch.save)
         if self.save_best and self._is_best(score):
-            self.saver(state_dict, filename=self.filename(best=True))
+            self._save_func(state_dict, self.filename(best=True), torch.save)
         filename = self.filename(score, epoch)
         if self._is_worst(score):
             pass
         else:
             # replace the worst model
-            if self.history[0][1] and os.path.exists(os.path.join(self.dirname, self.history[0][1])):
-                self.saver.remove(self.history[0][1])
-            self.saver(state_dict, filename=filename)
+            if self.history[0][1] and os.path.exists(self.history[0][1]):
+                os.remove(self.history[0][1])
+            self._save_func(state_dict, filename, torch.save)
             self.history[0] = (score, filename)
         self._sort_history()
-        self.last_checkpoint = os.path.join(self.dirname, self.history[-1][-1])
+        self.last_checkpoint = self.history[-1][-1]
 
 
 def load_json(fn):

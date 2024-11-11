@@ -5,7 +5,7 @@ numpy
 opencv-python
 pandas
 pillow
-pytorch-ignite
+# pytorch-ignite
 pyyaml
 scikit-learn
 scipy

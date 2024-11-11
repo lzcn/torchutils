@@ -35,10 +35,10 @@ from . import (
     singleton,
 )
 
-try:
-    from . import timer
-except ImportError:
-    timer = None
+# try:
+#     from . import timer
+# except ImportError:
+#     timer = None
 
 __all__ = [
     "YAMLoader",
@@ -55,7 +55,6 @@ __all__ = [
     "gather_mean",
     "get_named_class",
     "get_named_function",
-    "ignite",
     "infer_parallel_device",
     "init",
     "init_optimizer",
