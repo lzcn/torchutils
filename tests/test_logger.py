@@ -1,7 +1,7 @@
 import logging
-import unittest
-import tempfile
 import os
+import tempfile
+import unittest
 from unittest import mock
 
 import torchutils

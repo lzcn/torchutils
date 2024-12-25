@@ -272,7 +272,9 @@ def gather_mean(tensors):
 
 
 @set_module("torchutils")
-def load_pretrained(net: nn.Module, path: str = None, state_dict: dict = None, strict=False) -> nn.Module:
+def load_pretrained(
+    net: nn.Module, path_or_state_dict: Any = None, state_dict=None, weights_only=False, strict=False
+) -> nn.Module:
     """Load weights lossly or strictly.
 
     Load weights that match the the model. Unloaded weighted will be logged.
@@ -283,21 +285,23 @@ def load_pretrained(net: nn.Module, path: str = None, state_dict: dict = None, s
         - Unmatched keys: shape mismatched weights
     Args:
         net (nn.Module): model
-        path (str): path to pre-traiend model
-        state_dict (dict): model weights
+        path_or_state_dict (str or dict): path to pre-trained model or state dictionary containing model weights
+        state_dict (dict): state dictionary containing model weights. Deprecated. Use path_or_state_dict instead.
+        weights_only (bool): whether to load only weights. Default: False
         strict (bool): whether to load weights strictly
 
     """
-    assert not (path is None and state_dict is None), "one of path and state_dict must be given"
-    assert not (path is not None and state_dict is not None), "only one of path and state_dict is acceptable"
-    # load weights from pre-trained model lossly
-    num_devices = torch.cuda.device_count()
-    map_location = {"cuda:{}".format(i): "cpu" for i in range(num_devices)}
-    if path is not None:
-        LOGGER.info("Loading pre-trained model from %s.", path)
-        state_dict = torch.load(path, map_location=map_location)
+    if state_dict is not None:
+        path_or_state_dict = state_dict
+    assert path_or_state_dict is not None, "path_or_state_dict must be given"
+
+    if isinstance(path_or_state_dict, str):
+        LOGGER.info("Loading pre-trained model from %s.", path_or_state_dict)
+        state_dict = torch.load(path_or_state_dict, map_location="cpu", weights_only=weights_only)
     else:
-        LOGGER.info("Loading pre-trained model from state.")
+        LOGGER.info("Loading pre-trained model from state dict.")
+        state_dict = path_or_state_dict
+
     net_param = net.state_dict()
     unmatched_keys = []
     for name, param in state_dict.items():

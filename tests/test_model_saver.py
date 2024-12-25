@@ -1,10 +1,12 @@
-import unittest
 import os
 import shutil
-import torch
 import tempfile
+import unittest
 import warnings
+
+import torch
 from torch import nn
+
 from torchutils.io import ModelSaver
 
 

@@ -1,11 +1,11 @@
 attrs
 colorama
 lmdb
+matplotlib
 numpy
 opencv-python
 pandas
 pillow
-# pytorch-ignite
 pyyaml
 scikit-learn
 scipy
