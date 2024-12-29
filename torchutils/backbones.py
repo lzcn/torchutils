@@ -64,7 +64,6 @@ def register_torchvision_backbones():
         ("vgg11", 4096),
         ("vgg16", 4096),
         ("vgg19", 4096),
-        ("inception_v3", 2048),
         ("resnet18", 512),
         ("resnet34", 512),
         ("resnet50", 2048),

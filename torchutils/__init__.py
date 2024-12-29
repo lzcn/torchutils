@@ -1,4 +1,5 @@
 from torchutils.backbones import backbone
+from torchutils.distributed import rank_zero_only # noqa: F401
 from torchutils.misc import (
     YAMLoader,
     colour,

@@ -2,6 +2,7 @@ import logging
 import re
 
 from colorama import Back, Fore, Style, init
+from .distributed import rank_zero_only
 
 # Initialize Colorama
 init(autoreset=True)
@@ -78,9 +79,7 @@ def file_formatter_factory(formatter_name="default"):
     # Check if the formatter_name exists in NAMED_FORMATTERS, else use "default"
     formatter_config = NAMED_FORMATTERS.get(formatter_name, NAMED_FORMATTERS["default"])
     # Instantiate FileFormatter with the specified or default format and datefmt
-    return ColoramaFileFormatter(
-        fmt=formatter_config["format"], datefmt=formatter_config["datefmt"]
-    )
+    return ColoramaFileFormatter(fmt=formatter_config["format"], datefmt=formatter_config["datefmt"])
 
 
 def register_formatter(name, formatter):
@@ -99,6 +98,20 @@ def add_color(logger):
             handler.setFormatter(ColoramaFileFormatter())
         else:
             pass
+
+
+def get_logger(name=__name__, level=logging.INFO):
+    """Initializes multi-GPU-friendly python logger."""
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # this ensures all logging levels get marked with the rank zero decorator
+    # otherwise logs would get multiplied for each GPU process in multi-GPU setup
+    for level in ("debug", "info", "warning", "error", "exception", "fatal", "critical"):
+        setattr(logger, level, rank_zero_only(getattr(logger, level)))
+
+    return logger
 
 
 def config(

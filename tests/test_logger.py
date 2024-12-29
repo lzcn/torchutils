@@ -5,9 +5,34 @@ import unittest
 from unittest import mock
 
 import torchutils
+from torchutils.logger import get_logger
 
 LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
 LOGGER = logging.getLogger("main")
+
+
+class TestGetLogger(unittest.TestCase):
+
+    def setUp(self):
+        self.logger_name = "test_logger"
+        self.logger = get_logger(self.logger_name, level=logging.INFO)
+
+    def test_logger_initialization(self):
+        self.assertEqual(self.logger.name, self.logger_name)
+        self.assertEqual(self.logger.level, logging.INFO)
+
+    def test_rank_zero_only_decorator(self):
+        # Test when LOCAL_RANK is 0
+        os.environ["LOCAL_RANK"] = "0"
+        with self.assertLogs(self.logger, level="INFO") as log:
+            self.logger.info("This should be logged")
+        self.assertIn("INFO:test_logger:This should be logged", log.output)
+
+        # Test when LOCAL_RANK is not 0, AssertionError should be raised
+        os.environ["LOCAL_RANK"] = "1"
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(self.logger, level="INFO") as log:
+                self.logger.info("This should not be logged")
 
 
 class TestLogger(unittest.TestCase):

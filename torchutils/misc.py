@@ -10,7 +10,6 @@ import torch
 import yaml
 from colorama import Back, Fore, Style
 from torch import nn
-
 from .overrides import set_module
 
 LOGGER = logging.getLogger(__name__)
