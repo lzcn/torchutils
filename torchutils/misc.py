@@ -1,5 +1,4 @@
 import json
-import logging
 import operator
 import os
 from numbers import Number
@@ -11,8 +10,9 @@ import yaml
 from colorama import Back, Fore, Style
 from torch import nn
 from .overrides import set_module
+from .logger import get_logger
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = get_logger(__name__)
 
 __all__ = [
     "colour",
