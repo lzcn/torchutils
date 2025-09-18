@@ -17,4 +17,8 @@ torchvision
 tqdm
 furo
 myst-parser
-sphinx_copybutton
+sphinx>=7.0
+sphinx-autobuild
+furo
+myst-parser
+sphinx-copybutton

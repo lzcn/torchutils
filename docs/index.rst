@@ -1,79 +1,86 @@
-torchutils Documentation
-========================
+torchutils
+==========
 
-Personal library for PyTorch.
+A lightweight and modular PyTorch utility library designed for research and rapid prototyping.
 
 .. image:: https://readthedocs.org/projects/torchutils/badge/?version=latest
    :target: https://torchutils.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-Philosophy
-----------
+.. image:: https://img.shields.io/badge/python-3.8%2B-blue.svg
+   :alt: Python Version
 
-``torchutils`` is designed with the following principles:
+Features
+--------
 
-- ✅ **Minimal dependencies**: Only rely on PyTorch and Python standard libraries whenever possible.
-- 🧩 **Modular and reusable**: Utility functions are simple, composable, and easy to integrate.
-- 🧼 **Lightweight and clean**: Avoid unnecessary abstraction or complexity. Ideal for research, prototyping, or educational use.
+``torchutils`` provides essential utilities for PyTorch development:
 
-This philosophy ensures that ``torchutils`` remains easy to maintain, portable across environments, and transparent for users.
+🚀 **Core Utilities**
+   - Device management and tensor operations
+   - Model backbone loading and management  
+   - Distributed training helpers
 
+📊 **Data & I/O**
+   - LMDB and file readers for large datasets
+   - Model saving and loading utilities
+   - JSON/CSV serialization helpers
+
+📈 **Metrics & Logging**
+   - Colorized logging with flexible formatting
+   - Performance metrics and meters
+   - Optional transport (OT) algorithms
 
 Installation
 ------------
 
-To install the latest version of ``torchutils``, you can use pip:
+Install from GitHub:
 
 .. code-block:: bash
 
-   pip install git+https://github.com/lzcn/torchutils.git --upgrade
+   pip install git+https://github.com/lzcn/torchutils.git
 
+Quick Start
+-----------
 
-Testing
--------
+.. code-block:: python
 
-To run the tests:
+   import torch
+   from torchutils.ops import to
+   from torchutils.backbones import backbone
+   from torchutils.logger import get_logger
 
-.. code-block:: bash
+   # Move data to device easily
+   data = {"x": torch.randn(10, 3), "y": torch.randn(10, 1)}
+   data = to(data, "cuda")
 
-   python -m unittest discover -s tests
+   # Load pretrained backbones
+   model, out_dim = backbone("resnet50", weights="IMAGENET1K_V1")
 
+   # Get colored logger
+   logger = get_logger("my_app")
+   logger.info("Training started")
 
-
-Documentation
+API Reference
 -------------
 
-Hosted on `Read the Docs <https://torchutils.readthedocs.io/en/latest/>`_.
+.. toctree::
+   :maxdepth: 2
+   :caption: 🔧 Core Modules
 
-
-License
--------
-
-MIT License: see the ``LICENSE`` file for details.
+   modules/core
+   modules/io
+   modules/utils
 
 .. toctree::
-   :maxdepth: 4
-   :caption: 🔧 Modules
+   :maxdepth: 1
+   :caption: 📚 Additional Info
 
-   torchutils
-   torchutils.data
-   torchutils.metrics
-   torchutils.loss
-   torchutils.plot
-   torchutils.factory
-   torchutils.files
-   torchutils.logger
-   torchutils.ops
-   torchutils.ignite
-   torchutils.io
-   torchutils.param
-   torchutils.ot
-   torchutils.meter
-   torchutils.layers
+   installation
+   examples
 
-.. toctree::
-   :hidden:
+Indices and tables
+==================
 
-   genindex
-   modindex
-   search
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
