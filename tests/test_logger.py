@@ -50,7 +50,7 @@ class TestLogger(unittest.TestCase):
             log_path = os.path.join(temp_dir, "file.log")
             torchutils.logger.config(log_file=log_path)
             LOGGER.critical("")
-            with open(log_path, "r") as f:
+            with open(log_path) as f:
                 content = f.read()
             self.assertIn("main", content)
 

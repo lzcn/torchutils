@@ -2,7 +2,8 @@ import logging
 import re
 
 from colorama import Back, Fore, Style, init
-from .distributed import rank_zero_only
+
+from torchutils.distributed import rank_zero_only
 
 # Initialize Colorama
 init(autoreset=True)

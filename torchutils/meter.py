@@ -9,11 +9,12 @@ The supported data readers are:
 If `win_size==0`, then global average will be conducted.
 
 """
-import logging
+
 from collections import deque
+import logging
 
 
-class _WindowMeter(object):
+class _WindowMeter:
     def __init__(self, win_size=50):
         self.val = float("nan")
         self.win_size = win_size
@@ -38,10 +39,10 @@ class _WindowMeter(object):
         self._weights.append(weight)
 
     def __repr__(self):
-        return "{:.4f} ({:.4f})".format(self.val, self.avg)
+        return f"{self.val:.4f} ({self.avg:.4f})"
 
 
-class _AverageMeter(object):
+class _AverageMeter:
     def __init__(self):
         self.val = float("nan")
         self._cum_val = 0.0
@@ -65,14 +66,14 @@ class _AverageMeter(object):
         self._cum_weight += weight
 
     def __repr__(self):
-        return "{:.4f} ({:.4f})".format(self.val, self.avg)
+        return f"{self.val:.4f} ({self.avg:.4f})"
 
 
 def _factory(win_size):
     return _AverageMeter() if win_size == 0 else _WindowMeter(win_size)
 
 
-class Meter(object):
+class Meter:
     r"""Record historical values with moving average.
 
     .. math::
@@ -135,10 +136,10 @@ class Meter(object):
         self._meter.update(value, weight)
 
     def __repr__(self):
-        return "{:.4f} ({:.4f})".format(self._meter.val, self._meter.avg)
+        return f"{self._meter.val:.4f} ({self._meter.avg:.4f})"
 
 
-class BundleMeter(object):
+class BundleMeter:
     """Manage a bunle of meters with the same window size.
 
     Args:
@@ -196,11 +197,11 @@ class BundleMeter(object):
     def __repr__(self):
         result = ""
         for k, v in self._meters.items():
-            result += "-------- {}:{}\n".format(k, v)
+            result += f"-------- {k}:{v}\n"
         return result
 
 
-class GroupMeter(object):
+class GroupMeter:
     """Class for history tracer with different window size.
 
     Args:
@@ -254,9 +255,9 @@ class GroupMeter(object):
     def __repr__(self):
         str_ = ""
         for group, history in self._meters.items():
-            str_ += "-------- Group: {}\n".format(group)
+            str_ += f"-------- Group: {group}\n"
             if len(history) == 0:
                 str_ += "-------- (Empty)\n"
             for k, m in history.items():
-                str_ += "-------- {}: {}\n".format(k, m)
+                str_ += f"-------- {k}: {m}\n"
         return str_

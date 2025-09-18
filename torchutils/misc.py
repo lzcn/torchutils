@@ -1,34 +1,20 @@
 import json
+from numbers import Number
 import operator
 import os
-from numbers import Number
-from typing import IO, Any
+from typing import IO, Any, Mapping, Union
 
+from colorama import Back, Fore, Style
 import numpy as np
 import torch
-import yaml
-from colorama import Back, Fore, Style
 from torch import nn
-from .overrides import set_module
-from .logger import get_logger
+import yaml
+
+from torchutils.logger import get_logger
+
+from ._internal import set_module
 
 LOGGER = get_logger(__name__)
-
-__all__ = [
-    "colour",
-    "format_display",
-    "from_yaml",
-    "gather_loss",
-    "gather_mean",
-    "get_named_class",
-    "get_named_function",
-    "infer_parallel_device",
-    "init_optimizer",
-    "load_pretrained",
-    "one_hot",
-    "to_device",
-    "YAMLoader",
-]
 
 
 @set_module("torchutils")
@@ -41,7 +27,7 @@ def format_display(opt, num=1, symbol=" "):
     """
     indent = symbol * num
     if isinstance(opt, dict):
-        repr_list = ["{}: {}".format(k, format_display(v, num + 1, symbol)) for k, v in opt.items()]
+        repr_list = [f"{k}: {format_display(v, num + 1, symbol)}" for k, v in opt.items()]
         lsign = "{"
         rsign = "}"
         if sum(map(len, repr_list)) < 10:
@@ -49,7 +35,7 @@ def format_display(opt, num=1, symbol=" "):
         else:
             string = lsign + "\n"
             for repr in repr_list:
-                string += "{}{},\n".format(indent, repr)
+                string += f"{indent}{repr},\n"
             string += symbol * (num - 1) + rsign
     elif isinstance(opt, list):
         repr_list = [format_display(v, num + 1, symbol) for v in opt]
@@ -60,7 +46,7 @@ def format_display(opt, num=1, symbol=" "):
         else:
             string = lsign + "\n"
             for repr in repr_list:
-                string += "{}{},\n".format(indent, repr)
+                string += f"{indent}{repr},\n"
             string += symbol * (num - 1) + rsign
     else:
         string = str(opt)
@@ -208,27 +194,28 @@ def infer_parallel_device(device_ids=None):
 
 
 @set_module("torchutils")
-def to_device(data, device="cuda"):
-    """Move data to given device.
+def to(data: Any, device: Union[str, torch.device] = "cuda") -> Any:
+    """Recursively move data to the specified device.
 
     Args:
-        data (Sequence): convert all data to given device.
-        device (torch.device, optional): target device.
+        data: Tensor, or nested structure of tensors (dict, list, tuple).
+        device: Target device (e.g., "cuda", "cpu").
 
+    Returns:
+        Data placed on the specified device.
     """
-
-    error_msg = "data must contains tensors or list of tensors; found {}"
-    if isinstance(data, dict):
-        return {k: to_device(v) for k, v in data.items()}
+    if isinstance(data, Mapping):
+        return {k: to(v, device) for k, v in data.items()}
     elif isinstance(data, list):
-        return [to_device(v, device) for v in data]
+        return [to(v, device) for v in data]
     elif isinstance(data, tuple):
-        return (to_device(v, device) for v in data)
+        return tuple(to(v, device) for v in data)
     elif isinstance(data, torch.Tensor):
-        return data.to(device)
+        return data.to(device, non_blocking=True) if device != "cpu" else data.cpu()
     elif isinstance(data, str):
         return data
-    raise TypeError(error_msg.format(type(data)))
+    else:
+        raise TypeError(f"Unsupported data type for device transfer: {type(data).__name__}")
 
 
 @set_module("torchutils")
@@ -267,7 +254,7 @@ def gather_mean(tensors):
     elif isinstance(tensors, list):
         return [v.sum().item() / v.numel() for v in tensors]
     else:
-        raise TypeError("Expected list or dict, but got {}".format(type(tensors)))
+        raise TypeError(f"Expected list or dict, but got {type(tensors)}")
 
 
 @set_module("torchutils")
@@ -369,7 +356,7 @@ def construct_include(loader: YAMLoader, node: yaml.Node) -> Any:
     filename = os.path.abspath(os.path.join(loader._root, loader.construct_scalar(node)))
     extension = os.path.splitext(filename)[1].lstrip(".")
 
-    with open(filename, "r") as f:
+    with open(filename) as f:
         if extension in ("yaml", "yml"):
             return yaml.load(f, YAMLoader)
         elif extension in ("json",):

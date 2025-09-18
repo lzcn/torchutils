@@ -1,12 +1,11 @@
-import csv
-import json
 import os
-import numpy as np
-from torch import nn
-import torch
-import tempfile
-import stat
 from pathlib import Path
+import stat
+import tempfile
+
+import numpy as np
+import torch
+from torch import nn
 import torch.distributed as dist
 
 
@@ -71,7 +70,7 @@ class ModelSaver:
         self.save_best = save_best
         self.mode = mode
         self.history = [(score, False) for _ in range(n_saved)]
-        self.best_checkpoint = None
+        self.best_checkpoint: str = None
         self.atomic = atomic
 
         if create_dir and not os.path.exists(dirname):
@@ -103,6 +102,7 @@ class ModelSaver:
         return (score >= self.history[-1][0]) if self.mode == "max" else (score <= self.history[-1][0])
 
     def _sort_history(self):
+        # sort the history from worst to best
         if self.mode == "max":
             self.history.sort(key=lambda x: x[0])
         else:
@@ -158,74 +158,4 @@ class ModelSaver:
             self._save_func(state_dict, filename, torch.save)
             self.history[0] = (score, filename)
         self._sort_history()
-        self.last_checkpoint = self.history[-1][-1]
-
-
-def load_json(fn):
-    """Load json data from file
-
-    Args:
-        fn (str): file name
-
-    Returns:
-        Any: data
-    """
-    fn = os.path.expanduser(fn)
-    with open(fn, "r") as f:
-        data = json.load(f)
-    return data
-
-
-def save_json(fn, data, overwrite=False):
-    """Save data in json format.
-
-    Args:
-        fn (str): file name
-        data (Any): data to save
-        overwrite (bool, optional): if True, will overwrite existing file. Defaults to False.
-    """
-    fn = os.path.expanduser(fn)
-    if os.path.exists(fn) and not overwrite:
-        print(f"{fn} already exists, skipping")
-        return
-    with open(fn, "w") as f:
-        json.dump(data, f)
-
-
-def load_csv(fn, num_skip=0, converter=None):
-    """Load data in csv format.
-
-    Args:
-        fn (str): file name
-        num_skip (int, optional): number of lines to skip. Defaults to 0.
-        converter (Callable, optional): function to convert each element. Defaults to None.
-
-    Returns:
-        List: data
-    """
-    fn = os.path.expanduser(fn)
-    with open(fn, "r") as f:
-        reader = csv.reader(f, delimiter=",")
-        for _ in range(num_skip):
-            next(reader)
-        data = list(reader)
-        if converter is not None:
-            data = [list(map(converter, line)) for line in data]
-    return data
-
-
-def save_csv(fn, data, overwrite=False):
-    """Save data in csv format.
-
-    Args:
-        fn (str): file name
-        data (Any): data to save
-        overwrite (bool, optional): if True, will overwrite existing file. Defaults to False.
-    """
-    fn = os.path.expanduser(fn)
-    if os.path.exists(fn) and not overwrite:
-        print(f"{fn} already exists, skipping")
-        return
-    with open(fn, "w") as f:
-        writer = csv.writer(f)
-        writer.writerows(data)
+        self.best_checkpoint = self.history[-1][-1]

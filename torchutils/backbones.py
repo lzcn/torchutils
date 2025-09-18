@@ -1,17 +1,23 @@
-import operator
 from functools import partial, wraps
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Tuple, Union
 
-import torch
 import torch.nn as nn
 from torchvision import models
 
-from torchutils.overrides import set_module
-
+# Global registry for all backbone models
 _BACKBONES: Dict[str, Callable] = {}
 
 
 def register_backbone(func: Callable = None, *, name: str = None) -> Callable:
+    """Register a custom backbone model.
+
+    Args:
+        func (Callable): The function that returns a model.
+        name (str, optional): The name to register under. Defaults to the function's name.
+
+    Returns:
+        Callable: A wrapped function that returns the model.
+    """
     if func is None:
         return partial(register_backbone, name=name)
 
@@ -26,44 +32,51 @@ def register_backbone(func: Callable = None, *, name: str = None) -> Callable:
     return wrapper
 
 
-@set_module("torchutils")
-def backbone(name: str, weights: str = "DEFAULT", **kwargs) -> Tuple[nn.Module, int]:
-    """Get backbone by name.
-
-    The last FC layer is removed for all backbones.
+def backbone(name: str, weights: Union[str, None] = "DEFAULT", **kwargs) -> Tuple[nn.Module, int]:
+    """Retrieve a backbone model by name.
 
     Args:
-        name (str): the name of backbone
-        weights (str, optional): the weights to load. Defaults to "DEFAULT".
+        name (str): Name of the backbone.
+        weights (Union[str, None], optional): Pretrained weights to load. Defaults to "DEFAULT".
 
     Raises:
-        ValueError: if the backbone is unknown
+        ValueError: If the backbone name is not registered.
 
     Returns:
-        Tuple[nn.Module, int]: an instance of the backbone, number of features
+        Tuple[nn.Module, int]: Model instance and output feature dimension.
+
+    Example:
+        >>> model, dim = backbone("resnet18")
+        >>> x = torch.randn(1, 3, 224, 224)
+        >>> out = model(x)
+        >>> print(out.shape)  # (1, 512)
     """
     if name in _BACKBONES:
         return _BACKBONES[name](weights=weights, **kwargs)
     else:
-        raise ValueError(f"Unknown backbone {name}")
+        raise ValueError(f"Unknown backbone '{name}'. Registered: {list(_BACKBONES.keys())}")
 
 
 def create_backbone(
-    model_fn: Callable, num_features: int, weights: str = "DEFAULT", replace_bn: bool = False, **kwargs
+    model_fn: Callable, num_features: int, weights: Union[str, None] = "DEFAULT", **kwargs
 ) -> Tuple[nn.Module, int]:
+    """Create a backbone model with optional batch norm replacement.
+
+    Args:
+        model_fn (Callable): Constructor for torchvision model.
+        num_features (int): Output feature size.
+        weights (Union[str, None], optional): Weights to load. Defaults to "DEFAULT".
+
+    Returns:
+        Tuple[nn.Module, int]: Modified model and output feature dimension.
+    """
     backbone = model_fn(weights=weights, **kwargs)
-    if replace_bn:
-        backbone = _replace_bn(backbone)
     backbone.fc = nn.Identity()
     return backbone, num_features
 
 
 def register_torchvision_backbones():
     torchvision_models = [
-        ("alexnet", 4096),
-        ("vgg11", 4096),
-        ("vgg16", 4096),
-        ("vgg19", 4096),
         ("resnet18", 512),
         ("resnet34", 512),
         ("resnet50", 2048),
@@ -83,48 +96,9 @@ def register_torchvision_backbones():
     ]
 
     for model_name, num_features in torchvision_models:
-        register_backbone(partial(create_backbone, getattr(models, model_name), num_features), name=model_name)
-        register_backbone(
-            partial(create_backbone, getattr(models, model_name), num_features, replace_bn=True),
-            name=f"{model_name}_affine",
-        )
+        model_fn = getattr(models, model_name)
+        register_backbone(partial(create_backbone, model_fn, num_features), name=model_name)
 
 
-class AffineBatchNorm2d(nn.Module):
-    """BatchNorm2d without tracking."""
-
-    def __init__(self, num_features: int):
-        super().__init__()
-        self.register_buffer("running_mean", torch.zeros(num_features))
-        self.register_buffer("running_var", torch.ones(num_features))
-        self.register_buffer("num_batches_tracked", torch.tensor(0, dtype=torch.long))
-        self.weight = nn.Parameter(torch.ones(num_features))
-        self.bias = nn.Parameter(torch.zeros(num_features))
-        self.num_features = num_features
-        self.eps = 1e-5
-
-    def extra_repr(self) -> str:
-        return f"{self.num_features}, eps={self.eps}"
-
-    def _t(self, w: torch.Tensor) -> torch.Tensor:
-        return w.view(self.num_features, 1, 1)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        h = (x - self._t(self.running_mean)) / torch.sqrt(self._t(self.running_var) + self.eps)
-        return self._t(self.weight) * h + self._t(self.bias)
-
-
-def _replace_bn(resnet: nn.Module) -> nn.Module:
-    state_dict = resnet.state_dict()
-    to_replace = [
-        (name, AffineBatchNorm2d(module.num_features)) for name, module in resnet.named_modules() if "bn" in name
-    ]
-    for name, value in to_replace:
-        name_parts = name.split(".")
-        parent_module = operator.attrgetter(".".join(name_parts[:-1]))(resnet) if len(name_parts) > 1 else resnet
-        setattr(parent_module, name_parts[-1], value)
-    resnet.load_state_dict(state_dict)
-    return resnet
-
-
+# Register all torchvision backbones on import
 register_torchvision_backbones()

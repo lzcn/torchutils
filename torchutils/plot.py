@@ -1,7 +1,7 @@
-import numpy as np
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+import numpy as np
 
 
 # https://stackoverflow.com/questions/22566284/matplotlib-how-to-plot-images-instead-of-points
