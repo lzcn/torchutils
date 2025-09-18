@@ -1,6 +1,7 @@
 import codecs
 import os
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 
 def read(rel_path):
@@ -22,19 +23,14 @@ def get_version(rel_path):
 
 VERSION = get_version("torchutils/__init__.py")
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open("README.md", encoding="utf-8") as fh:
     README = fh.read()
 
 requirements = [
-    "attrs",
-    "colorama",
     "lmdb",
     "numpy",
-    "opencv-python",
     "pandas",
     "pillow",
-    "pytorch-ignite",
-    "pyyaml",
     "matplotlib",
     "scikit-learn",
     "scipy",
