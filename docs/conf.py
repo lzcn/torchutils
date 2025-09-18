@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath("../"))
 project = "torchutils"
 copyright = "2025, Zhi Lu"
 author = "Zhi Lu"
-release = "0.0.1-dev"
+release = "0.0.1"
 
 
 # -- General configuration ---------------------------------------------------
