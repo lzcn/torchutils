@@ -4,26 +4,9 @@
 .. automodule:: torchutils.singleton
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
    
       singleton
    
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

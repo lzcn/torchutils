@@ -1,11 +1,9 @@
-torhcutils
+torchutils
 ==========
 
-
-The torchutils package contains a biundle of utilsties for PyTorch.
+The torchutils package contains a bundle of utilities for PyTorch.
 
 .. currentmodule:: torchutils
-
 
 Tensor
 ------
