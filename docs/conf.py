@@ -24,22 +24,18 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.githubpages",
     "sphinx.ext.autosummary",
-    "myst_parser",
 ]
 
 # Generate autosummary pages
 autosummary_generate = True
 
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".md": "markdown",
-}
+source_suffix = ".rst"
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".AppleDouble"]
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -64,10 +60,10 @@ html_theme_options = {
 # -- Options for autodoc ----------------------------------------------------
 
 autodoc_default_options = {
-    'members': True,
-    'undoc-members': True,
-    'show-inheritance': True,
-    'member-order': 'bysource',
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+    "member-order": "bysource",
 }
 
 # Don't show class signature with the class' name.
