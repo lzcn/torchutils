@@ -3,7 +3,7 @@ from torchutils.backbones import backbone  # noqa: F401
 from torchutils.distributed import rank_zero_only  # noqa: F401
 from torchutils.ops import to  # noqa: F401
 
-__version__ = "0.0.1-dev220620"
+__version__ = "0.0.1"
 
 
 def get_named_class(module):
