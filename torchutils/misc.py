@@ -1,10 +1,8 @@
 import json
-from numbers import Number
 import operator
 import os
 from typing import IO, Any, Mapping, Union
 
-from colorama import Back, Fore, Style
 import numpy as np
 import torch
 from torch import nn
@@ -82,39 +80,6 @@ def weights_init(m):
             nn.init.constant_(m.bias.data, 0)
     else:
         pass
-
-
-@set_module("torchutils")
-def colour(string, *args, b="", s="", c="green"):
-    """Colorize a string.
-
-    Args:
-        string (str): string to colorize
-        *args (Any): string = string % tuple(args)
-        b (str): background color
-        s (str): style,
-        c (str): foreground color,
-
-    Available formatting:
-        See colorma_ for more details
-
-        .. code-block::
-
-            c: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-            b: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-            s: DIM, NORMAL, BRIGHT, RESET_ALL
-
-    .. _colorma: https://pypi.org/project/colorama/
-
-    DEPRECATED:
-        The implementation is urgly and not recommended to use.
-    """
-    if isinstance(string, Number):
-        string = str(string)
-    string = string % tuple(args)
-    prefix = getattr(Fore, c.upper(), "") + getattr(Back, b.upper(), "") + getattr(Style, s.upper(), "")
-    suffix = Style.RESET_ALL
-    return prefix + string + suffix
 
 
 @set_module("torchutils")

@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.githubpages",
     "sphinx.ext.autosummary",
+    "sphinx_copybutton",
 ]
 
 # Generate autosummary pages
@@ -39,22 +40,24 @@ master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "furo"
+html_theme = "sphinx_book_theme"
 html_static_path = ["_static"]
 html_title = "torchutils"
 html_show_sourcelink = True
 
-# Furo theme options
+# Sphinx Book Theme options
 html_theme_options = {
-    "sidebar_hide_name": False,
-    "light_css_variables": {
-        "color-brand-primary": "#2196F3",
-        "color-brand-content": "#1976D2",
-    },
-    "dark_css_variables": {
-        "color-brand-primary": "#42A5F5",
-        "color-brand-content": "#64B5F6",
-    },
+    "repository_url": "https://github.com/yourusername/torchutils",
+    "use_repository_button": True,
+    "use_issues_button": True,
+    "use_edit_page_button": True,
+    "use_download_button": True,
+    "path_to_docs": "docs",
+    "repository_branch": "main",
+    "home_page_in_toc": True,
+    "show_toc_level": 2,
+    "navigation_with_keys": True,
+    "show_navbar_depth": 2,
 }
 
 # -- Options for autodoc ----------------------------------------------------

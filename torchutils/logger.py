@@ -1,36 +1,28 @@
-import logging
-import re
+"""Logging utilities for distributed PyTorch training.
 
-from colorama import Back, Fore, Style, init
+Provides rank-zero-only logging to prevent message duplication across GPU processes.
+Works with standard Python logging, Hydra, and other configuration frameworks.
+
+Example::
+
+    from torchutils.logger import config, get_logger, register_formatter
+
+    # Basic usage
+    config(level="INFO", log_file="app.log")
+    logger = get_logger(__name__)
+    logger.info("Training started")
+
+    # Custom formatter
+    register_formatter("custom", {
+        "format": "%(asctime)s: %(message)s",
+        "datefmt": "%H:%M:%S"
+    })
+    config(formatter="custom")
+"""
+
+import logging
 
 from torchutils.distributed import rank_zero_only
-
-# Initialize Colorama
-init(autoreset=True)
-
-
-TAGS_TO_COLORS = {
-    "{red}": Fore.RED,
-    "{green}": Fore.GREEN,
-    "{yellow}": Fore.YELLOW,
-    "{blue}": Fore.BLUE,
-    "{magenta}": Fore.MAGENTA,
-    "{cyan}": Fore.CYAN,
-    "{white}": Fore.WHITE,
-    "{black}": Fore.BLACK,
-    "{bg_red}": Back.RED,
-    "{bg_green}": Back.GREEN,
-    "{bg_yellow}": Back.YELLOW,
-    "{bg_blue}": Back.BLUE,
-    "{bg_magenta}": Back.MAGENTA,
-    "{bg_cyan}": Back.CYAN,
-    "{bg_white}": Back.WHITE,
-    "{bg_black}": Back.BLACK,
-    "{bright}": Style.BRIGHT,
-    "{dim}": Style.DIM,
-    "{normal}": Style.NORMAL,
-    "{reset}": Style.RESET_ALL,
-}
 
 
 NAMED_FORMATTERS = {
@@ -49,68 +41,52 @@ NAMED_FORMATTERS = {
 }
 
 
-# Custom formatter for console that uses Colorama for colors
-class ColoramaFormatter(logging.Formatter):
-
-    def format(self, record):
-        message = super().format(record)
-        # Replace custom tags with Colorama colors
-        for tag, color in TAGS_TO_COLORS.items():
-            message = message.replace(tag, color)
-        return message
-
-
-# Custom formatter for file that removes color tags
-class ColoramaFileFormatter(logging.Formatter):
-    def format(self, record):
-        message = super().format(record)
-        # Remove custom tags
-        message = re.sub(r"\{\/?[\w]+\}", "", message)
-        return message
-
-
-def stream_formatter_factory(formatter_name="default"):
-    formatter_config = NAMED_FORMATTERS.get(formatter_name, NAMED_FORMATTERS["default"])
-    # Check if the formatter_name exists in NAMED_FORMATTERS, else use "default"
-    # Instantiate ColoramaFormatter with the specified or default format and datefmt
-    return ColoramaFormatter(fmt=formatter_config["format"], datefmt=formatter_config["datefmt"])
-
-
-def file_formatter_factory(formatter_name="default"):
-    # Check if the formatter_name exists in NAMED_FORMATTERS, else use "default"
-    formatter_config = NAMED_FORMATTERS.get(formatter_name, NAMED_FORMATTERS["default"])
-    # Instantiate FileFormatter with the specified or default format and datefmt
-    return ColoramaFileFormatter(fmt=formatter_config["format"], datefmt=formatter_config["datefmt"])
-
-
 def register_formatter(name, formatter):
+    """Register a custom formatter.
+
+    Args:
+        name: Formatter name.
+        formatter: Dict with 'format' and 'datefmt' keys.
+
+    Example::
+
+        register_formatter("my_format", {
+            "format": "%(asctime)s: %(message)s",
+            "datefmt": "%H:%M:%S"
+        })
+        config(formatter="my_format")
+    """
     NAMED_FORMATTERS[name] = formatter
 
 
-def get_value(x, default):
-    return default if x is None else x
+def get_logger(name=__name__, level=None):
+    """Get a rank-zero-only logger for distributed training.
 
+    Returns a logger that only outputs messages on rank 0, preventing
+    log duplication in multi-GPU training. Does not configure handlers
+    or levels - use config() or external frameworks for that.
 
-def add_color(logger):
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
-            handler.setFormatter(ColoramaFormatter())
-        elif isinstance(handler, logging.FileHandler):
-            handler.setFormatter(ColoramaFileFormatter())
-        else:
-            pass
+    Args:
+        name: Logger name. Defaults to caller's module name.
+        level: Logger level. If provided, sets the logger level.
 
+    Returns:
+        Rank-zero-only logger instance.
 
-def get_logger(name=__name__, level=logging.INFO):
-    """Initializes multi-GPU-friendly python logger."""
+    Example::
 
+        logger = get_logger(__name__)
+        logger.info("Only rank 0 prints this")
+    """
     logger = logging.getLogger(name)
-    logger.setLevel(level)
 
-    # this ensures all logging levels get marked with the rank zero decorator
+    if level is not None:
+        logger.setLevel(level)
+
+    # Ensure all logging levels get marked with the rank zero decorator
     # otherwise logs would get multiplied for each GPU process in multi-GPU setup
-    for level in ("debug", "info", "warning", "error", "exception", "fatal", "critical"):
-        setattr(logger, level, rank_zero_only(getattr(logger, level)))
+    for level_name in ("debug", "info", "warning", "error", "exception", "fatal", "critical"):
+        setattr(logger, level_name, rank_zero_only(getattr(logger, level_name)))
 
     return logger
 
@@ -124,71 +100,69 @@ def config(
     formatter="default",
     file_formatter=None,
     stream_formatter=None,
-    color_tags=False,
 ):
-    """Logger configuration with handlers.
+    """Configure root logger with handlers and formatters.
 
-    All loggers pass their message to the root logger. Thus, this method configures all
-    loggers by attaching handlers to the root logger.
-
-    Predifned formatters:
-
-        - ``"default"``: ``[LEVEL] - %m-%d %H:%M:%S - [name.function.line]: message``
-        - ``"simple"``: ``[LEVEL] - %m-%d %H:%M:%S - [name]: message``
-        - ``"concise"``: ``%m-%d %H:%M:%S: message``
+    Sets up console and optional file logging. Call once at startup,
+    then use get_logger() to obtain logger instances.
 
     Args:
-        level (str, optional):  default logging level for all handlers. Defaults to ``"INFO"``
-        stream_level (str, optional): logging level for STDOUT. Defaults to ``level``
-        file_level (str, optional): logging level for log file Defaults to ``level``.
-        log_file (str, optional): log file. If given, file logger will be enabled. Defaults to ``None``.
-        file_mode (str, optional): log file mode. Defaults to ``"a"``.
-        formatter (str, optional): message format. Defaults to ``"default"``.
-        file_formatter (str, optional): message format for stream. Defaults to ``formatter``.
-        stream_formatter (str, optional): message format for file. Defaults to ``formatter``.
-        color_tas (bool, optional): whether allow color tags in log messages. Defaults to ``False``.
+        level: Default level for all handlers. Defaults to "INFO".
+        stream_level: Console output level. Uses level if None.
+        file_level: File output level. Uses level if None.
+        log_file: Log file path. No file logging if None.
+        file_mode: File mode ("a" or "w"). Defaults to "a".
+        formatter: Formatter name. One of: "default", "simple", "concise".
+        file_formatter: File formatter. Uses formatter if None.
+        stream_formatter: Console formatter. Uses formatter if None.
 
+    Formatters:
+        - "default": ``[LEVEL] - MM-DD HH:MM:SS - [name.function:line]: message``
+        - "simple": ``[LEVEL] - MM-DD HH:MM:SS - [name]: message``
+        - "concise": ``MM-DD HH:MM:SS: message``
+
+    Example::
+
+        config(level="INFO", log_file="app.log", formatter="simple")
+        logger = get_logger(__name__)
     """
     from logging.config import dictConfig
 
-    file_level = get_value(file_level, level)
-    file_formatter = get_value(file_formatter, formatter)
-    stream_level = get_value(stream_level, level)
-    stream_formatter = get_value(stream_formatter, formatter)
+    # Handle defaults
+    file_level = file_level or level
+    stream_level = stream_level or level
+    file_formatter = file_formatter or formatter
+    stream_formatter = stream_formatter or formatter
 
-    if color_tags:
-        # add colored formatter
-        formatters = {
-            "stream": {"()": stream_formatter_factory, "formatter_name": stream_formatter},
-            "file": {"()": file_formatter_factory, "formatter_name": file_formatter},
-        }
-    else:
-        formatters = NAMED_FORMATTERS
+    # Validate formatter exists
+    if formatter not in NAMED_FORMATTERS:
+        raise ValueError(f"Unknown formatter: {formatter}. Available: {list(NAMED_FORMATTERS.keys())}")
 
-    # configure stream logger
-    stream_hanlder = {
+    # configure stream handler
+    stream_handler = {
         "class": "logging.StreamHandler",
-        "formatter": stream_formatter if not color_tags else "stream",
+        "formatter": stream_formatter,
         "level": stream_level,
     }
-    # configure file logger
+    # configure file handler
     file_handler = {
         "class": "logging.FileHandler",
-        "formatter": file_formatter if not color_tags else "file",
+        "formatter": file_formatter,
         "level": file_level,
         "filename": log_file,
         "mode": file_mode,
     }
+
     if log_file is None:
-        handlers = {"stream": stream_hanlder}
+        handlers = {"stream": stream_handler}
     else:
-        handlers = {"stream": stream_hanlder, "file": file_handler}
+        handlers = {"stream": stream_handler, "file": file_handler}
 
     dictConfig(
         {
-            "version": 1.0,
+            "version": 1,
             "disable_existing_loggers": False,
-            "formatters": formatters,
+            "formatters": NAMED_FORMATTERS,
             "handlers": handlers,
             "root": {"level": "DEBUG", "handlers": handlers.keys()},
         }

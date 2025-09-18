@@ -15,20 +15,20 @@ Features
 
 ``torchutils`` provides essential utilities for PyTorch development:
 
-🚀 **Core Utilities**
+**Core Utilities**
    - Device management and tensor operations
-   - Model backbone loading and management  
+   - Model backbone loading with unified interface
    - Distributed training helpers
 
-📊 **Data & I/O**
-   - LMDB and file readers for large datasets
-   - Model saving and loading utilities
+**I/O Operations**
+   - Model checkpoint management with automatic versioning
+   - File system utilities for scanning and validation
    - JSON/CSV serialization helpers
 
-📈 **Metrics & Logging**
-   - Colorized logging with flexible formatting
-   - Performance metrics and meters
-   - Optional transport (OT) algorithms
+**Logging**
+   - Rank-zero-only logging for distributed training
+   - Flexible formatters and configuration
+   - Integration with external frameworks (Hydra, etc.)
 
 Installation
 ------------
@@ -45,42 +45,45 @@ Quick Start
 .. code-block:: python
 
    import torch
-   from torchutils.ops import to
-   from torchutils.backbones import backbone
+   from torchutils import backbone, rank_zero_only, to
    from torchutils.logger import get_logger
+   from torchutils.io import ModelSaver
 
    # Move data to device easily
    data = {"x": torch.randn(10, 3), "y": torch.randn(10, 1)}
    data = to(data, "cuda")
 
    # Load pretrained backbones
-   model, out_dim = backbone("resnet50", weights="IMAGENET1K_V1")
+   model, out_dim = backbone("resnet50")
 
-   # Get colored logger
-   logger = get_logger("my_app")
+   # Setup logging for distributed training
+   logger = get_logger(__name__)
    logger.info("Training started")
 
-API Reference
+   # Save model checkpoints automatically
+   saver = ModelSaver("./checkpoints", save_best=True)
+   saver.save(model, accuracy_score, epoch)
+
+Documentation
 -------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: 🔧 Core Modules
+   :caption: Modules
 
-   modules/core
    modules/io
-   modules/utils
+   modules/logging
+   modules/utilities
 
 .. toctree::
    :maxdepth: 1
-   :caption: 📚 Additional Info
+   :caption: Additional Info
 
-   installation
    examples
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`

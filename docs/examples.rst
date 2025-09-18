@@ -52,14 +52,26 @@ Logging
 
 .. code-block:: python
 
-   from torchutils.logger import get_logger
+   from torchutils.logger import config, get_logger
 
-   # Get a colored logger
-   logger = get_logger("training", level="INFO")
-   
+   # Configure the root logger once (optional, but useful for global settings)
+   config(
+       level="INFO",               # default level applied to handlers
+       stream_formatter="concise",  # pick one of the built-in formats
+       log_file="train.log",        # set to None to disable file logging
+   )
+
+   # Create a module-specific logger that respects the global config
+   logger = get_logger("training")
+
    logger.info("Starting training...")
    logger.warning("Low learning rate detected")
    logger.error("Training failed!")
+
+`config` controls the shared logging configuration (handlers, formats, levels),
+while `get_logger` gives you a lightweight logger instance tied to the calling
+module. Call `config` once during application start-up, then use `get_logger`
+wherever you need to emit messages.
 
 Model Saving
 ~~~~~~~~~~~~
