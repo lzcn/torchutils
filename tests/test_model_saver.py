@@ -5,18 +5,9 @@ import unittest
 import warnings
 
 import torch
-from torch import nn
 
 from torchutils.io import ModelSaver
-
-
-class SimpleModel(nn.Module):
-    def __init__(self):
-        super(SimpleModel, self).__init__()
-        self.fc = nn.Linear(10, 1)
-
-    def forward(self, x):
-        return self.fc(x)
+from tests.utils import SimpleModel
 
 
 class TestModelSaver(unittest.TestCase):
