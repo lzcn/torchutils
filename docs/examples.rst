@@ -47,6 +47,27 @@ Model Backbones
            features = self.backbone(x)
            return self.classifier(features)
 
+Pretrained Loading
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   import torch
+   from torchutils import load_pretrained
+
+   model = Classifier()
+
+   # Load from a checkpoint file
+   load_pretrained(model, 'artifacts/best_model.ckpt')
+
+   # Or directly from a state dict (e.g. WandB artifact)
+   state_dict = torch.load('snapshot.pt', map_location='cpu')
+   load_pretrained(model, state_dict)
+
+`load_pretrained` filters out unexpected or shape-mismatched keys, logs
+missing entries for review, and supports a ``strict=True`` flag to enforce
+perfect matches during upgrades.
+
 Logging
 ~~~~~~~
 

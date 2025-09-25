@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath("../"))
 project = "torchutils"
 copyright = "2025, Zhi Lu"
 author = "Zhi Lu"
-release = "0.0.1"
+release = "0.0.2"
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,7 +47,7 @@ html_show_sourcelink = True
 
 # Sphinx Book Theme options
 html_theme_options = {
-    "repository_url": "https://github.com/yourusername/torchutils",
+    "repository_url": "https://github.com/lzcn/torchutils",
     "use_repository_button": True,
     "use_issues_button": True,
     "use_edit_page_button": True,

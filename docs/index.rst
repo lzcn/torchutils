@@ -17,6 +17,7 @@ Features
 
 **Core Utilities**
    - Device management and tensor operations
+   - Flexible pretrained weight loading with key diagnostics
    - Model backbone loading with unified interface
    - Distributed training helpers
 
@@ -45,7 +46,7 @@ Quick Start
 .. code-block:: python
 
    import torch
-   from torchutils import backbone, rank_zero_only, to
+   from torchutils import backbone, load_pretrained, rank_zero_only, to
    from torchutils.logger import get_logger
    from torchutils.io import ModelSaver
 
@@ -55,6 +56,7 @@ Quick Start
 
    # Load pretrained backbones
    model, out_dim = backbone("resnet50")
+   model = load_pretrained(model, "./checkpoints/resnet50.pth")
 
    # Setup logging for distributed training
    logger = get_logger(__name__)
