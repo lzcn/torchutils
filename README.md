@@ -1,37 +1,31 @@
-# Personal library for PyTorch
+# torchutils
 
 [![Documentation Status](https://readthedocs.org/projects/torchutils/badge/?version=latest)](https://torchutils.readthedocs.io/en/latest/?badge=latest)
 
-## Philosophy
-
-`torchutils` is designed with the following principles:
-
-- ✅ **Minimal dependencies** – Only rely on PyTorch and Python standard libraries whenever possible.
-- 🧩 **Modular and reusable** – Utility functions are simple, composable, and easy to integrate.
-- 🧼 **Lightweight and clean** – Avoid unnecessary abstraction or complexity. Ideal for research, prototyping, or educational use.
-
-This philosophy ensures that `torchutils` remains easy to maintain, portable across environments, and transparent for users.
+Essential PyTorch utilities: logging, checkpoints, config I/O, backbones, distributed training helpers.
 
 ## Installation
-
-To install the latest version of `torchutils`, you can use pip:
 
 ```bash
 pip install git+https://github.com/lzcn/torchutils.git --upgrade
 ```
 
-## Testing
+## Usage
 
-To run the tests, you can use the following command:
+```python
+import torchutils as tu
 
-```bash
-python -m unittest discover -s tests
+tu.setup_logger(level="INFO", log_file="train.log")
+logger = tu.get_logger(__name__)
+
+config = tu.load_config("config.yaml")
+model, dim = tu.backbone("resnet50")
+batch = tu.to(batch, "cuda")
+
+saver = tu.ModelSaver("checkpoints", n_saved=5)
+saver.save(model, score=0.95, epoch=10)
 ```
-
-## Documentation
-
-Documentation is hosted on [Read the Docs](https://torchutils.readthedocs.io/en/latest/).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT

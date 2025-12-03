@@ -1,40 +1,13 @@
-torchutils
-==========
-
-A lightweight and modular PyTorch utility library designed for research and rapid prototyping.
-
+Introduction
+============
 .. image:: https://readthedocs.org/projects/torchutils/badge/?version=latest
    :target: https://torchutils.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. image:: https://img.shields.io/badge/python-3.8%2B-blue.svg
-   :alt: Python Version
-
-Features
---------
-
-``torchutils`` provides essential utilities for PyTorch development:
-
-**Core Utilities**
-   - Device management and tensor operations
-   - Flexible pretrained weight loading with key diagnostics
-   - Model backbone loading with unified interface
-   - Distributed training helpers
-
-**I/O Operations**
-   - Model checkpoint management with automatic versioning
-   - File system utilities for scanning and validation
-   - JSON/CSV serialization helpers
-
-**Logging**
-   - Rank-zero-only logging for distributed training
-   - Flexible formatters and configuration
-   - Integration with external frameworks (Hydra, etc.)
+Essential PyTorch utilities: logging, checkpoints, config I/O, backbones, distributed training helpers.
 
 Installation
 ------------
-
-Install from GitHub:
 
 .. code-block:: bash
 
@@ -45,47 +18,44 @@ Quick Start
 
 .. code-block:: python
 
-   import torch
-   from torchutils import backbone, load_pretrained, rank_zero_only, to
-   from torchutils.logger import get_logger
-   from torchutils.io import ModelSaver
+   import torchutils as tu
 
-   # Move data to device easily
-   data = {"x": torch.randn(10, 3), "y": torch.randn(10, 1)}
-   data = to(data, "cuda")
+   # Logging
+   tu.setup_logger(level="INFO", log_file="train.log")
+   logger = tu.get_logger(__name__)
 
-   # Load pretrained backbones
-   model, out_dim = backbone("resnet50")
-   model = load_pretrained(model, "./checkpoints/resnet50.pth")
+   # Config I/O
+   config = tu.load_config("config.yaml")
+   tu.save_config("output.json", config)
 
-   # Setup logging for distributed training
-   logger = get_logger(__name__)
-   logger.info("Training started")
+   # Backbones
+   model, dim = tu.backbone("resnet50")
 
-   # Save model checkpoints automatically
-   saver = ModelSaver("./checkpoints", save_best=True)
-   saver.save(model, accuracy_score, epoch)
+   # Device transfer
+   batch = tu.to(batch, "cuda")
 
-Documentation
--------------
+   # Checkpoints
+   saver = tu.ModelSaver("checkpoints", n_saved=5, save_best=True)
+   saver.save(model, score=0.95, epoch=10)
+   tu.load_pretrained(model, saver.best_checkpoint)
+
+   # Distributed training
+   if tu.get_rank() == 0:
+       print("Rank 0 only")
+
+   @tu.rank_zero_only
+   def save_results(data):
+       pass  # Only executes on rank 0
+
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Modules
 
-   modules/io
-   modules/logging
-   modules/utilities
+   api
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Additional Info
+License
+-------
 
-   examples
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+MIT License

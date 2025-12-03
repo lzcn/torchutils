@@ -1,62 +1,25 @@
 """Logging utilities for distributed PyTorch training.
 
 Provides rank-zero-only logging to prevent message duplication across GPU processes.
-Works with standard Python logging, Hydra, and other configuration frameworks.
 
 Example::
 
-    from torchutils.logger import config, get_logger, register_formatter
-
-    # Basic usage
-    config(level="INFO", log_file="app.log")
-    logger = get_logger(__name__)
+    import torchutils as tu
+    
+    tu.setup_logger(level="INFO", log_file="app.log")
+    logger = tu.get_logger(__name__)
     logger.info("Training started")
-
-    # Custom formatter
-    register_formatter("custom", {
-        "format": "%(asctime)s: %(message)s",
-        "datefmt": "%H:%M:%S"
-    })
-    config(formatter="custom")
 """
 
 import logging
 
-from torchutils.distributed import rank_zero_only
+from .distributed import rank_zero_only
 
-
-NAMED_FORMATTERS = {
-    "default": {
-        "format": "[%(levelname)s] - %(asctime)s - [%(name)s.%(funcName)s:%(lineno)d]: %(message)s",
-        "datefmt": "%m-%d %H:%M:%S",
-    },
-    "simple": {
-        "format": "[%(levelname)s] - %(asctime)s - [%(name)s]: %(message)s",
-        "datefmt": "%m-%d %H:%M:%S",
-    },
-    "concise": {
-        "format": "%(asctime)s: %(message)s",
-        "datefmt": "%m-%d %H:%M:%S",
-    },
+# Single default formatter
+_DEFAULT_FORMATTER = {
+    "format": "[%(levelname)s] - %(asctime)s - [%(name)s.%(funcName)s:%(lineno)d]: %(message)s",
+    "datefmt": "%m-%d %H:%M:%S",
 }
-
-
-def register_formatter(name, formatter):
-    """Register a custom formatter.
-
-    Args:
-        name: Formatter name.
-        formatter: Dict with 'format' and 'datefmt' keys.
-
-    Example::
-
-        register_formatter("my_format", {
-            "format": "%(asctime)s: %(message)s",
-            "datefmt": "%H:%M:%S"
-        })
-        config(formatter="my_format")
-    """
-    NAMED_FORMATTERS[name] = formatter
 
 
 def get_logger(name=__name__, level=None):
@@ -83,8 +46,7 @@ def get_logger(name=__name__, level=None):
     if level is not None:
         logger.setLevel(level)
 
-    # Ensure all logging levels get marked with the rank zero decorator
-    # otherwise logs would get multiplied for each GPU process in multi-GPU setup
+    # Apply rank_zero_only to all logging methods
     for level_name in ("debug", "info", "warning", "error", "exception", "fatal", "critical"):
         setattr(logger, level_name, rank_zero_only(getattr(logger, level_name)))
 
@@ -97,9 +59,8 @@ def config(
     file_level=None,
     log_file=None,
     file_mode="a",
-    formatter="default",
-    file_formatter=None,
-    stream_formatter=None,
+    format_string=None,
+    date_format=None,
 ):
     """Configure root logger with handlers and formatters.
 
@@ -112,18 +73,12 @@ def config(
         file_level: File output level. Uses level if None.
         log_file: Log file path. No file logging if None.
         file_mode: File mode ("a" or "w"). Defaults to "a".
-        formatter: Formatter name. One of: "default", "simple", "concise".
-        file_formatter: File formatter. Uses formatter if None.
-        stream_formatter: Console formatter. Uses formatter if None.
-
-    Formatters:
-        - "default": ``[LEVEL] - MM-DD HH:MM:SS - [name.function:line]: message``
-        - "simple": ``[LEVEL] - MM-DD HH:MM:SS - [name]: message``
-        - "concise": ``MM-DD HH:MM:SS: message``
+        format_string: Custom format string. Uses default if None.
+        date_format: Custom date format. Uses default if None.
 
     Example::
 
-        config(level="INFO", log_file="app.log", formatter="simple")
+        config(level="INFO", log_file="app.log")
         logger = get_logger(__name__)
     """
     from logging.config import dictConfig
@@ -131,23 +86,23 @@ def config(
     # Handle defaults
     file_level = file_level or level
     stream_level = stream_level or level
-    file_formatter = file_formatter or formatter
-    stream_formatter = stream_formatter or formatter
+    
+    # Build formatter
+    formatter_config = {
+        "format": format_string or _DEFAULT_FORMATTER["format"],
+        "datefmt": date_format or _DEFAULT_FORMATTER["datefmt"],
+    }
 
-    # Validate formatter exists
-    if formatter not in NAMED_FORMATTERS:
-        raise ValueError(f"Unknown formatter: {formatter}. Available: {list(NAMED_FORMATTERS.keys())}")
-
-    # configure stream handler
+    # Configure handlers
     stream_handler = {
         "class": "logging.StreamHandler",
-        "formatter": stream_formatter,
+        "formatter": "default",
         "level": stream_level,
     }
-    # configure file handler
+    
     file_handler = {
         "class": "logging.FileHandler",
-        "formatter": file_formatter,
+        "formatter": "default",
         "level": file_level,
         "filename": log_file,
         "mode": file_mode,
@@ -162,7 +117,7 @@ def config(
         {
             "version": 1,
             "disable_existing_loggers": False,
-            "formatters": NAMED_FORMATTERS,
+            "formatters": {"default": formatter_config},
             "handlers": handlers,
             "root": {"level": "DEBUG", "handlers": handlers.keys()},
         }

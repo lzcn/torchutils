@@ -6,20 +6,15 @@ logger = logging.getLogger(__name__)
 
 
 def check_exists(paths: Union[str, List[str]], mode: str = "any", verbose: bool = False) -> bool:
-    """
-    Check whether file(s) or folder(s) exist.
+    """Check whether file(s) or folder(s) exist.
 
     Args:
-        paths (Union[str, List[str]]): A single path or list of paths.
-        mode (str): 'any' or 'all'. If 'all', all paths must exist.
-        verbose (bool): If True, logs the existence status.
+        paths: A single path or list of paths.
+        mode: "any" or "all". If "all", all paths must exist.
+        verbose: If True, logs the existence status.
 
     Returns:
-        bool: True if existence condition is met.
-
-    Example:
-        >>> check_exists(["./data", "./config.json"], mode="all")
-        True
+        True if existence condition is met.
     """
     paths = [paths] if isinstance(paths, str) else paths
     flags = [os.path.exists(p) for p in paths]
@@ -33,18 +28,17 @@ def check_exists(paths: Union[str, List[str]], mode: str = "any", verbose: bool 
 
 def scan_files(
     path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
-) -> List:
-    """Scan files under path which follows the PEP 471.
+) -> List[str]:
+    """Scan files under path.
 
     Args:
-        path (str, optional): target path. Defaults to "./".
-        suffix (Union[str, Tuple[str]], optional): folder that ends with given suffix, it can also be a tuple. Defaults to "".
-        recursive (bool, optional): scan files recursively. Defaults to False.
-        relpath (bool, optional): return relative path. Defaults to False.
+        path: Target directory path.
+        suffix: Filter files by suffix (can be a tuple of suffixes).
+        recursive: If True, scan recursively.
+        relpath: If True, return relative paths.
 
     Returns:
-        List: list of files
-
+        List of file paths.
     """
 
     def scantree(path):
@@ -70,18 +64,17 @@ def scan_files(
 
 def scan_folders(
     path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
-) -> List:
-    """Scan folders under path which follows the PEP 471.
+) -> List[str]:
+    """Scan folders under path.
 
     Args:
-        path (str, optional): target path. Defaults to "./".
-        suffix (Union[str, Tuple[str]], optional): folder that ends with given suffix, it can also be a tuple. Defaults to "".
-        recursive (bool, optional): scan files recursively. Defaults to False.
-        relpath (bool, optional): return relative path. Defaults to False.
+        path: Target directory path.
+        suffix: Filter folders by suffix (can be a tuple of suffixes).
+        recursive: If True, scan recursively.
+        relpath: If True, return relative paths.
 
     Returns:
-        List: list of folders
-
+        List of folder paths.
     """
 
     def scantree(path):

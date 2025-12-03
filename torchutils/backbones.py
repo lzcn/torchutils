@@ -1,104 +1,114 @@
-from functools import partial, wraps
+"""Backbone model registry for common computer vision architectures.
+
+Backbones have their final classification layer replaced with an identity mapping,
+making them suitable for feature extraction.
+
+Example::
+
+    import torchutils as tu
+    
+    model, dim = tu.backbone("resnet50")
+"""
+
+from functools import partial
 from typing import Callable, Dict, Tuple, Union
 
 import torch.nn as nn
 from torchvision import models
 
-# Global registry for all backbone models
+# Global registry mapping backbone names to factory functions
 _BACKBONES: Dict[str, Callable] = {}
 
 
-def register_backbone(func: Callable = None, *, name: str = None) -> Callable:
-    """Register a custom backbone model.
+def register(name: str, model_fn: Callable, feature_dim: int) -> None:
+    """Register a backbone model.
 
     Args:
-        func (Callable): The function that returns a model.
-        name (str, optional): The name to register under. Defaults to the function's name.
+        name: Unique identifier for the backbone.
+        model_fn: Factory function that creates the model.
+        feature_dim: Output feature dimension of the backbone.
 
-    Returns:
-        Callable: A wrapped function that returns the model.
+    Example::
+
+        def create_custom_backbone(weights=None):
+            model = MyModel(pretrained=(weights == "DEFAULT"))
+            model.fc = nn.Identity()
+            return model, 512
+
+        register("custom", create_custom_backbone, 512)
     """
-    if func is None:
-        return partial(register_backbone, name=name)
-
-    model_name = name if name else func.__name__
-    assert model_name not in _BACKBONES, f"{model_name} is already registered."
-    _BACKBONES[model_name] = func
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper
+    if name in _BACKBONES:
+        raise ValueError(f"Backbone '{name}' is already registered.")
+    _BACKBONES[name] = partial(_create_backbone, model_fn, feature_dim)
 
 
 def backbone(name: str, weights: Union[str, None] = "DEFAULT", **kwargs) -> Tuple[nn.Module, int]:
     """Retrieve a backbone model by name.
 
     Args:
-        name (str): Name of the backbone.
-        weights (Union[str, None], optional): Pretrained weights to load. Defaults to "DEFAULT".
+        name: Name of the backbone (e.g., "resnet50", "efficientnet_b0").
+        weights: Pretrained weights to load. Defaults to "DEFAULT". Use None for random initialization.
+        **kwargs: Additional arguments passed to the model constructor.
+
+    Returns:
+        Tuple of (model, feature_dim) where model is the backbone with fc replaced
+        by Identity, and feature_dim is the output feature dimension.
 
     Raises:
         ValueError: If the backbone name is not registered.
 
-    Returns:
-        Tuple[nn.Module, int]: Model instance and output feature dimension.
+    Example::
 
-    Example:
         >>> model, dim = backbone("resnet18")
         >>> x = torch.randn(1, 3, 224, 224)
-        >>> out = model(x)
-        >>> print(out.shape)  # (1, 512)
+        >>> features = model(x)
+        >>> print(features.shape)  # (1, 512)
     """
-    if name in _BACKBONES:
-        return _BACKBONES[name](weights=weights, **kwargs)
-    else:
-        raise ValueError(f"Unknown backbone '{name}'. Registered: {list(_BACKBONES.keys())}")
+    if name not in _BACKBONES:
+        available = ", ".join(sorted(_BACKBONES.keys()))
+        raise ValueError(f"Unknown backbone '{name}'. Available: {available}")
+    return _BACKBONES[name](weights=weights, **kwargs)
 
 
-def create_backbone(
-    model_fn: Callable, num_features: int, weights: Union[str, None] = "DEFAULT", **kwargs
+def _create_backbone(
+    model_fn: Callable, feature_dim: int, weights: Union[str, None] = "DEFAULT", **kwargs
 ) -> Tuple[nn.Module, int]:
-    """Create a backbone model with optional batch norm replacement.
+    """Internal helper to create a backbone with identity fc layer.
 
     Args:
-        model_fn (Callable): Constructor for torchvision model.
-        num_features (int): Output feature size.
-        weights (Union[str, None], optional): Weights to load. Defaults to "DEFAULT".
+        model_fn: Constructor for torchvision model.
+        feature_dim: Output feature size.
+        weights: Weights to load.
+        **kwargs: Additional model arguments.
 
     Returns:
-        Tuple[nn.Module, int]: Modified model and output feature dimension.
+        Tuple of (model, feature_dim).
     """
-    backbone = model_fn(weights=weights, **kwargs)
-    backbone.fc = nn.Identity()
-    return backbone, num_features
+    model = model_fn(weights=weights, **kwargs)
+    model.fc = nn.Identity()
+    return model, feature_dim
 
 
-def register_torchvision_backbones():
-    torchvision_models = [
-        ("resnet18", 512),
-        ("resnet34", 512),
-        ("resnet50", 2048),
-        ("resnet101", 2048),
-        ("resnet152", 2048),
-        ("mobilenet_v2", 1280),
-        ("mobilenet_v3_large", 1280),
-        ("mobilenet_v3_small", 576),
-        ("efficientnet_b0", 1280),
-        ("efficientnet_b1", 1280),
-        ("efficientnet_b2", 1408),
-        ("efficientnet_b3", 1536),
-        ("efficientnet_b4", 1792),
-        ("efficientnet_b5", 2048),
-        ("efficientnet_b6", 2304),
-        ("efficientnet_b7", 2560),
-    ]
+# Registry of common torchvision backbones
+_TORCHVISION_BACKBONES = [
+    ("resnet18", models.resnet18, 512),
+    ("resnet34", models.resnet34, 512),
+    ("resnet50", models.resnet50, 2048),
+    ("resnet101", models.resnet101, 2048),
+    ("resnet152", models.resnet152, 2048),
+    ("mobilenet_v2", models.mobilenet_v2, 1280),
+    ("mobilenet_v3_large", models.mobilenet_v3_large, 1280),
+    ("mobilenet_v3_small", models.mobilenet_v3_small, 576),
+    ("efficientnet_b0", models.efficientnet_b0, 1280),
+    ("efficientnet_b1", models.efficientnet_b1, 1280),
+    ("efficientnet_b2", models.efficientnet_b2, 1408),
+    ("efficientnet_b3", models.efficientnet_b3, 1536),
+    ("efficientnet_b4", models.efficientnet_b4, 1792),
+    ("efficientnet_b5", models.efficientnet_b5, 2048),
+    ("efficientnet_b6", models.efficientnet_b6, 2304),
+    ("efficientnet_b7", models.efficientnet_b7, 2560),
+]
 
-    for model_name, num_features in torchvision_models:
-        model_fn = getattr(models, model_name)
-        register_backbone(partial(create_backbone, model_fn, num_features), name=model_name)
-
-
-# Register all torchvision backbones on import
-register_torchvision_backbones()
+# Auto-register all torchvision backbones
+for name, model_fn, feature_dim in _TORCHVISION_BACKBONES:
+    _BACKBONES[name] = partial(_create_backbone, model_fn, feature_dim)

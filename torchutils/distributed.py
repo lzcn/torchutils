@@ -1,15 +1,15 @@
 import functools
 import os
-from typing import Callable, Optional, TypeVar
+from typing import Callable, TypeVar
 
 F = TypeVar("F", bound=Callable)
 
 
 def get_rank() -> int:
-    """Safely get the current global rank from environment variables.
+    """Get the current global rank from environment variables.
 
     Returns:
-        int: Global rank (defaults to 0 if not set).
+        Global rank (defaults to 0 if not in distributed mode).
     """
     for key in ("RANK", "LOCAL_RANK"):
         val = os.environ.get(key)
@@ -21,16 +21,16 @@ def get_rank() -> int:
     return 0
 
 
-def rank_zero_only(func: F) -> Optional[F]:
-    """A decorator to ensure a function is only run on rank 0.
+def rank_zero_only(func: F) -> F:
+    """Decorator to ensure a function only runs on rank 0.
 
     Useful in distributed training for logging, saving models, etc.
 
     Args:
-        func (Callable): The function to wrap.
+        func: The function to wrap.
 
     Returns:
-        Callable: Wrapped function that only runs on rank 0.
+        Wrapped function that only runs on rank 0.
     """
 
     @functools.wraps(func)
@@ -38,4 +38,4 @@ def rank_zero_only(func: F) -> Optional[F]:
         if get_rank() == 0:
             return func(*args, **kwargs)
 
-    return wrapper  # type: ignore
+    return wrapper

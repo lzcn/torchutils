@@ -1,49 +1,67 @@
-"""Configuration helpers with YAML include support."""
-
 import json
-import os
-from typing import IO, Any
+import logging
+from pathlib import Path
+from typing import Any, Optional, Union
 
 import yaml
 
-from ._internal import set_module
+logger = logging.getLogger(__name__)
+
+_FORMAT_ALIASES = {
+    "yml": "yaml",
+}
+_SUPPORTED_FORMATS = {"json", "yaml"}
 
 
-@set_module("torchutils")
-class YAMLoader(yaml.SafeLoader):
-    """YAML Loader with ``!include`` constructor."""
-
-    def __init__(self, stream: IO) -> None:
-        try:
-            self._root = os.path.split(stream.name)[0]
-        except AttributeError:
-            self._root = os.path.curdir
-
-        super().__init__(stream)
+def _normalize_format(fmt: Optional[str], file: Path) -> str:
+    if fmt:
+        fmt = fmt.lower()
+    else:
+        suffix = file.suffix.lstrip(".").lower()
+        fmt = _FORMAT_ALIASES.get(suffix, suffix)
+    if fmt not in _SUPPORTED_FORMATS:
+        raise ValueError(f"Unsupported format '{fmt}'. Expected one of: {sorted(_SUPPORTED_FORMATS)}")
+    return fmt
 
 
-def construct_include(loader: YAMLoader, node: yaml.Node) -> Any:
-    """Include file referenced at ``node``."""
+def load_config(file: Union[str, Path], fmt: Optional[str] = None) -> Any:
+    """Load structured data from JSON or YAML files.
 
-    filename = os.path.abspath(os.path.join(loader._root, loader.construct_scalar(node)))
-    extension = os.path.splitext(filename)[1].lstrip(".")
+    Args:
+        file: Path to the file.
+        fmt: Optional format override ("json" or "yaml"). If omitted, inferred from suffix.
 
-    with open(filename) as f:
-        if extension in ("yaml", "yml"):
-            return yaml.load(f, YAMLoader)
-        elif extension in ("json",):
+    Returns:
+        Parsed Python object.
+    """
+
+    file = Path(file).expanduser()
+    fmt = _normalize_format(fmt, file)
+    with file.open("r") as f:
+        if fmt == "json":
             return json.load(f)
+        return yaml.safe_load(f)
+
+
+def save_config(file: Union[str, Path], data: Any, fmt: Optional[str] = None, overwrite: bool = False) -> None:
+    """Save structured data to JSON or YAML files.
+
+    Args:
+        file: Target path.
+        data: Serializable Python object.
+        fmt: Optional format override ("json" or "yaml"). If omitted, inferred from suffix.
+        overwrite: If False and file exists, skip with a warning.
+    """
+
+    file = Path(file).expanduser()
+    fmt = _normalize_format(fmt, file)
+    if file.exists() and not overwrite:
+        logger.warning("%s already exists. Skipped.", file)
+        return
+
+    with file.open("w") as f:
+        if fmt == "json":
+            json.dump(data, f, indent=2)
         else:
-            return "".join(f.readlines())
+            yaml.safe_dump(data, f, sort_keys=False)
 
-
-yaml.add_constructor("!include", construct_include, YAMLoader)
-
-
-@set_module("torchutils")
-def from_yaml(file):
-    """Load configuration from YAML file with ``!include`` support."""
-
-    with open(file) as f:
-        kwds = yaml.load(f, Loader=YAMLoader)
-    return kwds

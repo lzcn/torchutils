@@ -2,49 +2,97 @@ import os
 from pathlib import Path
 import stat
 import tempfile
+from typing import Any, Union
 
 import numpy as np
 import torch
 from torch import nn
 import torch.distributed as dist
 
+try:
+    from ..logger import get_logger
+except ImportError:
+    from logging import getLogger as get_logger
 
-class ModelSaver:
-    """Handler that saves model checkpoints on a disk.
+PathLike = Union[str, Path]
 
-    The filename of the checkpoint is ``{filename_prefix}[_{score_name}]_{score:.4f}[_{epoch}].pt``
+logger = get_logger(__name__)
 
-    (Optional) The filename of latest model is ``{filename_prefix}_latest.pt``
-    (Optional) The filename of best model is ``{filename_prefix}_best.pt``
 
-    We put the score first in the filename so that the files are sorted by score and tab completion works well.
+def load_pretrained(net: nn.Module, path_or_state_dict: Any = None, weights_only=True, strict=False) -> nn.Module:
+    """Load weights loosely or strictly and log any mismatches.
 
     Args:
-        dirname (str): Directory path where the checkpoint will be saved
-        filename_prefix (str, optional): prefix for filename.
-        score_name (str, optional): if not given, it will use "epoch" as default
-        n_saved (int, optional): number of models to save.
-        save_latest (bool, optional): if True, it will save the latest model. Defaults to ``False``
-        save_best (bool, optional): if True, it will duplicate the best model with simple filename. Defaults to ``False``
-        mode (str, optional): "max" or "min". If "max", the model with the highest score will be saved.
-        atomic (bool, optional): if True, checkpoint is serialized to a temporary file, and then
-            moved to final destination, so that files are guaranteed to not be damaged
-            (for example if exception occurs during saving).
-        create_dir (bool, optional): if True, will create directory ``dirname`` if it doesn't exist.
-        require_empty (bool, optional): If True, will raise exception if there are any files in the
-            directory ``dirname``.
+        net: The neural network module to load weights into.
+        path_or_state_dict: Either a file path (str) to load checkpoint from, or a state dict (dict).
+        weights_only: If True, only weights will be unpickled (recommended for security).
+        strict: If True, raises an error when there are missing, unexpected, or unmatched keys.
 
-    Examples:
-        .. code-block:: python
+    Returns:
+        The network with loaded weights.
 
-            model_saver = ModelSaver(dirname="checkpoints", filename_prefix="model")
-            for epoch in range(max_epochs):
-                # train
-                score = evaluate(model)
-                model_saver.save(model, score, epoch)
-            best_model = model_saver.last_checkpoint
-            model.load_state_dict(torch.load(best_model))
+    Note:
+        * ``missing_keys`` is a list of str containing any keys that are expected
+          by this module but missing from the provided ``state_dict``.
+        * ``unexpected_keys`` is a list of str containing the keys that are not
+          expected by this module but present in the provided ``state_dict``.
+        * ``unmatched_keys`` is a list of str containing the keys with shape mismatches
+          between the module and the provided ``state_dict`` (these are skipped).
+    """
 
+    assert path_or_state_dict is not None, "path_or_state_dict must be given"
+
+    if isinstance(path_or_state_dict, str):
+        logger.info("Loading pre-trained model from %s.", path_or_state_dict)
+        state_dict = torch.load(path_or_state_dict, map_location="cpu", weights_only=weights_only)
+    else:
+        logger.info("Loading pre-trained model from state dict.")
+        state_dict = path_or_state_dict
+
+    net_param = net.state_dict()
+    unmatched_keys = []
+    for name, param in state_dict.items():
+        if name in net_param and param.shape != net_param[name].shape:
+            unmatched_keys.append(name)
+    for name in unmatched_keys:
+        state_dict.pop(name)
+    missing_keys, unexpected_keys = net.load_state_dict(state_dict, strict=False)
+    missing_keys = list(set(missing_keys) - set(unmatched_keys))
+    if missing_keys:
+        logger.info("Missing keys: %s", ", ".join(missing_keys))
+    if unexpected_keys:
+        logger.info("Unexpected keys: %s", ", ".join(unexpected_keys))
+    if unmatched_keys:
+        logger.info("Unmatched keys: %s", ", ".join(unmatched_keys))
+    if strict:
+        assert len(missing_keys) == len(unexpected_keys) == len(unmatched_keys) == 0
+    return net
+
+
+class ModelSaver:
+    """Handler that saves model checkpoints to disk.
+
+    Filename format: {prefix}[_{score_name}]_{score:.4f}[_{epoch}].pt
+    Optional: {prefix}_latest.pt, {prefix}_best.pt
+
+    Args:
+        dirname: Directory path where checkpoints will be saved.
+        filename_prefix: Prefix for checkpoint filenames.
+        score_name: Name for the score metric.
+        n_saved: Number of checkpoints to keep.
+        save_latest: If True, always save latest checkpoint.
+        save_best: If True, save a copy of the best checkpoint.
+        mode: "max" or "min" for score comparison.
+        atomic: If True, use atomic writes to prevent corruption.
+        create_dir: If True, create directory if it doesn't exist.
+        require_empty: If True, raise error if directory is not empty.
+
+    Example::
+
+        saver = ModelSaver("checkpoints", n_saved=5, save_best=True)
+        for epoch in range(max_epochs):
+            score = evaluate(model)
+            saver.save(model, score, epoch)
     """
 
     def __init__(
