@@ -24,5 +24,6 @@ def to(data: Any, device: Union[str, torch.device] = "cuda") -> Any:
     elif isinstance(data, str):
         return data
     else:
-        raise TypeError(f"Unsupported data type for device transfer: {type(data).__name__}")
-
+        raise TypeError(
+            f"Unsupported data type for device transfer: {type(data).__name__}"
+        )

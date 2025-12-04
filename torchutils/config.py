@@ -20,7 +20,9 @@ def _normalize_format(fmt: Optional[str], file: Path) -> str:
         suffix = file.suffix.lstrip(".").lower()
         fmt = _FORMAT_ALIASES.get(suffix, suffix)
     if fmt not in _SUPPORTED_FORMATS:
-        raise ValueError(f"Unsupported format '{fmt}'. Expected one of: {sorted(_SUPPORTED_FORMATS)}")
+        raise ValueError(
+            f"Unsupported format '{fmt}'. Expected one of: {sorted(_SUPPORTED_FORMATS)}"
+        )
     return fmt
 
 
@@ -43,7 +45,12 @@ def load_config(file: Union[str, Path], fmt: Optional[str] = None) -> Any:
         return yaml.safe_load(f)
 
 
-def save_config(file: Union[str, Path], data: Any, fmt: Optional[str] = None, overwrite: bool = False) -> None:
+def save_config(
+    file: Union[str, Path],
+    data: Any,
+    fmt: Optional[str] = None,
+    overwrite: bool = False,
+) -> None:
     """Save structured data to JSON or YAML files.
 
     Args:
@@ -64,4 +71,3 @@ def save_config(file: Union[str, Path], data: Any, fmt: Optional[str] = None, ov
             json.dump(data, f, indent=2)
         else:
             yaml.safe_dump(data, f, sort_keys=False)
-

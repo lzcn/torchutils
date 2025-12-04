@@ -37,6 +37,15 @@ Core Functions
 
 .. autofunction:: torchutils.get_public_functions
 
+.. autoclass:: torchutils.FeatureHook
+   :members:
+
+.. autoclass:: torchutils.GradHook
+   :members:
+
+.. autoclass:: torchutils.FeatureGradHook
+   :members:
+
 Modules
 -------
 
@@ -89,5 +98,12 @@ torchutils.helpers
 ~~~~~~~~~~~~~~~~~~
 
 .. automodule:: torchutils.helpers
+   :members:
+   :undoc-members:
+
+torchutils.hooks
+~~~~~~~~~~~~~~~~
+
+.. automodule:: torchutils.hooks
    :members:
    :undoc-members:

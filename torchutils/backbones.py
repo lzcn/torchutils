@@ -6,7 +6,7 @@ making them suitable for feature extraction.
 Example::
 
     import torchutils as tu
-    
+
     model, dim = tu.backbone("resnet50")
 """
 
@@ -42,7 +42,9 @@ def register(name: str, model_fn: Callable, feature_dim: int) -> None:
     _BACKBONES[name] = partial(_create_backbone, model_fn, feature_dim)
 
 
-def backbone(name: str, weights: Union[str, None] = "DEFAULT", **kwargs) -> Tuple[nn.Module, int]:
+def backbone(
+    name: str, weights: Union[str, None] = "DEFAULT", **kwargs
+) -> Tuple[nn.Module, int]:
     """Retrieve a backbone model by name.
 
     Args:
@@ -71,7 +73,10 @@ def backbone(name: str, weights: Union[str, None] = "DEFAULT", **kwargs) -> Tupl
 
 
 def _create_backbone(
-    model_fn: Callable, feature_dim: int, weights: Union[str, None] = "DEFAULT", **kwargs
+    model_fn: Callable,
+    feature_dim: int,
+    weights: Union[str, None] = "DEFAULT",
+    **kwargs,
 ) -> Tuple[nn.Module, int]:
     """Internal helper to create a backbone with identity fc layer.
 

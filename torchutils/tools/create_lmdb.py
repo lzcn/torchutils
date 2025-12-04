@@ -28,7 +28,9 @@ def create_lmdb(dst: str, src: str, key: str = "relpath"):
     env = lmdb.open(dst, map_size=2**40)
 
     with env.begin(write=True) as txn:
-        for k, fn in tqdm(zip(key_list, file_list), total=len(file_list), desc="Writing LMDB"):
+        for k, fn in tqdm(
+            zip(key_list, file_list), total=len(file_list), desc="Writing LMDB"
+        ):
             with open(fn, "rb") as f:
                 img_data = f.read()
             txn.put(k.encode("utf-8"), img_data)
@@ -41,7 +43,13 @@ def main():
     parser = argparse.ArgumentParser(description="Create an LMDB dataset from images.")
     parser.add_argument("--src", type=str, required=True, help="Source image directory")
     parser.add_argument("--dst", type=str, required=True, help="Destination LMDB path")
-    parser.add_argument("--key", type=str, default="relpath", choices=["relpath", "filename", "fullpath"], help="Key format in LMDB")
+    parser.add_argument(
+        "--key",
+        type=str,
+        default="relpath",
+        choices=["relpath", "filename", "fullpath"],
+        help="Key format in LMDB",
+    )
     args = parser.parse_args()
 
     create_lmdb(dst=args.dst, src=args.src, key=args.key)

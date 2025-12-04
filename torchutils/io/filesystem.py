@@ -5,7 +5,9 @@ from typing import List, Tuple, Union
 logger = logging.getLogger(__name__)
 
 
-def check_exists(paths: Union[str, List[str]], mode: str = "any", verbose: bool = False) -> bool:
+def check_exists(
+    paths: Union[str, List[str]], mode: str = "any", verbose: bool = False
+) -> bool:
     """Check whether file(s) or folder(s) exist.
 
     Args:
@@ -27,7 +29,10 @@ def check_exists(paths: Union[str, List[str]], mode: str = "any", verbose: bool 
 
 
 def scan_files(
-    path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
+    path: str = "./",
+    suffix: Union[str, Tuple[str]] = "",
+    recursive: bool = False,
+    relpath: bool = False,
 ) -> List[str]:
     """Scan files under path.
 
@@ -63,7 +68,10 @@ def scan_files(
 
 
 def scan_folders(
-    path: str = "./", suffix: Union[str, Tuple[str]] = "", recursive: bool = False, relpath: bool = False
+    path: str = "./",
+    suffix: Union[str, Tuple[str]] = "",
+    recursive: bool = False,
+    relpath: bool = False,
 ) -> List[str]:
     """Scan folders under path.
 

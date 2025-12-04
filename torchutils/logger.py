@@ -5,7 +5,7 @@ Provides rank-zero-only logging to prevent message duplication across GPU proces
 Example::
 
     import torchutils as tu
-    
+
     tu.setup_logger(level="INFO", log_file="app.log")
     logger = tu.get_logger(__name__)
     logger.info("Training started")
@@ -47,7 +47,15 @@ def get_logger(name=__name__, level=None):
         logger.setLevel(level)
 
     # Apply rank_zero_only to all logging methods
-    for level_name in ("debug", "info", "warning", "error", "exception", "fatal", "critical"):
+    for level_name in (
+        "debug",
+        "info",
+        "warning",
+        "error",
+        "exception",
+        "fatal",
+        "critical",
+    ):
         setattr(logger, level_name, rank_zero_only(getattr(logger, level_name)))
 
     return logger
@@ -86,7 +94,7 @@ def config(
     # Handle defaults
     file_level = file_level or level
     stream_level = stream_level or level
-    
+
     # Build formatter
     formatter_config = {
         "format": format_string or _DEFAULT_FORMATTER["format"],
@@ -99,7 +107,7 @@ def config(
         "formatter": "default",
         "level": stream_level,
     }
-    
+
     file_handler = {
         "class": "logging.FileHandler",
         "formatter": "default",

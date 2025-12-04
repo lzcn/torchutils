@@ -24,6 +24,11 @@ batch = tu.to(batch, "cuda")
 
 saver = tu.ModelSaver("checkpoints", n_saved=5)
 saver.save(model, score=0.95, epoch=10)
+
+# Capture intermediate features and gradients
+with tu.FeatureHook(model, ["layer2", "layer3"]) as features:
+    output = model(x)
+    print(features.keys())  # ['layer2', 'layer3']
 ```
 
 ## License

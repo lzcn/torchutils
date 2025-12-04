@@ -19,7 +19,9 @@ PathLike = Union[str, Path]
 logger = get_logger(__name__)
 
 
-def load_pretrained(net: nn.Module, path_or_state_dict: Any = None, weights_only=True, strict=False) -> nn.Module:
+def load_pretrained(
+    net: nn.Module, path_or_state_dict: Any = None, weights_only=True, strict=False
+) -> nn.Module:
     """Load weights loosely or strictly and log any mismatches.
 
     Args:
@@ -44,7 +46,9 @@ def load_pretrained(net: nn.Module, path_or_state_dict: Any = None, weights_only
 
     if isinstance(path_or_state_dict, str):
         logger.info("Loading pre-trained model from %s.", path_or_state_dict)
-        state_dict = torch.load(path_or_state_dict, map_location="cpu", weights_only=weights_only)
+        state_dict = torch.load(
+            path_or_state_dict, map_location="cpu", weights_only=weights_only
+        )
     else:
         logger.info("Loading pre-trained model from state dict.")
         state_dict = path_or_state_dict
@@ -126,7 +130,9 @@ class ModelSaver:
         if require_empty and os.listdir(dirname):
             raise ValueError(f"Directory {dirname} is not empty")
 
-    def filename(self, score: float = None, epoch: int = None, latest=False, best=False) -> str:
+    def filename(
+        self, score: float = None, epoch: int = None, latest=False, best=False
+    ) -> str:
         prefix = f"{self.filename_prefix}_" if self.filename_prefix else ""
         score_name = f"{self.score_name}_" if self.score_name else ""
         if latest:
@@ -138,16 +144,26 @@ class ModelSaver:
         elif score is not None and epoch is None:
             filename = f"{self.dirname}/{prefix}{score_name}{score:.4f}.pt"
         else:
-            filename = f"{self.dirname}/{prefix}{score_name}{score:.4f}_epoch_{epoch}.pt"
+            filename = (
+                f"{self.dirname}/{prefix}{score_name}{score:.4f}_epoch_{epoch}.pt"
+            )
         return filename
 
     def _is_worst(self, score):
         # assume that self.history is sorted with first being the worst
-        return (score < self.history[0][0]) if self.mode == "max" else (score > self.history[0][0])
+        return (
+            (score < self.history[0][0])
+            if self.mode == "max"
+            else (score > self.history[0][0])
+        )
 
     def _is_best(self, score):
         # assume that self.history is sorted with last item being the best
-        return (score >= self.history[-1][0]) if self.mode == "max" else (score <= self.history[-1][0])
+        return (
+            (score >= self.history[-1][0])
+            if self.mode == "max"
+            else (score <= self.history[-1][0])
+        )
 
     def _sort_history(self):
         # sort the history from worst to best
