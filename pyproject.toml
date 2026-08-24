@@ -1,22 +1,51 @@
-[tool.black]
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torchutils"
+version = "0.1.0"
+description = "A bunch of personal utilities for PyTorch"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Zhi Lu", email = "zhilu@std.uestc.edu.cn" }]
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+]
+
+[project.urls]
+Repository = "https://github.com/lzcn/torchutils"
+
+[tool.setuptools]
+packages = ["torchutils"]
+
+[tool.ruff]
+target-version = "py310"
 line-length = 120
-target-version = ['py35', 'py36', 'py37', 'py38']
-include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-  | foo.py           # also separately exclude a file named foo.py in
-                     # the root of the project
-)
-'''
+fix = true
+show-fixes = true
+
+exclude = [
+  "build",
+  "dist",
+  ".eggs",
+  ".mypy_cache",
+  ".pytest_cache",
+  "__pycache__",
+  ".ruff_cache",
+  ".venv",
+  "venv",
+  "env",
+  "ENV",
+  ".env",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501", "F841"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["torchutils"]
+combine-as-imports = true
+force-sort-within-sections = true

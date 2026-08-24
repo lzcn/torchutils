@@ -1,23 +1,31 @@
-import os
+from collections.abc import Callable
 import functools
+import os
+from typing import TypeVar
+
+import torch.distributed as dist
+
+F = TypeVar("F", bound=Callable)
+
+__all__ = ["rank_zero_only"]
 
 
-def rank_zero_only(func):
-    """
-    Decorator that ensures the wrapped function is only called on rank 0.
+def _rank() -> int:
+    """Current global rank: torch.distributed if initialized, else the RANK env var."""
+    if dist.is_initialized():
+        return dist.get_rank()
+    try:
+        return int(os.environ.get("RANK", 0))
+    except ValueError:
+        return 0
 
-    Args:
-        func (Callable): The function to be wrapped.
 
-    Returns:
-        Callable: The wrapped function.
-
-    """
+def rank_zero_only(func: F) -> F:
+    """Decorator: run the function only on global rank 0 (no-op elsewhere)."""
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        local_rank = int(os.environ.get("LOCAL_RANK", 0))
-        if local_rank == 0:
+        if _rank() == 0:
             return func(*args, **kwargs)
 
     return wrapper
