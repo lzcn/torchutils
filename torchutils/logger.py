@@ -1,67 +1,33 @@
-"""Logging utilities for distributed PyTorch training.
-
-Provides rank-zero-only logging to prevent message duplication across GPU processes.
+"""Logging setup for PyTorch training, with rank-zero deduplication.
 
 Example::
 
     import torchutils as tu
 
-    tu.setup_logger(level="INFO", log_file="app.log")
-    logger = tu.get_logger(__name__)
-    logger.info("Training started")
+    tu.setup_logger(level="INFO", log_file="train.log")
+    logging.getLogger(__name__).info("Emitted only on rank 0")
 """
 
 import logging
 
-from .distributed import rank_zero_only
+from .distributed import _rank
 
-# Single default formatter
-_DEFAULT_FORMATTER = {
-    "format": "[%(levelname)s] - %(asctime)s - [%(name)s.%(funcName)s:%(lineno)d]: %(message)s",
-    "datefmt": "%m-%d %H:%M:%S",
-}
+__all__ = ["setup_logger"]
 
-
-def get_logger(name=__name__, level=None):
-    """Get a rank-zero-only logger for distributed training.
-
-    Returns a logger that only outputs messages on rank 0, preventing
-    log duplication in multi-GPU training. Does not configure handlers
-    or levels - use config() or external frameworks for that.
-
-    Args:
-        name: Logger name. Defaults to caller's module name.
-        level: Logger level. If provided, sets the logger level.
-
-    Returns:
-        Rank-zero-only logger instance.
-
-    Example::
-
-        logger = get_logger(__name__)
-        logger.info("Only rank 0 prints this")
-    """
-    logger = logging.getLogger(name)
-
-    if level is not None:
-        logger.setLevel(level)
-
-    # Apply rank_zero_only to all logging methods
-    for level_name in (
-        "debug",
-        "info",
-        "warning",
-        "error",
-        "exception",
-        "fatal",
-        "critical",
-    ):
-        setattr(logger, level_name, rank_zero_only(getattr(logger, level_name)))
-
-    return logger
+_DEFAULT_FORMAT = (
+    "[%(levelname)s] - %(asctime)s - [%(name)s.%(funcName)s:%(lineno)d]: %(message)s"
+)
+_DEFAULT_DATEFMT = "%m-%d %H:%M:%S"
 
 
-def config(
+class _RankZeroFilter(logging.Filter):
+    """Drop log records on non-zero ranks."""
+
+    def filter(self, record) -> bool:
+        return _rank() == 0
+
+
+def setup_logger(
     level="INFO",
     stream_level=None,
     file_level=None,
@@ -70,63 +36,40 @@ def config(
     format_string=None,
     date_format=None,
 ):
-    """Configure root logger with handlers and formatters.
+    """Configure the root logger with a console handler and optional file handler.
 
-    Sets up console and optional file logging. Call once at startup,
-    then use get_logger() to obtain logger instances.
+    Safe to call multiple times (handlers are reset on each call). Under
+    distributed training only rank 0 emits records.
 
     Args:
-        level: Default level for all handlers. Defaults to "INFO".
-        stream_level: Console output level. Uses level if None.
-        file_level: File output level. Uses level if None.
+        level: Default level for both handlers. Defaults to "INFO".
+        stream_level: Console output level. Uses ``level`` if None.
+        file_level: File output level. Uses ``level`` if None.
         log_file: Log file path. No file logging if None.
         file_mode: File mode ("a" or "w"). Defaults to "a".
         format_string: Custom format string. Uses default if None.
         date_format: Custom date format. Uses default if None.
-
-    Example::
-
-        config(level="INFO", log_file="app.log")
-        logger = get_logger(__name__)
     """
-    from logging.config import dictConfig
-
-    # Handle defaults
-    file_level = file_level or level
-    stream_level = stream_level or level
-
-    # Build formatter
-    formatter_config = {
-        "format": format_string or _DEFAULT_FORMATTER["format"],
-        "datefmt": date_format or _DEFAULT_FORMATTER["datefmt"],
-    }
-
-    # Configure handlers
-    stream_handler = {
-        "class": "logging.StreamHandler",
-        "formatter": "default",
-        "level": stream_level,
-    }
-
-    file_handler = {
-        "class": "logging.FileHandler",
-        "formatter": "default",
-        "level": file_level,
-        "filename": log_file,
-        "mode": file_mode,
-    }
-
-    if log_file is None:
-        handlers = {"stream": stream_handler}
-    else:
-        handlers = {"stream": stream_handler, "file": file_handler}
-
-    dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {"default": formatter_config},
-            "handlers": handlers,
-            "root": {"level": "DEBUG", "handlers": handlers.keys()},
-        }
+    formatter = logging.Formatter(
+        format_string or _DEFAULT_FORMAT, datefmt=date_format or _DEFAULT_DATEFMT
     )
+
+    stream_lvl = logging.getLevelName(stream_level or level)
+    file_lvl = logging.getLevelName(file_level or level)
+
+    root = logging.getLogger()
+    root.setLevel(min(stream_lvl, file_lvl))
+    root.handlers.clear()
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(stream_lvl)
+    stream_handler.setFormatter(formatter)
+    stream_handler.addFilter(_RankZeroFilter())
+    root.addHandler(stream_handler)
+
+    if log_file is not None:
+        file_handler = logging.FileHandler(log_file, mode=file_mode)
+        file_handler.setLevel(file_lvl)
+        file_handler.setFormatter(formatter)
+        file_handler.addFilter(_RankZeroFilter())
+        root.addHandler(file_handler)

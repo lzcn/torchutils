@@ -1,8 +1,6 @@
 # torchutils
 
-[![Documentation Status](https://readthedocs.org/projects/torchutils/badge/?version=latest)](https://torchutils.readthedocs.io/en/latest/?badge=latest)
-
-Essential PyTorch utilities: logging, checkpoints, config I/O, backbones, distributed training helpers.
+Minimal, general-purpose PyTorch utilities. One import, one-line calls.
 
 ## Installation
 
@@ -15,20 +13,34 @@ pip install git+https://github.com/lzcn/torchutils.git --upgrade
 ```python
 import torchutils as tu
 
+# Logging (rank-0 only under distributed training)
 tu.setup_logger(level="INFO", log_file="train.log")
-logger = tu.get_logger(__name__)
 
-config = tu.load_config("config.yaml")
-model, dim = tu.backbone("resnet50")
+# Device transfer for nested structures (dicts / lists / tuples of tensors)
 batch = tu.to(batch, "cuda")
 
-saver = tu.ModelSaver("checkpoints", n_saved=5)
+# Checkpoints: keeps the best 3 + a rolling latest copy, atomic writes, rank-0 only
+saver = tu.ModelSaver("checkpoints", n_saved=3, save_latest=True)
 saver.save(model, score=0.95, epoch=10)
 
-# Capture intermediate features and gradients
+# Load weights loosely: skips missing / shape-mismatched keys
+tu.load_pretrained(model, saver.best_checkpoint)
+tu.load_pretrained(model, "pretrained.pt")          # from file
+tu.load_pretrained(model, state_dict, strict=True)  # raise on any mismatch
+
+# Capture intermediate features / gradients by layer name
 with tu.FeatureHook(model, ["layer2", "layer3"]) as features:
     output = model(x)
-    print(features.keys())  # ['layer2', 'layer3']
+
+with tu.GradHook(model, ["layer2"]) as grads:
+    output.sum().backward()
+
+# Run a function on rank 0 only
+@tu.rank_zero_only
+def notify(): ...
+
+# Dataset helpers (skips hidden files like .DS_Store)
+files = tu.scan_files("data/", suffix=(".jpg", ".png"), recursive=True)
 ```
 
 ## License
