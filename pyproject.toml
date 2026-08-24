@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "torchutils"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A bunch of personal utilities for PyTorch"
 readme = "README.md"
 license = { text = "MIT" }
@@ -19,6 +19,9 @@ Repository = "https://github.com/lzcn/torchutils"
 
 [tool.setuptools]
 packages = ["torchutils"]
+
+[tool.setuptools.dynamic]
+version = { attr = "torchutils.__version__" }
 
 [tool.ruff]
 target-version = "py310"

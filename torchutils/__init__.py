@@ -16,7 +16,7 @@ from .hooks import FeatureHook, GradHook
 from .logger import setup_logger
 from .ops import to
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 __all__ = [
     "FeatureHook",
