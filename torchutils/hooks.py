@@ -31,9 +31,13 @@ class _HookBase:
 
     def __enter__(self) -> dict[str, torch.Tensor]:
         self.out.clear()
-        for name in self.layers:
-            module = self.model.get_submodule(name)
-            self.handles.append(self._register(module, name))
+        try:
+            for name in self.layers:
+                module = self.model.get_submodule(name)
+                self.handles.append(self._register(module, name))
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
         return self.out
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -44,6 +48,10 @@ class _HookBase:
 
 class FeatureHook(_HookBase):
     """Capture forward outputs of the given layers.
+
+    If a layer fires more than once inside the context, the FIRST output
+    is kept. Hooks are removed on exit even if registration failed midway
+    (an invalid layer name raises AttributeError after cleanup).
 
     Example::
 
@@ -61,6 +69,10 @@ class FeatureHook(_HookBase):
 
 class GradHook(_HookBase):
     """Capture gradients of the given layers' outputs after backward().
+
+    Stores the gradient w.r.t. the module's FIRST output tensor. If a
+    layer is reached more than once inside the context, the first
+    captured gradient is kept.
 
     Example::
 

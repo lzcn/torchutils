@@ -56,6 +56,10 @@ def setup_logger(
 
     stream_lvl = logging.getLevelName(stream_level or level)
     file_lvl = logging.getLevelName(file_level or level)
+    if not isinstance(stream_lvl, int):
+        raise ValueError(f"Unknown stream level: {stream_level or level!r}")
+    if not isinstance(file_lvl, int):
+        raise ValueError(f"Unknown file level: {file_level or level!r}")
 
     root = logging.getLogger()
     root.setLevel(min(stream_lvl, file_lvl))

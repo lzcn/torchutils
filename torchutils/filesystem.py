@@ -14,13 +14,17 @@ def scan_files(
 
     Args:
         path: Target directory.
-        suffix: Suffix filter, e.g. ".jpg" or (".jpg", ".png"). No filter if empty.
+        suffix: Suffix filter, e.g. "jpg" or (".jpg", ".png"). Leading dots are
+            optional. No filter if empty.
         recursive: Scan subdirectories if True.
         relpath: Return paths relative to ``path`` if True.
 
     Returns:
         List of file paths.
     """
+    if isinstance(suffix, str):
+        suffix = (suffix,)
+    suffixes = tuple(s if s.startswith(".") else "." + s for s in suffix)
 
     def iter_files(directory):
         for entry in os.scandir(directory):
@@ -35,5 +39,5 @@ def scan_files(
     return [
         os.path.relpath(e.path, path) if relpath else e.path
         for e in iter_files(path)
-        if e.name.endswith(suffix)
+        if not suffixes or e.name.endswith(suffixes)
     ]

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,10 +7,14 @@ name = "torchutils"
 dynamic = ["version"]
 description = "A bunch of personal utilities for PyTorch"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Zhi Lu", email = "zhilu@uestc.edu.cn" }]
 requires-python = ">=3.10"
 dependencies = ["torch"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
 
 [project.urls]
 Repository = "https://github.com/lzcn/torchutils"
@@ -18,29 +22,20 @@ Repository = "https://github.com/lzcn/torchutils"
 [tool.setuptools]
 packages = ["torchutils"]
 
+[tool.setuptools.package-data]
+torchutils = ["py.typed"]
+
 [tool.setuptools.dynamic]
 version = { attr = "torchutils.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py310"
 line-length = 120
 fix = true
 show-fixes = true
-
-exclude = [
-  "build",
-  "dist",
-  ".eggs",
-  ".mypy_cache",
-  ".pytest_cache",
-  "__pycache__",
-  ".ruff_cache",
-  ".venv",
-  "venv",
-  "env",
-  "ENV",
-  ".env",
-]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

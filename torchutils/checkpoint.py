@@ -14,10 +14,13 @@ __all__ = ["ModelSaver", "load_pretrained"]
 def load_pretrained(
     net: nn.Module,
     path_or_state_dict: str | Path | dict,
-    weights_only=True,
-    strict=False,
+    weights_only: bool = True,
+    strict: bool = False,
 ) -> nn.Module:
     """Load weights into a network, skipping missing or shape-mismatched keys.
+
+    Full training checkpoints (dicts containing a ``"state_dict"`` entry) are
+    unwrapped automatically.
 
     Args:
         net: The neural network module to load weights into.
@@ -35,6 +38,9 @@ def load_pretrained(
         )
     else:
         state_dict = path_or_state_dict
+
+    if isinstance(state_dict, dict) and "state_dict" in state_dict:
+        state_dict = state_dict["state_dict"]
 
     net_param = net.state_dict()
     filtered = {}
@@ -65,7 +71,7 @@ class ModelSaver:
     Args:
         dirname: Directory where checkpoints are saved (created if missing).
         filename_prefix: Optional prefix for checkpoint filenames.
-        n_saved: Number of scored checkpoints to keep.
+        n_saved: Number of scored checkpoints to keep (>= 1).
         save_latest: If True, also keep a rolling ``{prefix}_latest.pt``.
         save_best: If True, also keep a copy of the best checkpoint.
         mode: "max" or "min" - whether higher or lower scores are better.
@@ -79,8 +85,8 @@ class ModelSaver:
 
     def __init__(
         self,
-        dirname: str,
-        filename_prefix: str = None,
+        dirname: str | Path,
+        filename_prefix: str | None = None,
         n_saved: int = 5,
         save_latest: bool = False,
         save_best: bool = True,
@@ -88,6 +94,8 @@ class ModelSaver:
     ):
         if mode not in ("max", "min"):
             raise ValueError(f"Invalid mode '{mode}'. Expected 'max' or 'min'.")
+        if n_saved < 1:
+            raise ValueError(f"Invalid n_saved {n_saved}. Expected >= 1.")
 
         self.dirname = dirname
         self.filename_prefix = filename_prefix
@@ -95,7 +103,7 @@ class ModelSaver:
         self.save_latest = save_latest
         self.save_best = save_best
         self.mode = mode
-        self.best_checkpoint: str = None
+        self.best_checkpoint: str | None = None
         # history of (score, filename), sorted worst -> best
         init_score = float("inf") if mode == "min" else -float("inf")
         self.history = [(init_score, None)] * n_saved
@@ -106,7 +114,7 @@ class ModelSaver:
         prefix = f"{self.filename_prefix}_" if self.filename_prefix else ""
         return os.path.join(self.dirname, f"{prefix}{name}.pt")
 
-    def _scored_path(self, score: float, epoch: int = None) -> str:
+    def _scored_path(self, score: float, epoch: int | None = None) -> str:
         parts = [f"{self.filename_prefix}_"] if self.filename_prefix else []
         parts.append(f"{score:.4f}")
         if epoch is not None:
@@ -116,13 +124,14 @@ class ModelSaver:
     def _save(self, state_dict: dict, path: str) -> None:
         tmp = tempfile.NamedTemporaryFile(delete=False, dir=self.dirname)
         try:
-            torch.save(state_dict, tmp.file)
+            with tmp:
+                torch.save(state_dict, tmp.file)
+            os.replace(tmp.name, path)
         except BaseException:
             tmp.close()
-            os.remove(tmp.name)
+            if os.path.exists(tmp.name):
+                os.remove(tmp.name)
             raise
-        tmp.close()
-        os.replace(tmp.name, path)
         # make group/others readable (shared cluster dirs)
         os.chmod(path, os.stat(path).st_mode | stat.S_IRGRP | stat.S_IROTH)
 
@@ -141,12 +150,18 @@ class ModelSaver:
             else score <= self.history[-1][0]
         )
 
-    def save(self, model: nn.Module, score: float, epoch: int = None) -> None:
-        """Save a checkpoint if it ranks among the best ``n_saved`` scores."""
+    def save(self, model: nn.Module | dict, score: float, epoch: int | None = None) -> None:
+        """Save a checkpoint if it ranks among the best ``n_saved`` scores.
+
+        Args:
+            model: Model whose state dict is saved, or a state dict directly.
+            score: Value used to rank checkpoints (interpretation depends on ``mode``).
+            epoch: Optional epoch number included in the filename.
+        """
         if _rank() != 0:
             return
 
-        state_dict = model.state_dict()
+        state_dict = model if isinstance(model, dict) else model.state_dict()
         if self.save_latest:
             self._save(state_dict, self._path("latest"))
 
@@ -154,16 +169,19 @@ class ModelSaver:
             return
 
         new_best = self._is_best(score)
-        # write the new checkpoint BEFORE removing the old one (crash-safe)
+        # write the new checkpoint BEFORE removing evicted ones (crash-safe)
         path = self._scored_path(score, epoch)
         self._save(state_dict, path)
 
-        worst_file = self.history[0][1]
-        if worst_file and os.path.exists(worst_file):
-            os.remove(worst_file)
-
-        self.history[0] = (score, path)
+        # a repeated (score, epoch) reuses the same filename: drop the stale entry
+        self.history = [h for h in self.history if h[1] != path]
+        self.history.append((score, path))
+        # sort worst -> best, then evict beyond n_saved
         self.history.sort(key=lambda x: x[0], reverse=(self.mode == "min"))
+        while len(self.history) > self.n_saved:
+            _, evicted = self.history.pop(0)
+            if evicted and evicted != path and os.path.exists(evicted):
+                os.remove(evicted)
 
         if self.save_best and new_best:
             best_path = self._path("best")

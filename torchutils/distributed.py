@@ -21,7 +21,10 @@ def _rank() -> int:
 
 
 def rank_zero_only(func: F) -> F:
-    """Decorator: run the function only on global rank 0 (no-op elsewhere)."""
+    """Decorator: run the function only on global rank 0 (no-op elsewhere).
+
+    On non-zero ranks the wrapper returns None without calling ``func``.
+    """
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
