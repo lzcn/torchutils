@@ -8,11 +8,9 @@ dynamic = ["version"]
 description = "A bunch of personal utilities for PyTorch"
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "Zhi Lu", email = "zhilu@std.uestc.edu.cn" }]
+authors = [{ name = "Zhi Lu", email = "zhilu@uestc.edu.cn" }]
 requires-python = ">=3.10"
-dependencies = [
-    "torch",
-]
+dependencies = ["torch"]
 
 [project.urls]
 Repository = "https://github.com/lzcn/torchutils"
